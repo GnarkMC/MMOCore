@@ -18,21 +18,8 @@ import org.bukkit.event.entity.EntityRegainHealthEvent;
 import org.bukkit.event.entity.EntityRegainHealthEvent.RegainReason;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryCloseEvent;
-import org.bukkit.event.player.PlayerJoinEvent;
-import org.bukkit.event.player.PlayerQuitEvent;
 
 public class PlayerListener implements Listener {
-
-    /**
-     * Load player data. Event priority is set to LOW as most plugins
-     * do not change their priority which is NORMAL by default. Making
-     * it low is important because MMOCore is a core plugin so other plugins
-     * might rely on its data on startup.
-     */
-    @EventHandler(priority = EventPriority.LOW)
-    public void loadPlayerData(PlayerJoinEvent event) {
-        MMOCore.plugin.dataProvider.getDataManager().setup(event.getPlayer().getUniqueId());
-    }
 
     /**
      * Register custom inventory clicks
@@ -68,16 +55,6 @@ public class PlayerListener implements Listener {
     public void updateCombat(EntityDamageEvent event) {
         if (UtilityMethods.isRealPlayer(event.getEntity()) && MMOCore.plugin.configManager.combatLogDamageCauses.contains(event.getCause()))
             PlayerData.get(event.getEntity().getUniqueId()).getCombat().update();
-    }
-
-    @EventHandler
-    public void saveDataOnQuit(PlayerQuitEvent event) {
-        PlayerData playerData = PlayerData.get(event.getPlayer());
-        /**
-         * We save player health as it won't be accessible anymore when saving the player data (player will be offline).
-         */
-        playerData.setHealth(event.getPlayer().getHealth());
-        MMOCore.plugin.dataProvider.getDataManager().unregisterSafe(playerData);
     }
 
     /**

@@ -1,4 +1,4 @@
-package net.Indyuce.mmocore.manager.data.yaml;
+package net.Indyuce.mmocore.guild.provided;
 
 import java.io.File;
 import java.util.ArrayList;

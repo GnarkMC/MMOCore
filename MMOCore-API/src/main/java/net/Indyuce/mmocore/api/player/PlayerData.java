@@ -4,6 +4,7 @@ import io.lumine.mythic.lib.MythicLib;
 import io.lumine.mythic.lib.api.player.MMOPlayerData;
 import io.lumine.mythic.lib.api.stat.StatInstance;
 import io.lumine.mythic.lib.api.stat.modifier.StatModifier;
+import io.lumine.mythic.lib.data.SynchronizedDataHolder;
 import io.lumine.mythic.lib.player.cooldown.CooldownMap;
 import net.Indyuce.mmocore.MMOCore;
 import net.Indyuce.mmocore.api.ConfigMessage;
@@ -19,6 +20,7 @@ import net.Indyuce.mmocore.api.player.profess.PlayerClass;
 import net.Indyuce.mmocore.api.player.profess.SavedClassInformation;
 import net.Indyuce.mmocore.api.player.profess.Subclass;
 import net.Indyuce.mmocore.api.player.profess.resource.PlayerResource;
+import net.Indyuce.mmocore.manager.data.OfflinePlayerData;
 import net.Indyuce.mmocore.skill.binding.BoundSkillInfo;
 import net.Indyuce.mmocore.api.player.social.FriendRequest;
 import net.Indyuce.mmocore.api.player.stats.PlayerStats;
@@ -68,14 +70,7 @@ import java.util.*;
 import java.util.logging.Level;
 import java.util.stream.Collectors;
 
-public class PlayerData extends OfflinePlayerData implements Closable, ExperienceTableClaimer, ClassDataContainer {
-
-    /**
-     * Corresponds to the MythicLib player data. It is used to keep
-     * track of the Player instance corresponding to that player data,
-     * as well as other things like the last time the player logged in/out
-     */
-    private final MMOPlayerData mmoData;
+public class PlayerData extends SynchronizedDataHolder implements OfflinePlayerData, Closable, ExperienceTableClaimer, ClassDataContainer {
 
     /**
      * Can be null, the {@link #getProfess()} method will return the
@@ -140,16 +135,9 @@ public class PlayerData extends OfflinePlayerData implements Closable, Experienc
     // NON-FINAL player data stuff made public to facilitate field change
     public boolean noCooldown;
 
-    /**
-     * Player data is stored in the data map before it's actually fully loaded
-     * so that external plugins don't necessarily have to listen to the PlayerDataLoadEvent.
-     */
-    private boolean fullyLoaded = false;
-
     public PlayerData(MMOPlayerData mmoData) {
-        super(mmoData.getUniqueId());
+        super(mmoData);
 
-        this.mmoData = mmoData;
         questData = new PlayerQuests(this);
         playerStats = new PlayerStats(this);
     }
@@ -255,7 +243,7 @@ public class PlayerData extends OfflinePlayerData implements Closable, Experienc
     }
 
     public void resetTriggerStats() {
-        for (StatInstance instance : mmoData.getStatMap().getInstances()) {
+        for (StatInstance instance : getMMOPlayerData().getStatMap().getInstances()) {
             Iterator<StatModifier> iter = instance.getModifiers().iterator();
             while (iter.hasNext()) {
                 StatModifier modifier = iter.next();
@@ -459,10 +447,6 @@ public class PlayerData extends OfflinePlayerData implements Closable, Experienc
         if (isCasting()) leaveSkillCasting();
     }
 
-    public MMOPlayerData getMMOPlayerData() {
-        return mmoData;
-    }
-
     public List<UUID> getFriends() {
         return friends;
     }
@@ -473,10 +457,6 @@ public class PlayerData extends OfflinePlayerData implements Closable, Experienc
 
     public PlayerQuests getQuestData() {
         return questData;
-    }
-
-    public Player getPlayer() {
-        return mmoData.getPlayer();
     }
 
     public long getLastActivity(PlayerActivity activity) {
@@ -497,7 +477,7 @@ public class PlayerData extends OfflinePlayerData implements Closable, Experienc
 
     @Override
     public long getLastLogin() {
-        return mmoData.getLastLogActivity();
+        return getMMOPlayerData().getLastLogActivity();
     }
 
     @Override
@@ -592,7 +572,7 @@ public class PlayerData extends OfflinePlayerData implements Closable, Experienc
     }
 
     public boolean isOnline() {
-        return mmoData.isOnline();
+        return getMMOPlayerData().isOnline();
     }
 
     public boolean inGuild() {
@@ -1024,12 +1004,14 @@ public class PlayerData extends OfflinePlayerData implements Closable, Experienc
         stellium = Math.max(0, Math.min(amount, getStats().getStat("MAX_STELLIUM")));
     }
 
+    @Deprecated
     public boolean isFullyLoaded() {
-        return fullyLoaded;
+        return isSynchronized();
     }
 
+    @Deprecated
     public void setFullyLoaded() {
-        this.fullyLoaded = true;
+        markAsSynchronized();
     }
 
     public boolean isCasting() {
@@ -1137,7 +1119,7 @@ public class PlayerData extends OfflinePlayerData implements Closable, Experienc
     }
 
     public CooldownMap getCooldownMap() {
-        return mmoData.getCooldownMap();
+        return getMMOPlayerData().getCooldownMap();
     }
 
     public void setClass(@Nullable PlayerClass profess) {
@@ -1230,12 +1212,12 @@ public class PlayerData extends OfflinePlayerData implements Closable, Experienc
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         PlayerData that = (PlayerData) o;
-        return getUniqueId().equals(that.mmoData.getUniqueId());
+        return getUniqueId().equals(that.getUniqueId());
     }
 
     @Override
     public int hashCode() {
-        return mmoData.hashCode();
+        return getMMOPlayerData().hashCode();
     }
 
     public static PlayerData get(OfflinePlayer player) {

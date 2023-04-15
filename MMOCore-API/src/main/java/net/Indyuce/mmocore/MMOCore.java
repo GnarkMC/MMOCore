@@ -2,6 +2,7 @@ package net.Indyuce.mmocore;
 
 import io.lumine.mythic.lib.MythicLib;
 import io.lumine.mythic.lib.UtilityMethods;
+import io.lumine.mythic.lib.data.sql.SQLDataSource;
 import io.lumine.mythic.lib.metrics.bukkit.Metrics;
 import io.lumine.mythic.lib.version.SpigotPlugin;
 import net.Indyuce.mmocore.api.player.PlayerData;
@@ -30,8 +31,11 @@ import net.Indyuce.mmocore.guild.provided.Guild;
 import net.Indyuce.mmocore.guild.provided.MMOCoreGuildModule;
 import net.Indyuce.mmocore.manager.*;
 import net.Indyuce.mmocore.manager.data.DataProvider;
-import net.Indyuce.mmocore.manager.data.mysql.MySQLDataProvider;
-import net.Indyuce.mmocore.manager.data.yaml.YAMLDataProvider;
+import net.Indyuce.mmocore.manager.data.GuildDataManager;
+import net.Indyuce.mmocore.manager.data.LegacyDataProvider;
+import net.Indyuce.mmocore.manager.data.PlayerDataManager;
+import net.Indyuce.mmocore.manager.data.sql.SQLDataHandler;
+import net.Indyuce.mmocore.guild.provided.YAMLGuildDataManager;
 import net.Indyuce.mmocore.manager.profession.*;
 import net.Indyuce.mmocore.manager.social.BoosterManager;
 import net.Indyuce.mmocore.manager.social.PartyManager;
@@ -48,6 +52,7 @@ import net.Indyuce.mmocore.skill.cast.SkillCastingMode;
 import org.apache.commons.lang.Validate;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
+import org.bukkit.event.EventPriority;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.jetbrains.annotations.NotNull;
@@ -76,6 +81,10 @@ public class MMOCore extends JavaPlugin {
     public final RestrictionManager restrictionManager = new RestrictionManager();
     public final SkillTreeManager skillTreeManager = new SkillTreeManager();
     public final StatManager statManager = new StatManager();
+    public final GuildDataManager nativeGuildManager = new YAMLGuildDataManager();
+    public final PlayerDataManager playerDataManager = new PlayerDataManager(this);
+    @Deprecated
+    public final DataProvider dataProvider = new LegacyDataProvider();
 
     // Profession managers
     public final CustomBlockManager mineManager = new CustomBlockManager();
@@ -89,7 +98,6 @@ public class MMOCore extends JavaPlugin {
     public VaultEconomy economy;
     public RegionHandler regionHandler = new DefaultRegionHandler();
     public PlaceholderParser placeholderParser = new DefaultParser();
-    public DataProvider dataProvider = new YAMLDataProvider();
 
     // Modules
     @NotNull
@@ -140,8 +148,10 @@ public class MMOCore extends JavaPlugin {
             getLogger().warning("(Your config version: '" + configVersion + "' | Expected config version: '" + defConfigVersion + "')");
         }
 
-        if (getConfig().isConfigurationSection("mysql") && getConfig().getBoolean("mysql.enabled"))
-            dataProvider = new MySQLDataProvider(getConfig());
+        if (getConfig().isConfigurationSection("mysql") && getConfig().getBoolean("mysql.enabled")) {
+            final SQLDataSource dataSource = new SQLDataSource(this);
+            playerDataManager.setDataHandler(new SQLDataHandler(dataSource));
+        }
 
         if (getConfig().isConfigurationSection("default-playerdata"))
             dataProvider.getDataManager().loadDefaultData(getConfig().getConfigurationSection("default-playerdata"));
@@ -237,6 +247,7 @@ public class MMOCore extends JavaPlugin {
         try {
             Class.forName("net.Indyuce.mmocore.MMOCoreBukkit").getConstructor(MMOCore.class).newInstance(this);
         } catch (Throwable exception) {
+            exception.printStackTrace();
             throw new RuntimeException("Cannot run an API build on Spigot!");
         }
 
@@ -245,7 +256,8 @@ public class MMOCore extends JavaPlugin {
          * that after registering all the professses otherwise the player datas can't
          * recognize what profess the player has and professes will be lost
          */
-        Bukkit.getOnlinePlayers().forEach(player -> dataProvider.getDataManager().setup(player.getUniqueId()));
+        playerDataManager.setupAll();
+        playerDataManager.registerEvents(EventPriority.NORMAL);
 
         // load guild data after loading player data
         dataProvider.getGuildManager().load();
@@ -258,15 +270,17 @@ public class MMOCore extends JavaPlugin {
         getCommand("mmocore").setExecutor(mmoCoreCommand);
         getCommand("mmocore").setTabCompleter(mmoCoreCommand);
 
-        if (getConfig().getBoolean("auto-save.enabled")) {
+        if (getConfig().getBoolean("auto-save.enabled"))
+
+        {
             int autosave = getConfig().getInt("auto-save.interval") * 20;
             new BukkitRunnable() {
                 public void run() {
 
                     // Save player data
                     for (PlayerData data : PlayerData.getAll())
-                        if (data.isFullyLoaded())
-                            dataProvider.getDataManager().saveData(data, false);
+                        if (data.isSynchronized())
+                            dataProvider.getDataManager().getDataHandler().saveData(data, false);
 
                     // Save guild info
                     for (Guild guild : dataProvider.getGuildManager().getAll())
@@ -288,11 +302,11 @@ public class MMOCore extends JavaPlugin {
 
         // Save player data
         for (PlayerData data : PlayerData.getAll())
-            if (data.isFullyLoaded()) {
+            if (data.isSynchronized()) {
                 data.close();
-                //Saves player health before saveData as the player will be considered offline into it if it is async.
+                // Saves player health before saveData as the player will be considered offline into it if it is async.
                 data.setHealth(data.getPlayer().getHealth());
-                dataProvider.getDataManager().saveData(data, true);
+                dataProvider.getDataManager().getDataHandler().saveData(data, true);
             }
 
         // Save guild info
@@ -300,8 +314,7 @@ public class MMOCore extends JavaPlugin {
             dataProvider.getGuildManager().save(guild);
 
         // Close MySQL data provider (memory leaks)
-        if (dataProvider instanceof MySQLDataProvider)
-            ((MySQLDataProvider) dataProvider).close();
+        playerDataManager.getDataHandler().close();
 
         // Reset active blocks
         mineManager.resetRemainingBlocks();

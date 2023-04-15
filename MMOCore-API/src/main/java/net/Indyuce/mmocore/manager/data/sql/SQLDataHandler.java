@@ -1,42 +1,100 @@
-package net.Indyuce.mmocore.manager.data.mysql;
+package net.Indyuce.mmocore.manager.data.sql;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import io.lumine.mythic.lib.UtilityMethods;
+import io.lumine.mythic.lib.data.sql.SQLDataSource;
+import io.lumine.mythic.lib.data.sql.SQLSynchronizedDataHandler;
 import net.Indyuce.mmocore.MMOCore;
-import net.Indyuce.mmocore.api.player.OfflinePlayerData;
+import net.Indyuce.mmocore.manager.data.OfflinePlayerData;
 import net.Indyuce.mmocore.api.player.PlayerData;
 import net.Indyuce.mmocore.api.player.profess.PlayerClass;
 import net.Indyuce.mmocore.api.player.profess.SavedClassInformation;
-import net.Indyuce.mmocore.manager.data.PlayerDataManager;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.sql.SQLException;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
-public class MySQLPlayerDataManager extends PlayerDataManager {
-    private final MySQLDataProvider provider;
-
-    public MySQLPlayerDataManager(MySQLDataProvider provider) {
-        this.provider = provider;
+public class SQLDataHandler extends SQLSynchronizedDataHandler<PlayerData, OfflinePlayerData, MMOCoreDataSynchronizer> {
+    public SQLDataHandler(SQLDataSource dataSource) {
+        super(dataSource);
     }
 
-    public MySQLDataProvider getProvider() {
-        return provider;
+    private static final String[] NEW_COLUMNS = new String[]{
+            "times_claimed", "LONGTEXT",
+            "is_saved", "TINYINT",
+            "skill_reallocation_points", "INT(11)",
+            "skill_tree_reallocation_points", "INT(11)",
+            "skill_tree_points", "LONGTEXT",
+            "skill_tree_levels", "LONGTEXT",
+            "unlocked_items", "LONGTEXT",
+            "health", "FLOAT",
+            "mana", "FLOAT",
+            "stamina", "FLOAT",
+            "stellium", "FLOAT"};
+
+    @Override
+    public void setup() {
+
+        // Fully create table
+        getDataSource().executeUpdateAsync("CREATE TABLE IF NOT EXISTS mmocore_playerdata(uuid VARCHAR(36)," +
+                "class_points INT(11) DEFAULT 0," +
+                "skill_points INT(11) DEFAULT 0," +
+                "attribute_points INT(11) DEFAULT 0," +
+                "attribute_realloc_points INT(11) DEFAULT 0," +
+                "skill_reallocation_points INT(11) DEFAULT 0," +
+                "skill_tree_reallocation_points INT(11) DEFAULT 0," +
+                "skill_tree_points LONGTEXT," +
+                "skill_tree_levels LONGTEXT," +
+                "level INT(11) DEFAULT 1," +
+                "experience INT(11) DEFAULT 0," +
+                "class VARCHAR(20),guild VARCHAR(20)," +
+                "last_login LONG," +
+                "attributes LONGTEXT," +
+                "professions LONGTEXT," +
+                "times_claimed LONGTEXT," +
+                "quests LONGTEXT," +
+                "waypoints LONGTEXT," +
+                "friends LONGTEXT," +
+                "skills LONGTEXT," +
+                "bound_skills LONGTEXT," +
+                "health FLOAT," +
+                "mana FLOAT," +
+                "stamina FLOAT," +
+                "stellium FLOAT," +
+                "unlocked_items LONGTEXT," +
+                "class_info LONGTEXT," +
+                "is_saved TINYINT," +
+                "PRIMARY KEY (uuid));");
+
+        // Add columns that might not be here by default
+        for (int i = 0; i < NEW_COLUMNS.length; i += 2) {
+            final String columnName = NEW_COLUMNS[i];
+            final String dataType = NEW_COLUMNS[i + 1];
+            getDataSource().getResultAsync("SELECT * FROM information_schema.COLUMNS WHERE TABLE_NAME = 'mmocore_playerdata' AND COLUMN_NAME = '" + columnName + "'", result -> {
+                try {
+                    if (!result.next())
+                        getDataSource().executeUpdate("ALTER TABLE mmocore_playerdata ADD COLUMN " + columnName + " " + dataType);
+                } catch (SQLException exception) {
+                    exception.printStackTrace();
+                }
+            });
+        }
     }
 
     @Override
-    public void loadData(PlayerData data) {
-        new MMOCoreDataSynchronizer(this, data).fetch();
+    public MMOCoreDataSynchronizer newDataSynchronizer(PlayerData playerData) {
+        return new MMOCoreDataSynchronizer(this, playerData);
     }
 
     @Override
-    public void saveData(PlayerData data, boolean logout) {
+    public void saveData(PlayerData data, boolean autosave) {
         UtilityMethods.debug(MMOCore.plugin, "SQL", "Saving data for: '" + data.getUniqueId() + "'...");
 
-        final PlayerDataTableUpdater updater = new PlayerDataTableUpdater(provider, data);
+        final PlayerDataTableUpdater updater = new PlayerDataTableUpdater(getDataSource(), data);
         updater.addData("class_points", data.getClassPoints());
         updater.addData("skill_points", data.getSkillPoints());
         updater.addData("skill_reallocation_points", data.getSkillReallocationPoints());
@@ -44,7 +102,7 @@ public class MySQLPlayerDataManager extends PlayerDataManager {
         updater.addData("attribute_realloc_points", data.getAttributeReallocationPoints());
         updater.addJSONArray("waypoints", data.getWaypoints());
         updater.addData("skill_tree_reallocation_points", data.getSkillTreeReallocationPoints());
-        updater.addData("health",data.getHealth());
+        updater.addData("health", data.getHealth());
         updater.addData("mana", data.getMana());
         updater.addData("stellium", data.getStellium());
         updater.addData("stamina", data.getStamina());
@@ -65,10 +123,10 @@ public class MySQLPlayerDataManager extends PlayerDataManager {
         updater.addData("quests", data.getQuestData().toJsonString());
         updater.addData("class_info", createClassInfoData(data).toString());
         updater.addJSONArray("unlocked_items", data.getUnlockedItems());
-        if (logout)
+        if (!autosave)
             updater.addData("is_saved", 1);
 
-        updater.executeRequest(logout);
+        updater.executeRequest(autosave);
 
         UtilityMethods.debug(MMOCore.plugin, "SQL", "Saved data for: " + data.getUniqueId());
         UtilityMethods.debug(MMOCore.plugin, "SQL", String.format("{ class: %s, level: %d }", data.getProfess().getId(), data.getLevel()));
@@ -132,17 +190,20 @@ public class MySQLPlayerDataManager extends PlayerDataManager {
     @NotNull
     @Override
     public OfflinePlayerData getOffline(UUID uuid) {
-        return isLoaded(uuid) ? get(uuid) : new MySQLOfflinePlayerData(uuid);
+        return new MySQLOfflinePlayerData(uuid);
     }
 
-    public class MySQLOfflinePlayerData extends OfflinePlayerData {
+    @Deprecated
+    public class MySQLOfflinePlayerData implements OfflinePlayerData {
+        private final UUID uuid;
         private int level;
         private long lastLogin;
         private PlayerClass profess;
         private List<UUID> friends;
 
+        @Deprecated
         public MySQLOfflinePlayerData(UUID uuid) {
-            super(uuid);
+            this.uuid = uuid;
 /*
             provider.getResult("SELECT * FROM mmocore_playerdata WHERE uuid = '" + uuid + "';", (result) -> {
                 try {
@@ -166,6 +227,12 @@ public class MySQLPlayerDataManager extends PlayerDataManager {
                     e.printStackTrace();
                 }
             }); */
+        }
+
+        @Override
+        @NotNull
+        public  UUID getUniqueId() {
+            return uuid;
         }
 
         @Override
