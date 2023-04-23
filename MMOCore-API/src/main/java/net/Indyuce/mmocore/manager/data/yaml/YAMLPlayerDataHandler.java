@@ -74,7 +74,8 @@ public class YAMLPlayerDataHandler extends YAMLSynchronizedDataHandler<PlayerDat
         if (config.isConfigurationSection("bound-skills"))
             for (String key : config.getConfigurationSection("bound-skills").getKeys(false)) {
                 ClassSkill skill = data.getProfess().getSkill(config.getString("bound-skills." + key));
-                data.bindSkill(Integer.parseInt(key), skill);
+                if (skill != null)
+                    data.bindSkill(Integer.parseInt(key), skill);
             }
 
         for (String key : MMOCore.plugin.skillTreeManager.getAll().
