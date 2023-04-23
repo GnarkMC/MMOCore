@@ -21,6 +21,7 @@ import net.Indyuce.mmocore.api.player.profess.SavedClassInformation;
 import net.Indyuce.mmocore.api.player.profess.Subclass;
 import net.Indyuce.mmocore.api.player.profess.resource.PlayerResource;
 import net.Indyuce.mmocore.manager.data.OfflinePlayerData;
+import net.Indyuce.mmocore.api.quest.trigger.Trigger;
 import net.Indyuce.mmocore.skill.binding.BoundSkillInfo;
 import net.Indyuce.mmocore.api.player.social.FriendRequest;
 import net.Indyuce.mmocore.api.player.stats.PlayerStats;
@@ -151,14 +152,15 @@ public class PlayerData extends SynchronizedDataHolder implements OfflinePlayerD
      * /mmocore reload
      */
     public void reload() {
-
         try {
             profess = profess == null ? null : MMOCore.plugin.classManager.get(profess.getId());
             getStats().updateStats();
         } catch (NullPointerException exception) {
             MMOCore.log(Level.SEVERE, "[Userdata] Could not find class " + getProfess().getId() + " while refreshing player data.");
         }
-
+        //We remove all the stats and buffs associated to triggers.
+        getMMOPlayerData().getStatMap().getInstances().forEach(statInstance -> statInstance.removeIf(key ->key.startsWith(Trigger.TRIGGER_PREFIX)));
+        getMMOPlayerData().getSkillModifierMap().getInstances().forEach(skillModifierInstance -> skillModifierInstance.removeIf(key ->key.startsWith(Trigger.TRIGGER_PREFIX)));
         final Iterator<Map.Entry<Integer, BoundSkillInfo>> ite = boundSkills.entrySet().iterator();
         while (ite.hasNext())
             try {
@@ -167,10 +169,9 @@ public class PlayerData extends SynchronizedDataHolder implements OfflinePlayerD
                 final String skillId = entry.getValue().getClassSkill().getSkill().getHandler().getId();
                 final @Nullable ClassSkill classSkill = getProfess().getSkill(skillId);
                 Validate.notNull(skillSlot, "Could not find skill slot n" + entry.getKey());
-                Validate.notNull(skillSlot, "Could not find skill with ID '" + skillId + "'");
-
-                entry.getValue().close();
-                boundSkills.put(entry.getKey(), new BoundSkillInfo(skillSlot, classSkill, this));
+                Validate.notNull(classSkill, "Could not find skill with ID '" + skillId + "'");
+                unbindSkill(entry.getKey());
+                bindSkill(entry.getKey(), classSkill);
             } catch (Exception exception) {
                 MMOCore.plugin.getLogger().log(Level.WARNING, "Could not reload data of '" + getPlayer().getName() + "': " + exception.getMessage());
             }
