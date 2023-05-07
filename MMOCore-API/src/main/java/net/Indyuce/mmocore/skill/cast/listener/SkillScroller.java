@@ -8,17 +8,19 @@ import net.Indyuce.mmocore.api.SoundObject;
 import net.Indyuce.mmocore.api.event.PlayerKeyPressEvent;
 import net.Indyuce.mmocore.api.player.PlayerData;
 import net.Indyuce.mmocore.skill.cast.PlayerKey;
-import net.Indyuce.mmocore.skill.cast.SkillCastingHandler;
+import net.Indyuce.mmocore.skill.cast.SkillCastingInstance;
+import net.Indyuce.mmocore.skill.cast.SkillCastingListener;
+import net.Indyuce.mmocore.skill.cast.SkillCastingMode;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
-import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerItemHeldEvent;
+import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.Nullable;
 import java.util.Objects;
 
-public class SkillScroller implements Listener {
+public class SkillScroller implements SkillCastingListener {
 
     /**
      * Key players need to press to start casting
@@ -40,6 +42,16 @@ public class SkillScroller implements Listener {
         castKey = PlayerKey.valueOf(UtilityMethods.enumName(Objects.requireNonNull(config.getString("cast-key"), "Could not find cast key")));
     }
 
+    @Override
+    public SkillCastingInstance newInstance(@NotNull PlayerData player) {
+        return new CustomSkillCastingInstance(player);
+    }
+
+    @Override
+    public SkillCastingMode getCastingMode() {
+        return SkillCastingMode.SKILL_SCROLLER;
+    }
+
     @EventHandler
     public void whenPressingKey(PlayerKeyPressEvent event) {
         PlayerData playerData = event.getData();
@@ -51,36 +63,30 @@ public class SkillScroller implements Listener {
             if (playerData.isCasting()) {
 
                 // Cancel event if necessary
-                if (event.getPressed().shouldCancelEvent())
-                    event.setCancelled(true);
+                if (event.getPressed().shouldCancelEvent()) event.setCancelled(true);
 
                 playerData.leaveSkillCasting();
-                if (leaveSound != null)
-                    leaveSound.playTo(player);
+                if (leaveSound != null) leaveSound.playTo(player);
                 return;
             }
 
             // Check if there are skills bound
-            if (playerData.getBoundSkills().isEmpty())
-                return;
+            if (playerData.getBoundSkills().isEmpty()) return;
 
             // Cancel event if necessary
-            if (event.getPressed().shouldCancelEvent())
-                event.setCancelled(true);
+            if (event.getPressed().shouldCancelEvent()) event.setCancelled(true);
 
             // Enter casting mode
-            playerData.setSkillCasting(new CustomSkillCastingHandler(playerData));
-            if (enterSound != null)
-                enterSound.playTo(player);
+            playerData.setSkillCasting(new CustomSkillCastingInstance(playerData));
+            if (enterSound != null) enterSound.playTo(player);
         }
 
         if (event.getPressed() == castKey && playerData.isCasting()) {
 
             // Cancel event if necessary
-            if (event.getPressed().shouldCancelEvent())
-                event.setCancelled(true);
+            if (event.getPressed().shouldCancelEvent()) event.setCancelled(true);
 
-            CustomSkillCastingHandler casting = (CustomSkillCastingHandler) playerData.getSkillCasting();
+            CustomSkillCastingInstance casting = (CustomSkillCastingInstance) playerData.getSkillCasting();
             PlayerMetadata caster = playerData.getMMOPlayerData().getStatMap().cache(EquipmentSlot.MAIN_HAND);
             playerData.getBoundSkill(casting.index).toCastable(playerData).cast(new TriggerMetadata(caster, null, null));
         }
@@ -89,8 +95,7 @@ public class SkillScroller implements Listener {
     @EventHandler
     public void onScroll(PlayerItemHeldEvent event) {
         PlayerData playerData = PlayerData.get(event.getPlayer());
-        if (!playerData.isCasting())
-            return;
+        if (!playerData.isCasting()) return;
 
         if (playerData.getBoundSkills().isEmpty()) {
             playerData.leaveSkillCasting();
@@ -104,29 +109,26 @@ public class SkillScroller implements Listener {
         int change = Math.abs(dist1) < Math.abs(dist2) ? (Math.abs(dist1) < Math.abs(dist3) ? dist1 : dist3) : (Math.abs(dist3) < Math.abs(dist2) ? dist3 : dist2);
 
         // Scroll trough items
-        CustomSkillCastingHandler casting = (CustomSkillCastingHandler) playerData.getSkillCasting();
+        CustomSkillCastingInstance casting = (CustomSkillCastingInstance) playerData.getSkillCasting();
         casting.index = mod(casting.index + change, playerData.getBoundSkills().size());
         casting.onTick();
 
-        if (changeSound != null)
-            changeSound.playTo(event.getPlayer());
+        if (changeSound != null) changeSound.playTo(event.getPlayer());
     }
 
     private int mod(int x, int n) {
 
-        while (x < 0)
-            x += n;
+        while (x < 0) x += n;
 
-        while (x >= n)
-            x -= n;
+        while (x >= n) x -= n;
 
         return x;
     }
 
-    private class CustomSkillCastingHandler extends SkillCastingHandler {
+    public class CustomSkillCastingInstance extends SkillCastingInstance {
         private int index = 0;
 
-        CustomSkillCastingHandler(PlayerData caster) {
+        CustomSkillCastingInstance(PlayerData caster) {
             super(caster, 10);
         }
 

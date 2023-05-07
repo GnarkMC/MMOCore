@@ -11,10 +11,7 @@ import net.Indyuce.mmocore.api.SoundObject;
 import net.Indyuce.mmocore.api.event.PlayerKeyPressEvent;
 import net.Indyuce.mmocore.api.player.PlayerData;
 import net.Indyuce.mmocore.gui.api.item.Placeholders;
-import net.Indyuce.mmocore.skill.cast.ComboMap;
-import net.Indyuce.mmocore.skill.cast.KeyCombo;
-import net.Indyuce.mmocore.skill.cast.PlayerKey;
-import net.Indyuce.mmocore.skill.cast.SkillCastingHandler;
+import net.Indyuce.mmocore.skill.cast.*;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -24,7 +21,7 @@ import org.jetbrains.annotations.NotNull;
 import javax.annotation.Nullable;
 import java.util.*;
 
-public class KeyCombos implements Listener {
+public class KeyCombos implements SkillCastingListener {
 
     private final ComboMap comboMap;
 
@@ -56,8 +53,17 @@ public class KeyCombos implements Listener {
         failComboSound = config.contains("sound.fail-combo") ? new SoundObject(config.getConfigurationSection("sound.fail-combo")) : null;
 
         // Find initializer key
-        initializerKey = config.contains("initializer-key") ? PlayerKey.valueOf(UtilityMethods.enumName(Objects.requireNonNull(
-                config.getString("initializer-key"), "Could not find initializer key"))) : null;
+        initializerKey = config.contains("initializer-key") ? PlayerKey.valueOf(UtilityMethods.enumName(Objects.requireNonNull(config.getString("initializer-key"), "Could not find initializer key"))) : null;
+    }
+
+    @Override
+    public SkillCastingInstance newInstance(@NotNull PlayerData player) {
+        return new CustomSkillCastingInstance(player);
+    }
+
+    @Override
+    public SkillCastingMode getCastingMode() {
+        return SkillCastingMode.KEY_COMBOS;
     }
 
     @EventHandler
@@ -70,46 +76,39 @@ public class KeyCombos implements Listener {
             if (event.getPressed() == initializerKey) {
 
                 // Cancel event if necessary
-                if (event.getPressed().shouldCancelEvent())
-                    event.setCancelled(true);
+                if (event.getPressed().shouldCancelEvent()) event.setCancelled(true);
 
                 // Start combo
-                playerData.setSkillCasting(new CustomSkillCastingHandler(playerData));
-                if (beginComboSound != null)
-                    beginComboSound.playTo(player);
+                playerData.setSkillCasting(new CustomSkillCastingInstance(playerData));
+                if (beginComboSound != null) beginComboSound.playTo(player);
             }
             return;
         }
 
-        @Nullable CustomSkillCastingHandler casting = null;
+        @Nullable CustomSkillCastingInstance casting = null;
 
         // Player is already casting
-        if (event.getData().isCasting())
-            casting = (CustomSkillCastingHandler) playerData.getSkillCasting();
+        if (event.getData().isCasting()) casting = (CustomSkillCastingInstance) playerData.getSkillCasting();
 
             // Start combo when there is NO initializer key
         else {
             final @NotNull ComboMap comboMap = Objects.requireNonNullElse(playerData.getProfess().getComboMap(), this.comboMap);
             if (comboMap.isComboStart(event.getPressed())) {
-                casting = new CustomSkillCastingHandler(playerData);
+                casting = new CustomSkillCastingInstance(playerData);
                 playerData.setSkillCasting(casting);
-                if (beginComboSound != null)
-                    beginComboSound.playTo(player);
+                if (beginComboSound != null) beginComboSound.playTo(player);
             }
         }
 
-        if (casting == null)
-            return;
+        if (casting == null) return;
 
         // Adding pressed key
         casting.current.registerKey(event.getPressed());
         casting.onTick();
-        if (comboClickSound != null)
-            comboClickSound.playTo(player);
+        if (comboClickSound != null) comboClickSound.playTo(player);
 
         // Cancel event if necessary
-        if (event.getPressed().shouldCancelEvent())
-            event.setCancelled(true);
+        if (event.getPressed().shouldCancelEvent()) event.setCancelled(true);
 
         // Hash current combo and check
         if (casting.combos.getCombos().containsKey(casting.current)) {
@@ -127,8 +126,7 @@ public class KeyCombos implements Listener {
         // Check if current combo is too large
         if (casting.current.countKeys() >= casting.combos.getLongest()) {
             playerData.leaveSkillCasting();
-            if (failComboSound != null)
-                failComboSound.playTo(player);
+            if (failComboSound != null) failComboSound.playTo(player);
         }
     }
 
@@ -157,13 +155,14 @@ public class KeyCombos implements Listener {
     }
 
     /**
-     * Loads the player current combos & the combos applicable to the player (combos defined in its class or the default combos of the config.yml)
+     * Loads the player current combos & the combos applicable to the player
+     * (combos defined in its class or the default combos of the config.yml)
      */
-    private class CustomSkillCastingHandler extends SkillCastingHandler {
+    public class CustomSkillCastingInstance extends SkillCastingInstance {
         private final KeyCombo current = new KeyCombo();
         private final ComboMap combos;
 
-        CustomSkillCastingHandler(PlayerData caster) {
+        CustomSkillCastingInstance(PlayerData caster) {
             super(caster, 10);
 
             combos = Objects.requireNonNullElse(caster.getProfess().getComboMap(), comboMap);
@@ -171,11 +170,9 @@ public class KeyCombos implements Listener {
 
         @Override
         public void onTick() {
-            if (actionBarOptions != null)
-                if (actionBarOptions.isSubtitle)
-                    getCaster().getPlayer().sendTitle(" ", actionBarOptions.format(this), 0, 20, 0);
-                else
-                    getCaster().displayActionBar(actionBarOptions.format(this));
+            if (actionBarOptions != null) if (actionBarOptions.isSubtitle)
+                getCaster().getPlayer().sendTitle(" ", actionBarOptions.format(this), 0, 20, 0);
+            else getCaster().displayActionBar(actionBarOptions.format(this));
         }
     }
 
@@ -199,7 +196,7 @@ public class KeyCombos implements Listener {
                 keyNames.put(key, Objects.requireNonNull(config.getString("key-name." + key.name()), "Could not find translation for key " + key.name()));
         }
 
-        public String format(CustomSkillCastingHandler casting) {
+        public String format(CustomSkillCastingInstance casting) {
             StringBuilder builder = new StringBuilder();
             Placeholders holders = MMOCore.plugin.actionBarManager.getActionBarPlaceholders(casting.getCaster());
 

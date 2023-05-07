@@ -46,7 +46,8 @@ import net.Indyuce.mmocore.player.Unlockable;
 import net.Indyuce.mmocore.skill.ClassSkill;
 import net.Indyuce.mmocore.skill.RegisteredSkill;
 import net.Indyuce.mmocore.skill.binding.SkillSlot;
-import net.Indyuce.mmocore.skill.cast.SkillCastingHandler;
+import net.Indyuce.mmocore.skill.cast.SkillCastingInstance;
+import net.Indyuce.mmocore.skill.cast.SkillCastingMode;
 import net.Indyuce.mmocore.skilltree.IntegerCoordinates;
 import net.Indyuce.mmocore.skilltree.NodeStatus;
 import net.Indyuce.mmocore.skilltree.SkillTreeNode;
@@ -88,7 +89,7 @@ public class PlayerData extends SynchronizedDataHolder implements OfflinePlayerD
      */
     private double health;
     private Guild guild;
-    private SkillCastingHandler skillCasting;
+    private SkillCastingInstance skillCasting;
     private final PlayerQuests questData;
     private final PlayerStats playerStats;
     private final List<UUID> friends = new ArrayList<>();
@@ -99,7 +100,6 @@ public class PlayerData extends SynchronizedDataHolder implements OfflinePlayerD
     @Deprecated
     private final Set<String> waypoints = new HashSet<>();
     private final Map<String, Integer> skills = new HashMap<>();
-    // TODO change it to an array....... Map<Integer, BoundSkillInfo> is just BoundSkillInfo[]
     private final Map<Integer, BoundSkillInfo> boundSkills = new HashMap<>();
     private final PlayerProfessions collectSkills = new PlayerProfessions(this);
     private final PlayerAttributes attributes = new PlayerAttributes(this);
@@ -1019,13 +1019,21 @@ public class PlayerData extends SynchronizedDataHolder implements OfflinePlayerD
         return skillCasting != null;
     }
 
-    public void setSkillCasting(SkillCastingHandler skillCasting) {
+    public void setSkillCasting(@NotNull SkillCastingInstance skillCasting) {
         Validate.isTrue(!isCasting(), "Player already in casting mode");
         this.skillCasting = skillCasting;
     }
 
+    /**
+     * API Method
+     */
+    public void setSkillCasting() {
+        Validate.isTrue(!isCasting(), "Player already in casting mode");
+        setSkillCasting(SkillCastingMode.getCurrent().newInstance(this));
+    }
+
     @NotNull
-    public SkillCastingHandler getSkillCasting() {
+    public SkillCastingInstance getSkillCasting() {
         return Objects.requireNonNull(skillCasting, "Player not in casting mode");
     }
 

@@ -10,8 +10,9 @@ import net.Indyuce.mmocore.api.event.PlayerKeyPressEvent;
 import net.Indyuce.mmocore.api.player.PlayerData;
 import net.Indyuce.mmocore.skill.ClassSkill;
 import net.Indyuce.mmocore.skill.cast.PlayerKey;
-import net.Indyuce.mmocore.skill.cast.SkillCastingHandler;
-import org.bukkit.Bukkit;
+import net.Indyuce.mmocore.skill.cast.SkillCastingInstance;
+import net.Indyuce.mmocore.skill.cast.SkillCastingListener;
+import net.Indyuce.mmocore.skill.cast.SkillCastingMode;
 import org.bukkit.GameMode;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.Player;
@@ -19,16 +20,27 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerItemHeldEvent;
 import org.bukkit.scheduler.BukkitRunnable;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.Objects;
 
-public class SkillBar implements Listener {
+public class SkillBar implements SkillCastingListener {
     private final PlayerKey mainKey;
     private final boolean disableSneak;
 
     public SkillBar(ConfigurationSection config) {
         mainKey = PlayerKey.valueOf(UtilityMethods.enumName(Objects.requireNonNull(config.getString("open"), "Could not find open key")));
         disableSneak = config.getBoolean("disable-sneak");
+    }
+
+    @Override
+    public SkillCastingInstance newInstance(@NotNull PlayerData player) {
+        return new CustomSkillCastingInstance(player);
+    }
+
+    @Override
+    public SkillCastingMode getCastingMode() {
+        return SkillCastingMode.SKILL_BAR;
     }
 
     @EventHandler
@@ -44,14 +56,13 @@ public class SkillBar implements Listener {
 
         // Enter spell casting
         final PlayerData playerData = event.getData();
-        if (player.getGameMode() != GameMode.SPECTATOR && (MMOCore.plugin.configManager.canCreativeCast || player.getGameMode() != GameMode.CREATIVE) && !playerData.isCasting() && !playerData.getBoundSkills()
-                .isEmpty()) {
-            playerData.setSkillCasting(new CustomSkillCastingHandler(playerData));
+        if (player.getGameMode() != GameMode.SPECTATOR && (MMOCore.plugin.configManager.canCreativeCast || player.getGameMode() != GameMode.CREATIVE) && !playerData.isCasting() && !playerData.getBoundSkills().isEmpty()) {
+            playerData.setSkillCasting(new CustomSkillCastingInstance(playerData));
             MMOCore.plugin.soundManager.getSound(SoundEvent.SPELL_CAST_BEGIN).playTo(player);
         }
     }
 
-    private class CustomSkillCastingHandler extends SkillCastingHandler {
+    public class CustomSkillCastingInstance extends SkillCastingInstance {
         private final String ready = MMOCore.plugin.configManager.getSimpleMessage("casting.action-bar.ready").message();
         private final String onCooldown = MMOCore.plugin.configManager.getSimpleMessage("casting.action-bar.on-cooldown").message();
         private final String noMana = MMOCore.plugin.configManager.getSimpleMessage("casting.action-bar.no-mana").message();
@@ -60,7 +71,7 @@ public class SkillBar implements Listener {
 
         private int j;
 
-        CustomSkillCastingHandler(PlayerData playerData) {
+        CustomSkillCastingInstance(PlayerData playerData) {
             super(playerData, 1);
         }
 
@@ -119,11 +130,7 @@ public class SkillBar implements Listener {
             if (!data.isOnline()) return str.toString();
             for (int slot : data.mapBoundSkills().keySet()) {
                 ClassSkill skill = data.getBoundSkill(slot);
-                str.append(str.isEmpty() ? "" : split).append((onCooldown(data, skill) ? onCooldown.replace("{cooldown}",
-                        String.valueOf(data.getCooldownMap().getInfo(skill).getRemaining() / 1000)) : noMana(data, skill) ? noMana : (noStamina(
-                        data, skill) ? noStamina : ready)).replace("{index}",
-                                String.valueOf(slot + (data.getPlayer().getInventory().getHeldItemSlot() < slot ? 1 : 0)))
-                        .replace("{skill}", data.getBoundSkill(slot).getSkill().getName()));
+                str.append(str.isEmpty() ? "" : split).append((onCooldown(data, skill) ? onCooldown.replace("{cooldown}", String.valueOf(data.getCooldownMap().getInfo(skill).getRemaining() / 1000)) : noMana(data, skill) ? noMana : (noStamina(data, skill) ? noStamina : ready)).replace("{index}", String.valueOf(slot + (data.getPlayer().getInventory().getHeldItemSlot() < slot ? 1 : 0))).replace("{skill}", data.getBoundSkill(slot).getSkill().getName()));
             }
             return MMOCore.plugin.placeholderParser.parse(data.getPlayer(), str.toString());
         }
@@ -142,8 +149,7 @@ public class SkillBar implements Listener {
         }
 
         private boolean noStamina(PlayerData data, ClassSkill skill) {
-            return skill.getSkill().hasModifier("stamina") && skill.getModifier("stamina",
-                    data.getSkillLevel(skill.getSkill())) > data.getStamina();
+            return skill.getSkill().hasModifier("stamina") && skill.getModifier("stamina", data.getSkillLevel(skill.getSkill())) > data.getStamina();
         }
 
         @Override

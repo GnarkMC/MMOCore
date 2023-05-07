@@ -110,6 +110,7 @@ public class MMOCore extends JavaPlugin {
 
     @Override
     public void onLoad() {
+        getLogger().log(Level.INFO, "Plugin file is called '" + getFile().getName() + "'");
 
         // Register MMOCore-specific objects
         MythicLib.plugin.getEntities().registerRelationHandler(new PartyRelationHandler());
@@ -238,7 +239,8 @@ public class MMOCore extends JavaPlugin {
         // Skill casting
         try {
             SkillCastingMode mode = SkillCastingMode.valueOf(UtilityMethods.enumName(getConfig().getString("skill-casting.mode")));
-            Bukkit.getPluginManager().registerEvents(mode.loadFromConfig(getConfig().getConfigurationSection("skill-casting")), this);
+            mode.setCurrent(getConfig().getConfigurationSection("skill-casting"));
+
         } catch (RuntimeException exception) {
             getLogger().log(Level.WARNING, "Could not load skill casting: " + exception.getMessage());
         }
