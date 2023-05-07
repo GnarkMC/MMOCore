@@ -159,8 +159,8 @@ public class PlayerData extends SynchronizedDataHolder implements OfflinePlayerD
             MMOCore.log(Level.SEVERE, "[Userdata] Could not find class " + getProfess().getId() + " while refreshing player data.");
         }
         //We remove all the stats and buffs associated to triggers.
-        getMMOPlayerData().getStatMap().getInstances().forEach(statInstance -> statInstance.removeIf(key ->key.startsWith(Trigger.TRIGGER_PREFIX)));
-        getMMOPlayerData().getSkillModifierMap().getInstances().forEach(skillModifierInstance -> skillModifierInstance.removeIf(key ->key.startsWith(Trigger.TRIGGER_PREFIX)));
+        getMMOPlayerData().getStatMap().getInstances().forEach(statInstance -> statInstance.removeIf(key -> key.startsWith(Trigger.TRIGGER_PREFIX)));
+        getMMOPlayerData().getSkillModifierMap().getInstances().forEach(skillModifierInstance -> skillModifierInstance.removeIf(key -> key.startsWith(Trigger.TRIGGER_PREFIX)));
         final Iterator<Map.Entry<Integer, BoundSkillInfo>> ite = boundSkills.entrySet().iterator();
         while (ite.hasNext())
             try {
@@ -376,7 +376,7 @@ public class PlayerData extends SynchronizedDataHolder implements OfflinePlayerD
 
     /**
      * @return If the item is unlocked by the player
-     *         This is used for skills that can be locked & unlocked.
+     * This is used for skills that can be locked & unlocked.
      */
     public boolean hasUnlocked(Unlockable unlockable) {
         return unlockable.isUnlockedByDefault() || unlockedItems.contains(unlockable.getUnlockNamespacedKey());
@@ -893,6 +893,10 @@ public class PlayerData extends SynchronizedDataHolder implements OfflinePlayerD
         return profess == null ? MMOCore.plugin.classManager.getDefaultClass() : profess;
     }
 
+    public boolean isProfessNull() {
+        return profess == null;
+    }
+
     /**
      * @deprecated Provide reason with {@link #giveMana(double, PlayerResourceUpdateEvent.UpdateReason)}
      */
@@ -1198,7 +1202,7 @@ public class PlayerData extends SynchronizedDataHolder implements OfflinePlayerD
      * checks if they could potentially upgrade to one of these
      *
      * @return If the player can change its current class to
-     *         a subclass
+     * a subclass
      */
     @Deprecated
     public boolean canChooseSubclass() {
