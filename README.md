@@ -5,7 +5,7 @@ Register the PhoenixDev repo
 ```
 <repository>
     <id>phoenix</id>
-    <url>https://nexus.phoenixdvpt.fr/repository/maven-public/</url>
+    <url>https://nexus.phoenixdevt.fr/repository/maven-public/</url>
 </repository>
 ```
 And then add MMOCore-API as dependency
