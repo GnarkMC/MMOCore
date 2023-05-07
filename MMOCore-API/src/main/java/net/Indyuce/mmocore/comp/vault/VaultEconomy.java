@@ -26,7 +26,9 @@ public class VaultEconomy {
 
     /**
      * @return If an economy plugin was found
+     * @deprecated Not needed. {@link MMOCore#economy} could be null and that's all
      */
+    @Deprecated
     public boolean isValid() {
         return economy != null;
     }

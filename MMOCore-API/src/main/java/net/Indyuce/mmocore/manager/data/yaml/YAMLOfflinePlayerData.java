@@ -9,6 +9,9 @@ import net.Indyuce.mmocore.api.ConfigFile;
 import net.Indyuce.mmocore.manager.data.OfflinePlayerData;
 import org.jetbrains.annotations.NotNull;
 
+/**
+ * @deprecated Not implemented yet
+ */
 @Deprecated
 public class YAMLOfflinePlayerData implements OfflinePlayerData {
     private final UUID uuid;

@@ -92,7 +92,7 @@ public class SQLDataHandler extends SQLSynchronizedDataHandler<PlayerData, Offli
 
     @Override
     public void saveData(PlayerData data, boolean autosave) {
-        UtilityMethods.debug(MMOCore.plugin, "SQL", "Saving data for: '" + data.getUniqueId() + "'...");
+        UtilityMethods.debug(MMOCore.plugin, "SQL", "Saving data for: '" + data.getProfileId() + "'...");
 
         final PlayerDataTableUpdater updater = new PlayerDataTableUpdater(getDataSource(), data);
         updater.addData("class_points", data.getClassPoints());
@@ -128,7 +128,7 @@ public class SQLDataHandler extends SQLSynchronizedDataHandler<PlayerData, Offli
 
         updater.executeRequest(autosave);
 
-        UtilityMethods.debug(MMOCore.plugin, "SQL", "Saved data for: " + data.getUniqueId());
+        UtilityMethods.debug(MMOCore.plugin, "SQL", "Saved data for: " + data.getProfileId());
         UtilityMethods.debug(MMOCore.plugin, "SQL", String.format("{ class: %s, level: %d }", data.getProfess().getId(), data.getLevel()));
     }
 
@@ -190,77 +190,7 @@ public class SQLDataHandler extends SQLSynchronizedDataHandler<PlayerData, Offli
     @NotNull
     @Override
     public OfflinePlayerData getOffline(UUID uuid) {
-        return new MySQLOfflinePlayerData(uuid);
-    }
-
-    @Deprecated
-    public class MySQLOfflinePlayerData implements OfflinePlayerData {
-        private final UUID uuid;
-        private int level;
-        private long lastLogin;
-        private PlayerClass profess;
-        private List<UUID> friends;
-
-        @Deprecated
-        public MySQLOfflinePlayerData(UUID uuid) {
-            this.uuid = uuid;
-/*
-            provider.getResult("SELECT * FROM mmocore_playerdata WHERE uuid = '" + uuid + "';", (result) -> {
-                try {
-                    MythicLib.debug("MMOCoreSQL", "Loading OFFLINE data for '" + uuid + "'.");
-                    if (!result.next()) {
-                        level = 0;
-                        lastLogin = 0;
-                        profess = MMOCore.plugin.classManager.getDefaultClass();
-                        friends = new ArrayList<>();
-                        MythicLib.debug("MMOCoreSQL", "Default OFFLINE data loaded.");
-                    } else {
-                        level = result.getInt("level");
-                        lastLogin = result.getLong("last_login");
-                        profess = isEmpty(result.getString("class")) ? MMOCore.plugin.classManager.getDefaultClass() : MMOCore.plugin.classManager.get(result.getString("class"));
-                        if (!isEmpty(result.getString("friends")))
-                            MMOCoreUtils.jsonArrayToList(result.getString("friends")).forEach(str -> friends.add(UUID.fromString(str)));
-                        else friends = new ArrayList<>();
-                        MythicLib.debug("MMOCoreSQL", "Saved OFFLINE data loaded.");
-                    }
-                } catch (SQLException e) {
-                    e.printStackTrace();
-                }
-            }); */
-        }
-
-        @Override
-        @NotNull
-        public  UUID getUniqueId() {
-            return uuid;
-        }
-
-        @Override
-        public void removeFriend(UUID uuid) {
-            // TODO recode
-            //  friends.remove(uuid);
-            //  new PlayerDataTableUpdater(provider, uuid).updateData("friends", friends.stream().map(UUID::toString).collect(Collectors.toList()));
-        }
-
-        @Override
-        public boolean hasFriend(UUID uuid) {
-            return friends.contains(uuid);
-        }
-
-        @Override
-        public PlayerClass getProfess() {
-            return profess;
-        }
-
-        @Override
-        public int getLevel() {
-            return level;
-        }
-
-        @Override
-        public long getLastLogin() {
-            return lastLogin;
-        }
+        return new SQLOfflinePlayerData(uuid);
     }
 }
 

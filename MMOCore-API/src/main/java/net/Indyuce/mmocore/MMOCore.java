@@ -259,7 +259,7 @@ public class MMOCore extends JavaPlugin {
          * recognize what profess the player has and professes will be lost
          */
         playerDataManager.setupAll();
-        playerDataManager.registerEvents(EventPriority.NORMAL);
+        playerDataManager.registerEvents(EventPriority.NORMAL, EventPriority.NORMAL);
 
         // load guild data after loading player data
         dataProvider.getGuildManager().load();

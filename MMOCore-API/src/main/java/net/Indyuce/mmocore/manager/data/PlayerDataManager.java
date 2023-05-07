@@ -1,9 +1,11 @@
 package net.Indyuce.mmocore.manager.data;
 
 import io.lumine.mythic.lib.api.player.MMOPlayerData;
+import io.lumine.mythic.lib.comp.profile.ProfileDataModuleImpl;
 import io.lumine.mythic.lib.data.SynchronizedDataManager;
 import net.Indyuce.mmocore.MMOCore;
 import net.Indyuce.mmocore.api.player.PlayerData;
+import net.Indyuce.mmocore.comp.profile.MMOCoreProfileDataModule;
 import net.Indyuce.mmocore.manager.data.yaml.YAMLPlayerDataHandler;
 import net.Indyuce.mmocore.player.DefaultPlayerData;
 import org.bukkit.configuration.ConfigurationSection;
@@ -18,6 +20,11 @@ public class PlayerDataManager extends SynchronizedDataManager<PlayerData, Offli
     @Override
     public PlayerData newPlayerData(MMOPlayerData playerData) {
         return new PlayerData(playerData);
+    }
+
+    @Override
+    public ProfileDataModuleImpl newProfileDataModule() {
+        return new MMOCoreProfileDataModule();
     }
 
     public DefaultPlayerData getDefaultData() {
