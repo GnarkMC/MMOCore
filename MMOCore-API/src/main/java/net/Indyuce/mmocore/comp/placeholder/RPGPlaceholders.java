@@ -73,8 +73,8 @@ public class RPGPlaceholders extends PlaceholderExpansion {
 			return String.valueOf(playerData.getSkillLevel(skill));
 		}
 
-		else if (identifier.startsWith("mmocore_attribute_points_spent_")) {
-			String attributeId = identifier.substring(31);
+		else if (identifier.startsWith("attribute_points_spent_")) {
+			String attributeId = identifier.substring(23);
 			PlayerAttributes.AttributeInstance attributeInstance = Objects.requireNonNull(playerData.getAttributes().getInstance(attributeId), "Could not find attribute with ID '" + attributeId + "'");
 			return String.valueOf(attributeInstance.getBase());
 		}
