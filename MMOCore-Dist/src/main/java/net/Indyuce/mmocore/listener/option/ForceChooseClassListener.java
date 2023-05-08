@@ -1,4 +1,4 @@
-package net.Indyuce.mmocore.listener;
+package net.Indyuce.mmocore.listener.option;
 
 import io.lumine.mythic.lib.api.event.SynchronizedDataLoadEvent;
 import io.lumine.mythic.lib.api.util.TemporaryListener;
@@ -16,30 +16,22 @@ public class ForceChooseClassListener implements Listener {
         if (event.getManager().getOwningPlugin().equals(MMOCore.plugin)) {
             PlayerData playerData = PlayerData.get(event.getHolder().getProfileId());
             if (playerData.isProfessNull()) {
+
+                // Open GUI
                 InventoryManager.CLASS_SELECT.newInventory(playerData).open();
-                //Give 1 class point to make sure the player can choose a class.
-                playerData.setClassPoints(1);
-                TemporaryListener closeGUIListener = new TemporaryListener(InventoryCloseEvent.getHandlerList()) {
+
+                // Re-open GUI till the player
+                new TemporaryListener(PlayerChangeClassEvent.getHandlerList(), InventoryCloseEvent.getHandlerList()) {
 
                     @EventHandler
-                    public void whenClosed(InventoryCloseEvent e) {
-                        if (e.getPlayer().equals(playerData.getPlayer()))
+                    public void whenClosed(InventoryCloseEvent event) {
+                        if (event.getPlayer().equals(playerData.getPlayer()))
                             InventoryManager.CLASS_SELECT.newInventory(playerData).open();
                     }
 
-                    @Override
-                    public void whenClosed() {
-
-                    }
-                };
-                new TemporaryListener(PlayerChangeClassEvent.getHandlerList()) {
                     @EventHandler
-                    public void whenChoose(PlayerChangeClassEvent e) {
-                        if (e.getPlayer().equals(playerData.getPlayer())) {
-                            closeGUIListener.close();
-                            close();
-                        }
-
+                    public void whenChoose(PlayerChangeClassEvent event) {
+                        if (event.getPlayer().equals(playerData.getPlayer())) close();
                     }
 
                     @Override
@@ -47,6 +39,7 @@ public class ForceChooseClassListener implements Listener {
 
                     }
                 };
+
             }
         }
     }

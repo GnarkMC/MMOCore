@@ -1,7 +1,6 @@
 package net.Indyuce.mmocore.manager.data;
 
 import io.lumine.mythic.lib.api.player.MMOPlayerData;
-import io.lumine.mythic.lib.comp.profile.ProfileDataModuleImpl;
 import io.lumine.mythic.lib.data.SynchronizedDataManager;
 import net.Indyuce.mmocore.MMOCore;
 import net.Indyuce.mmocore.api.player.PlayerData;
@@ -23,7 +22,7 @@ public class PlayerDataManager extends SynchronizedDataManager<PlayerData, Offli
     }
 
     @Override
-    public ProfileDataModuleImpl newProfileDataModule() {
+    public Object newProfileDataModule() {
         return new MMOCoreProfileDataModule();
     }
 

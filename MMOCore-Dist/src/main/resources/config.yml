@@ -193,7 +193,7 @@ vanilla-exp-redirection:
 # Requires a SERVER reload when changed.
 override-vanilla-exp: true
 
-#Forces the player to choose a class at first join.
+# Forces the player to choose a class at first join.
 force-class-choose-on-first-login: false
 
 # Check the target player's RPG profile when shift when shift right clicking.
