@@ -126,7 +126,7 @@ public class SubclassSelect extends EditableInventory {
                     return;
                 }
 
-                InventoryManager.CLASS_CONFIRM.get(classId).newInventory(playerData, this, true).open();
+                InventoryManager.CLASS_CONFIRM.get(classId).newInventory(playerData, this, true, null).open();
             }
         }
     }

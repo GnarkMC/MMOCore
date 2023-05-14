@@ -193,10 +193,14 @@ vanilla-exp-redirection:
 # Requires a SERVER reload when changed.
 override-vanilla-exp: true
 
-# Forces the player to choose a class at first join.
-force-class-choose-on-first-login: false
+# When enabled and when using a profile plugin, MMOCore will
+# force the user to choose a class. The profile will not be
+# created until they choose a class.
+#
+# This option is useless unless you have installed a profile plugin.
+force-class-selection: true
 
-# Check the target player's RPG profile when shift when shift right clicking.
+# Check the target player's RPG profile on shift-right click.
 shift-click-player-profile-check: false
 
 # If main class experience holograms should be displayed
@@ -215,7 +219,7 @@ max-skill-slots: 8
 
 # When set to true, passive skills must be bound in order to take effect.
 # When set to false, unlocked skills will take effect right away.
-# Temporarily disabled.
+# Disabled for now.
 # passive-skill-need-bound: true
 
 # Fun extra RPG feature that switches the player's hotbar with

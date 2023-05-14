@@ -33,4 +33,9 @@ public class PlayerDataManager extends SynchronizedDataManager<PlayerData, Offli
     public void loadDefaultData(ConfigurationSection config) {
         defaultData = new DefaultPlayerData(config);
     }
+
+    @Override
+    public void whenAutoSaved() {
+        MMOCore.plugin.nativeGuildManager.saveAll();
+    }
 }

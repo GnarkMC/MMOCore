@@ -1,17 +1,26 @@
 package net.Indyuce.mmocore.comp.profile;
 
+import fr.phoenixdevt.profile.ProfileDataModule;
+import fr.phoenixdevt.profile.event.ProfileCreateEvent;
+import fr.phoenixdevt.profile.event.ProfileDeleteEvent;
 import fr.phoenixdevt.profile.placeholder.PlaceholderRequest;
 import io.lumine.mythic.lib.MythicLib;
 import io.lumine.mythic.lib.api.player.MMOPlayerData;
-import io.lumine.mythic.lib.comp.profile.ProfileDataModuleImpl;
 import net.Indyuce.mmocore.MMOCore;
 import net.Indyuce.mmocore.api.player.PlayerData;
 import net.Indyuce.mmocore.api.player.attribute.PlayerAttribute;
 import net.Indyuce.mmocore.experience.Profession;
+import net.Indyuce.mmocore.manager.InventoryManager;
+import org.bukkit.Bukkit;
+import org.bukkit.event.EventHandler;
+import org.bukkit.event.Listener;
+import org.bukkit.plugin.java.JavaPlugin;
 
-public class MMOCoreProfileDataModule extends ProfileDataModuleImpl {
-    public MMOCoreProfileDataModule() {
-        super(MMOCore.plugin);
+public class MMOCoreProfileDataModule implements ProfileDataModule, Listener {
+
+    @Override
+    public JavaPlugin getOwningPlugin() {
+        return MMOCore.plugin;
     }
 
     @Override
@@ -42,5 +51,23 @@ public class MMOCoreProfileDataModule extends ProfileDataModuleImpl {
 
             placeholderRequest.validate();
         });
+    }
+
+    @EventHandler
+    public void onProfileCreate(ProfileCreateEvent event) {
+
+        // Force to choose class first
+        if (MMOCore.plugin.configManager.forceClassSelection) {
+            final PlayerData playerData = PlayerData.get(event.getPlayerData().getUniqueId());
+            InventoryManager.CLASS_SELECT.newInventory(playerData, () -> event.validate(this)).open();
+        }
+
+        // Validate event directly
+        else event.validate(this);
+    }
+
+    @EventHandler
+    public void onProfileDelete(ProfileDeleteEvent event) {
+        event.validate(this);
     }
 }

@@ -38,10 +38,6 @@ public class MMOCoreBukkit {
         if (plugin.getConfig().getBoolean("vanilla-exp-redirection.enabled"))
             Bukkit.getPluginManager().registerEvents(new RedirectVanillaExp(plugin.getConfig().getDouble("vanilla-exp-redirection.ratio")), plugin);
 
-        if (plugin.getConfig().getBoolean("force-class-choose-on-first-login"))
-            Bukkit.getPluginManager().registerEvents(new ForceChooseClassListener(), MMOCore.plugin);
-
-
         Bukkit.getPluginManager().registerEvents(new WaypointsListener(), plugin);
         Bukkit.getPluginManager().registerEvents(new PlayerListener(), plugin);
         Bukkit.getPluginManager().registerEvents(new GoldPouchesListener(), plugin);

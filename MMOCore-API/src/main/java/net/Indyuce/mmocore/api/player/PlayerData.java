@@ -427,6 +427,7 @@ public class PlayerData extends SynchronizedDataHolder implements OfflinePlayerD
     @Override
     public void close() {
 
+        // Saves player health before saveData as the player will be considered offline into it if it is async
         health = getPlayer().getHealth();
 
         // Remove from party if it is MMO Party Module

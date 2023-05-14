@@ -16,14 +16,17 @@ import net.Indyuce.mmocore.gui.api.item.InventoryItem;
 import net.Indyuce.mmocore.gui.api.item.SimplePlaceholderItem;
 import net.Indyuce.mmocore.manager.InventoryManager;
 import org.apache.commons.lang.Validate;
+import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
 import org.bukkit.configuration.ConfigurationSection;
+import org.bukkit.event.inventory.InventoryCloseEvent;
 import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.persistence.PersistentDataType;
 
+import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
@@ -41,7 +44,11 @@ public class ClassSelect extends EditableInventory {
     }
 
     public GeneratedInventory newInventory(PlayerData data) {
-        return new ProfessSelectionInventory(data, this);
+        return newInventory(data, null);
+    }
+
+    public GeneratedInventory newInventory(PlayerData data, @Nullable Runnable profileRunnable) {
+        return new ProfessSelectionInventory(data, this, profileRunnable);
     }
 
     public class ClassItem extends SimplePlaceholderItem<ProfessSelectionInventory> {
@@ -51,9 +58,10 @@ public class ClassSelect extends EditableInventory {
 
         public ClassItem(ConfigurationSection config) {
             super(Material.BARRIER, config);
-            Validate.isTrue(config.getString("function").length()>6,"Couldn't find the class associated to: "+config.getString("function"));
+
+            Validate.isTrue(config.getString("function").length() > 6, "Couldn't find the class associated to: " + config.getString("function"));
             String classId = UtilityMethods.enumName(config.getString("function").substring(6));
-            this.playerClass = Objects.requireNonNull(MMOCore.plugin.classManager.get(classId),classId+" does not correspond to any classId.");
+            this.playerClass = Objects.requireNonNull(MMOCore.plugin.classManager.get(classId), classId + " does not correspond to any classId.");
             this.name = config.getString("name");
             this.lore = config.getStringList("lore");
         }
@@ -93,8 +101,16 @@ public class ClassSelect extends EditableInventory {
     }
 
     public class ProfessSelectionInventory extends GeneratedInventory {
-        public ProfessSelectionInventory(PlayerData playerData, EditableInventory editable) {
+
+        @Nullable
+        private final Runnable profileRunnable;
+
+        private boolean canClose;
+
+        public ProfessSelectionInventory(PlayerData playerData, EditableInventory editable, @Nullable Runnable profileRunnable) {
             super(playerData, editable);
+
+            this.profileRunnable = profileRunnable;
         }
 
         @Override
@@ -107,7 +123,7 @@ public class ClassSelect extends EditableInventory {
             if (item instanceof ClassItem) {
                 PlayerClass profess = ((ClassItem) item).playerClass;
 
-                if (playerData.getClassPoints() < 1) {
+                if (profileRunnable == null && playerData.getClassPoints() < 1) {
                     MMOCore.plugin.soundManager.getSound(SoundEvent.CANT_SELECT_CLASS).playTo(player);
                     new ConfigMessage("cant-choose-new-class").send(player);
                     return;
@@ -125,9 +141,22 @@ public class ClassSelect extends EditableInventory {
                     return;
                 }
 
+                canClose = true;
                 final PlayerClass playerClass = findDeepestSubclass(playerData, profess);
-                InventoryManager.CLASS_CONFIRM.get(MMOCoreUtils.ymlName(playerClass.getId())).newInventory(playerData, this, false).open();
+                InventoryManager.CLASS_CONFIRM.get(MMOCoreUtils.ymlName(playerClass.getId())).newInventory(playerData, this, false, profileRunnable).open();
             }
+        }
+
+        @Override
+        public void open() {
+            canClose = false;
+            super.open();
+        }
+
+        @Override
+        public void whenClosed(InventoryCloseEvent event) {
+            if (profileRunnable != null && !canClose)
+                Bukkit.getScheduler().runTaskLater(MMOCore.plugin, () -> open(), 2 * 20);
         }
     }
 

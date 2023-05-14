@@ -29,13 +29,13 @@ import net.Indyuce.mmocore.guild.GuildModuleType;
 import net.Indyuce.mmocore.guild.GuildRelationHandler;
 import net.Indyuce.mmocore.guild.provided.Guild;
 import net.Indyuce.mmocore.guild.provided.MMOCoreGuildModule;
+import net.Indyuce.mmocore.guild.provided.YAMLGuildDataManager;
 import net.Indyuce.mmocore.manager.*;
 import net.Indyuce.mmocore.manager.data.DataProvider;
 import net.Indyuce.mmocore.manager.data.GuildDataManager;
 import net.Indyuce.mmocore.manager.data.LegacyDataProvider;
 import net.Indyuce.mmocore.manager.data.PlayerDataManager;
 import net.Indyuce.mmocore.manager.data.sql.SQLDataHandler;
-import net.Indyuce.mmocore.guild.provided.YAMLGuildDataManager;
 import net.Indyuce.mmocore.manager.profession.*;
 import net.Indyuce.mmocore.manager.social.BoosterManager;
 import net.Indyuce.mmocore.manager.social.PartyManager;
@@ -258,8 +258,7 @@ public class MMOCore extends JavaPlugin {
          * that after registering all the professses otherwise the player datas can't
          * recognize what profess the player has and professes will be lost
          */
-        playerDataManager.setupAll();
-        playerDataManager.registerEvents(EventPriority.NORMAL, EventPriority.NORMAL);
+        playerDataManager.initialize(EventPriority.NORMAL, EventPriority.NORMAL);
 
         // load guild data after loading player data
         dataProvider.getGuildManager().load();
@@ -271,25 +270,6 @@ public class MMOCore extends JavaPlugin {
         MMOCoreCommandTreeRoot mmoCoreCommand = new MMOCoreCommandTreeRoot();
         getCommand("mmocore").setExecutor(mmoCoreCommand);
         getCommand("mmocore").setTabCompleter(mmoCoreCommand);
-
-        if (getConfig().getBoolean("auto-save.enabled"))
-
-        {
-            int autosave = getConfig().getInt("auto-save.interval") * 20;
-            new BukkitRunnable() {
-                public void run() {
-
-                    // Save player data
-                    for (PlayerData data : PlayerData.getAll())
-                        if (data.isSynchronized())
-                            dataProvider.getDataManager().getDataHandler().saveData(data, false);
-
-                    // Save guild info
-                    for (Guild guild : dataProvider.getGuildManager().getAll())
-                        dataProvider.getGuildManager().save(guild);
-                }
-            }.runTaskTimerAsynchronously(MMOCore.plugin, autosave, autosave);
-        }
     }
 
     @Override
@@ -306,8 +286,6 @@ public class MMOCore extends JavaPlugin {
         for (PlayerData data : PlayerData.getAll())
             if (data.isSynchronized()) {
                 data.close();
-                // Saves player health before saveData as the player will be considered offline into it if it is async.
-                data.setHealth(data.getPlayer().getHealth());
                 dataProvider.getDataManager().getDataHandler().saveData(data, true);
             }
 

@@ -20,7 +20,10 @@ import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.configuration.ConfigurationSection;
+import org.bukkit.event.inventory.InventoryCloseEvent;
 import org.bukkit.inventory.ItemStack;
+
+import javax.annotation.Nullable;
 
 public class ClassConfirmation extends EditableInventory {
     private final PlayerClass playerClass;
@@ -37,7 +40,11 @@ public class ClassConfirmation extends EditableInventory {
     }
 
     public GeneratedInventory newInventory(PlayerData data, PluginInventory last, boolean subclass) {
-        return new ClassConfirmationInventory(data, this, playerClass, last, subclass);
+        return newInventory(data, last, subclass, null);
+    }
+
+    public GeneratedInventory newInventory(PlayerData data, PluginInventory last, boolean subclass, @Nullable Runnable profileRunnable) {
+        return new ClassConfirmationInventory(data, this, playerClass, last, subclass, profileRunnable);
     }
 
     public class UnlockedItem extends InventoryItem<ClassConfirmationInventory> {
@@ -105,26 +112,33 @@ public class ClassConfirmation extends EditableInventory {
         private final PluginInventory last;
         private final boolean subclass;
 
-        public ClassConfirmationInventory(PlayerData playerData, EditableInventory editable, PlayerClass profess, PluginInventory last, boolean subclass) {
+        @Nullable
+        private final Runnable profileRunnable;
+
+        private boolean canClose;
+
+        public ClassConfirmationInventory(PlayerData playerData, EditableInventory editable, PlayerClass profess, PluginInventory last, boolean subclass, @Nullable Runnable profileRunnable) {
             super(playerData, editable);
 
             this.profess = profess;
             this.last = last;
             this.subclass = subclass;
+            this.profileRunnable = profileRunnable;
         }
 
         @Override
         public void whenClicked(InventoryClickContext context, InventoryItem item) {
-            if (item.getFunction().equals("back"))
+            if (item.getFunction().equals("back")) {
+                canClose = true;
                 last.open();
-
-            else if (item.getFunction().equals("yes")) {
+            } else if (item.getFunction().equals("yes")) {
 
                 PlayerChangeClassEvent called = new PlayerChangeClassEvent(playerData, profess);
                 Bukkit.getPluginManager().callEvent(called);
                 if (called.isCancelled())
                     return;
 
+                canClose = true;
                 playerData.giveClassPoints(-1);
                 if (subclass)
                     playerData.setClass(profess);
@@ -134,7 +148,20 @@ public class ClassConfirmation extends EditableInventory {
                 MMOCore.plugin.configManager.getSimpleMessage("class-select", "class", profess.getName()).send(player);
                 MMOCore.plugin.soundManager.getSound(SoundEvent.SELECT_CLASS).playTo(player);
                 player.closeInventory();
+                if (profileRunnable != null) profileRunnable.run();
             }
+        }
+
+        @Override
+        public void open() {
+            canClose = false;
+            super.open();
+        }
+
+        @Override
+        public void whenClosed(InventoryCloseEvent event) {
+            if (profileRunnable != null && !canClose)
+                Bukkit.getScheduler().runTaskLater(MMOCore.plugin, () -> open(), 2 * 20);
         }
 
         @Override
