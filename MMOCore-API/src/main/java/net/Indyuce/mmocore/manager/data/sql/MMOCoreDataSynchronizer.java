@@ -1,6 +1,9 @@
 package net.Indyuce.mmocore.manager.data.sql;
 
-import com.google.gson.*;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 import io.lumine.mythic.lib.MythicLib;
 import io.lumine.mythic.lib.UtilityMethods;
 import io.lumine.mythic.lib.data.sql.SQLDataSynchronizer;
@@ -32,7 +35,8 @@ public class MMOCoreDataSynchronizer extends SQLDataSynchronizer<PlayerData> {
 
     @Override
     public void loadData(ResultSet result) throws SQLException {
-        //Reset stats linked to triggers
+
+        // Reset stats linked to triggers
         getData().resetTriggerStats();
 
         getData().setClassPoints(result.getInt("class_points"));
@@ -137,16 +141,7 @@ public class MMOCoreDataSynchronizer extends SQLDataSynchronizer<PlayerData> {
 
     @Override
     public void loadEmptyData() {
-        final PlayerDataManager manager = MMOCore.plugin.playerDataManager;
-        getData().setLevel(manager.getDefaultData().getLevel());
-        getData().setClassPoints(manager.getDefaultData().getClassPoints());
-        getData().setSkillPoints(manager.getDefaultData().getSkillPoints());
-        getData().setSkillReallocationPoints(manager.getDefaultData().getSkillReallocationPoints());
-        getData().setAttributePoints(manager.getDefaultData().getAttributePoints());
-        getData().setAttributeReallocationPoints(manager.getDefaultData().getAttributeReallocationPoints());
-        getData().setExperience(0);
-        getData().getQuestData().updateBossBar();
-
+        MMOCore.plugin.playerDataManager.getDefaultData().apply(getData());
         UtilityMethods.debug(MMOCore.plugin, "SQL", "Loaded DEFAULT data for: '" + getData().getUniqueId() + "' as no saved data was found.");
     }
 }

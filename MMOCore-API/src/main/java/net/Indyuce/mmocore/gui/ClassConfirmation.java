@@ -39,12 +39,12 @@ public class ClassConfirmation extends EditableInventory {
         return function.equalsIgnoreCase("yes") ? new YesItem(config) : new SimplePlaceholderItem(config);
     }
 
-    public GeneratedInventory newInventory(PlayerData data, PluginInventory last, boolean subclass) {
-        return newInventory(data, last, subclass, null);
+    public GeneratedInventory newInventory(PlayerData data, PluginInventory last, boolean setClass) {
+        return newInventory(data, last, setClass, null);
     }
 
-    public GeneratedInventory newInventory(PlayerData data, PluginInventory last, boolean subclass, @Nullable Runnable profileRunnable) {
-        return new ClassConfirmationInventory(data, this, playerClass, last, subclass, profileRunnable);
+    public GeneratedInventory newInventory(PlayerData data, PluginInventory last, boolean setClass, @Nullable Runnable profileRunnable) {
+        return new ClassConfirmationInventory(data, this, playerClass, last, setClass, profileRunnable);
     }
 
     public class UnlockedItem extends InventoryItem<ClassConfirmationInventory> {

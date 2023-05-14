@@ -2,13 +2,12 @@ package net.Indyuce.mmocore.manager.data.yaml;
 
 import io.lumine.mythic.lib.data.yaml.YAMLSynchronizedDataHandler;
 import net.Indyuce.mmocore.MMOCore;
-import net.Indyuce.mmocore.manager.data.OfflinePlayerData;
 import net.Indyuce.mmocore.api.player.PlayerData;
 import net.Indyuce.mmocore.api.player.profess.PlayerClass;
 import net.Indyuce.mmocore.api.player.profess.SavedClassInformation;
 import net.Indyuce.mmocore.api.util.MMOCoreUtils;
 import net.Indyuce.mmocore.guild.provided.Guild;
-import net.Indyuce.mmocore.player.DefaultPlayerData;
+import net.Indyuce.mmocore.manager.data.OfflinePlayerData;
 import net.Indyuce.mmocore.skill.ClassSkill;
 import net.Indyuce.mmocore.skilltree.SkillTreeNode;
 import org.apache.commons.lang.Validate;
@@ -17,7 +16,8 @@ import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.plugin.Plugin;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.UUID;
 import java.util.logging.Level;
 import java.util.stream.Collectors;
 
@@ -42,17 +42,21 @@ public class YAMLPlayerDataHandler extends YAMLSynchronizedDataHandler<PlayerDat
         // Reset stats linked to triggers.
         data.resetTriggerStats();
 
-        final DefaultPlayerData defaultData = MMOCore.plugin.playerDataManager.getDefaultData();
-        data.setClassPoints(config.getInt("class-points", defaultData.getClassPoints()));
-        data.setSkillPoints(config.getInt("skill-points", defaultData.getSkillPoints()));
-        data.setSkillReallocationPoints(config.getInt("skill-reallocation-points", defaultData.getSkillReallocationPoints()));
-        data.setSkillTreeReallocationPoints(config.getInt("skill-tree-reallocation-points", defaultData.getSkillTreeReallocationPoints()));
-        data.setAttributePoints(config.getInt("attribute-points", defaultData.getAttributePoints()));
-        data.setAttributeReallocationPoints(config.getInt("attribute-realloc-points", defaultData.getAttributeReallocationPoints()));
-        data.setLevel(config.getInt("level", defaultData.getLevel()));
+        // Load default data
+        if (!config.contains("class-points")) {
+            MMOCore.plugin.playerDataManager.getDefaultData().apply(data);
+            return;
+        }
+
+        data.setClassPoints(config.getInt("class-points"));
+        data.setSkillPoints(config.getInt("skill-points"));
+        data.setSkillReallocationPoints(config.getInt("skill-reallocation-points"));
+        data.setSkillTreeReallocationPoints(config.getInt("skill-tree-reallocation-points"));
+        data.setAttributePoints(config.getInt("attribute-points"));
+        data.setAttributeReallocationPoints(config.getInt("attribute-realloc-points"));
+        data.setLevel(config.getInt("level"));
         data.setExperience(config.getInt("experience"));
-        if (config.contains("class"))
-            data.setClass(MMOCore.plugin.classManager.get(config.getString("class")));
+        if (config.contains("class")) data.setClass(MMOCore.plugin.classManager.get(config.getString("class")));
 
         if (config.contains("guild")) {
             Guild guild = MMOCore.plugin.nativeGuildManager.getGuild(config.getString("guild"));

@@ -195,7 +195,8 @@ override-vanilla-exp: true
 
 # When enabled and when using a profile plugin, MMOCore will
 # force the user to choose a class. The profile will not be
-# created until they choose a class.
+# created until they choose a class. Similarly, a player cannot
+# log into a profile with default class before choosing another class
 #
 # This option is useless unless you have installed a profile plugin.
 force-class-selection: true

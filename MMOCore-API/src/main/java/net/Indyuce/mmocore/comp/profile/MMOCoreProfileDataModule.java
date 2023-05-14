@@ -2,7 +2,7 @@ package net.Indyuce.mmocore.comp.profile;
 
 import fr.phoenixdevt.profile.ProfileDataModule;
 import fr.phoenixdevt.profile.event.ProfileCreateEvent;
-import fr.phoenixdevt.profile.event.ProfileDeleteEvent;
+import fr.phoenixdevt.profile.event.ProfileRemoveEvent;
 import fr.phoenixdevt.profile.placeholder.PlaceholderRequest;
 import io.lumine.mythic.lib.MythicLib;
 import io.lumine.mythic.lib.api.player.MMOPlayerData;
@@ -10,8 +10,6 @@ import net.Indyuce.mmocore.MMOCore;
 import net.Indyuce.mmocore.api.player.PlayerData;
 import net.Indyuce.mmocore.api.player.attribute.PlayerAttribute;
 import net.Indyuce.mmocore.experience.Profession;
-import net.Indyuce.mmocore.manager.InventoryManager;
-import org.bukkit.Bukkit;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -55,19 +53,11 @@ public class MMOCoreProfileDataModule implements ProfileDataModule, Listener {
 
     @EventHandler
     public void onProfileCreate(ProfileCreateEvent event) {
-
-        // Force to choose class first
-        if (MMOCore.plugin.configManager.forceClassSelection) {
-            final PlayerData playerData = PlayerData.get(event.getPlayerData().getUniqueId());
-            InventoryManager.CLASS_SELECT.newInventory(playerData, () -> event.validate(this)).open();
-        }
-
-        // Validate event directly
-        else event.validate(this);
+        event.validate(this);
     }
 
     @EventHandler
-    public void onProfileDelete(ProfileDeleteEvent event) {
+    public void onProfileDelete(ProfileRemoveEvent event) {
         event.validate(this);
     }
 }

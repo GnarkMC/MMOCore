@@ -669,7 +669,11 @@ public class PlayerData extends SynchronizedDataHolder implements OfflinePlayerD
     }
 
     public void unloadClassInfo(PlayerClass profess) {
-        classSlots.remove(profess.getId());
+        unloadClassInfo(profess.getId());
+    }
+
+    public void unloadClassInfo(String profess) {
+        classSlots.remove(profess);
     }
 
     public Set<String> getWaypoints() {

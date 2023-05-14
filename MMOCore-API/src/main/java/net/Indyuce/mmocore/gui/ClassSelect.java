@@ -143,7 +143,7 @@ public class ClassSelect extends EditableInventory {
 
                 canClose = true;
                 final PlayerClass playerClass = findDeepestSubclass(playerData, profess);
-                InventoryManager.CLASS_CONFIRM.get(MMOCoreUtils.ymlName(playerClass.getId())).newInventory(playerData, this, false, profileRunnable).open();
+                InventoryManager.CLASS_CONFIRM.get(MMOCoreUtils.ymlName(playerClass.getId())).newInventory(playerData, this, profileRunnable != null, profileRunnable).open();
             }
         }
 
