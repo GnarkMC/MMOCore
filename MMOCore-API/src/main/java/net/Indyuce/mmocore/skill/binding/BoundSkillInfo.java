@@ -64,8 +64,7 @@ public class BoundSkillInfo implements Closable {
         open = false;
 
         // Unregister skill if passive
-        if (isPassive())
-            registered.unregister(playerData.getMMOPlayerData());
+        if (isPassive()) registered.unregister(playerData.getMMOPlayerData());
 
         // Remove skill buffs associated to the slot
         skillSlot.getSkillBuffTriggers().forEach(skillBuffTrigger -> skillBuffTrigger.remove(playerData, classSkill.getSkill().getHandler()));

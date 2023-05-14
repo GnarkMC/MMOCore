@@ -3,7 +3,6 @@ package net.Indyuce.mmocore.gui;
 import io.lumine.mythic.lib.MythicLib;
 import io.lumine.mythic.lib.api.item.ItemTag;
 import io.lumine.mythic.lib.api.item.NBTItem;
-import me.ulrich.clans.manager.I;
 import net.Indyuce.mmocore.MMOCore;
 import net.Indyuce.mmocore.api.SoundEvent;
 import net.Indyuce.mmocore.api.player.PlayerData;
@@ -193,6 +192,7 @@ public class SkillList extends EditableInventory {
 
             final @Nullable ClassSkill boundSkill = inv.getPlayerData().getBoundSkill(n + 1);
             final ItemStack item = super.display(inv, n);
+            Placeholders holders = getPlaceholders(inv, n);
 
             // Same material as skill
             if (boundSkill != null)
@@ -201,6 +201,17 @@ public class SkillList extends EditableInventory {
             final ItemMeta meta = item.getItemMeta();
             meta.setDisplayName(MMOCore.plugin.placeholderParser.parse(inv.getPlayerData().getPlayer(), skillSlot.getName()));
 
+            List<String> lore = new ArrayList<>(getLore());
+
+            int index = lore.indexOf("{slot-lore}");
+            lore.remove(index);
+            List<String> slotLore = skillSlot.getLore();
+            for (int j = 0; j < slotLore.size(); j++)
+                lore.add(index + j, slotLore.get(j));
+
+            for (int j = 0; j < lore.size(); j++)
+                lore.set(j, ChatColor.GRAY + holders.apply(inv.getPlayer(), lore.get(j)));
+            meta.setLore(lore);
             // Same CMD as skill icon
             if (boundSkill != null && boundSkill.getSkill().getIcon().hasItemMeta() && boundSkill.getSkill().getIcon().getItemMeta().hasCustomModelData())
                 meta.setCustomModelData(boundSkill.getSkill().getIcon().getItemMeta().getCustomModelData());
@@ -209,17 +220,12 @@ public class SkillList extends EditableInventory {
             return item;
         }
 
-        /**
-         * This should only be called when there is a skill bound.
-         */
         @Override
         public Placeholders getPlaceholders(SkillViewerInventory inv, int n) {
             RegisteredSkill selected = inv.selected.getSkill();
-
+            final @NotNull SkillSlot skillSlot = inv.getPlayerData().getProfess().getSkillSlot(n + 1);
             Placeholders holders = new Placeholders();
-
-            holders.register("index", "" + (n + 1));
-            holders.register("slot", MMOCoreUtils.intToRoman(n + 1));
+            holders.register("slot", skillSlot.getName());
             holders.register("selected", selected == null ? none : selected.getName());
             RegisteredSkill skill = inv.getPlayerData().hasSkillBound(n + 1) ? inv.getPlayerData().getBoundSkill(n + 1).getSkill() : null;
             holders.register("skill", skill == null ? none : skill.getName());
@@ -434,7 +440,7 @@ public class SkillList extends EditableInventory {
                     return;
                 }
 
-                if (!playerData.hasSkillUnlocked(selected)) {
+                if (!playerData.hasUnlockedLevel(selected)) {
                     MMOCore.plugin.configManager.getSimpleMessage("skill-level-not-met").send(player);
                     player.playSound(player.getLocation(), Sound.ENTITY_VILLAGER_NO, 1, 2);
                     return;
@@ -462,8 +468,8 @@ public class SkillList extends EditableInventory {
             if (item.getFunction().equals("upgrade")) {
                 int shiftCost = ((UpgradeItem) item).shiftCost;
 
-                if (!playerData.hasSkillUnlocked(selected)) {
-                    MMOCore.plugin.configManager.getSimpleMessage("not-unlocked-skill").send(player);
+                if (!playerData.hasUnlockedLevel(selected)) {
+                    MMOCore.plugin.configManager.getSimpleMessage("skill-level-not-met").send(player);
                     player.playSound(player.getLocation(), Sound.ENTITY_VILLAGER_NO, 1, 2);
                     return;
                 }

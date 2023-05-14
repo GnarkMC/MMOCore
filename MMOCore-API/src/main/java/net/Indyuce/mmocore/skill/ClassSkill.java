@@ -1,10 +1,12 @@
 package net.Indyuce.mmocore.skill;
 
+import io.lumine.mythic.lib.MythicLib;
 import io.lumine.mythic.lib.api.player.EquipmentSlot;
 import io.lumine.mythic.lib.player.cooldown.CooldownObject;
 import io.lumine.mythic.lib.player.modifier.ModifierSource;
 import io.lumine.mythic.lib.player.skill.PassiveSkill;
 import io.lumine.mythic.lib.script.condition.Condition;
+import net.Indyuce.mmocore.MMOCore;
 import net.Indyuce.mmocore.api.player.PlayerData;
 import net.Indyuce.mmocore.api.util.math.formula.IntegerLinearValue;
 import net.Indyuce.mmocore.api.util.math.formula.LinearValue;
@@ -85,14 +87,18 @@ public class ClassSkill implements CooldownObject, Unlockable {
     @Override
     public void whenLocked(PlayerData playerData) {
         playerData.mapBoundSkills().forEach((slot, skill) -> {
-            if (skill.equals(getUnlockNamespacedKey().split(":")[1]))
+            if (skill.equalsIgnoreCase(getUnlockNamespacedKey().split(":")[1]))
                 playerData.unbindSkill(slot);
         });
+        //Update the stats to remove the passive skill if it is locked
+        if (!MMOCore.plugin.configManager.passiveSkillNeedBound && getSkill().getTrigger().isPassive())
+            playerData.getStats().updateStats();
     }
 
     @Override
     public void whenUnlocked(PlayerData playerData) {
-
+        if (!MMOCore.plugin.configManager.passiveSkillNeedBound && getSkill().getTrigger().isPassive())
+            playerData.getStats().updateStats();
     }
 
     /**
@@ -116,7 +122,7 @@ public class ClassSkill implements CooldownObject, Unlockable {
 
         // Calculate placeholders
         Placeholders placeholders = new Placeholders();
-        modifiers.keySet().forEach(modifier -> placeholders.register(modifier, data.getMMOPlayerData().getSkillModifierMap().getInstance(skill.getHandler(), modifier).getTotal(modifiers.get(modifier).calculate(x))));
+        modifiers.keySet().forEach(modifier -> placeholders.register(modifier, MythicLib.plugin.getMMOConfig().decimal.format(data.getMMOPlayerData().getSkillModifierMap().getInstance(skill.getHandler(), modifier).getTotal(modifiers.get(modifier).calculate(x)))));
         placeholders.register("mana_name", data.getProfess().getManaDisplay().getName());
         placeholders.register("mana_color", data.getProfess().getManaDisplay().getFull().toString());
 

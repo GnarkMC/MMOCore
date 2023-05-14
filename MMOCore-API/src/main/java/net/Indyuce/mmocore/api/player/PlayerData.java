@@ -27,6 +27,7 @@ import net.Indyuce.mmocore.api.player.social.FriendRequest;
 import net.Indyuce.mmocore.api.player.stats.PlayerStats;
 import net.Indyuce.mmocore.api.quest.PlayerQuests;
 import net.Indyuce.mmocore.api.quest.trigger.StatTrigger;
+import net.Indyuce.mmocore.api.quest.trigger.Trigger;
 import net.Indyuce.mmocore.api.util.Closable;
 import net.Indyuce.mmocore.api.util.MMOCoreUtils;
 import net.Indyuce.mmocore.experience.EXPSource;
@@ -45,15 +46,15 @@ import net.Indyuce.mmocore.player.CombatHandler;
 import net.Indyuce.mmocore.player.Unlockable;
 import net.Indyuce.mmocore.skill.ClassSkill;
 import net.Indyuce.mmocore.skill.RegisteredSkill;
+import net.Indyuce.mmocore.skill.binding.BoundSkillInfo;
 import net.Indyuce.mmocore.skill.binding.SkillSlot;
 import net.Indyuce.mmocore.skill.cast.SkillCastingInstance;
 import net.Indyuce.mmocore.skill.cast.SkillCastingMode;
 import net.Indyuce.mmocore.skilltree.IntegerCoordinates;
+import net.Indyuce.mmocore.skill.cast.SkillCastingHandler;
 import net.Indyuce.mmocore.skilltree.NodeStatus;
 import net.Indyuce.mmocore.skilltree.SkillTreeNode;
 import net.Indyuce.mmocore.skilltree.tree.SkillTree;
-import net.Indyuce.mmocore.skilltree.tree.display.DisplayInfo;
-import net.Indyuce.mmocore.skilltree.tree.display.Icon;
 import net.Indyuce.mmocore.waypoint.Waypoint;
 import net.Indyuce.mmocore.waypoint.WaypointOption;
 import net.md_5.bungee.api.ChatMessageType;
@@ -269,7 +270,7 @@ public class PlayerData extends SynchronizedDataHolder implements OfflinePlayerD
         NodeStatus nodeStatus = nodeStates.get(node);
         //Check the State of the node
         if (nodeStatus != NodeStatus.UNLOCKED && nodeStatus != NodeStatus.UNLOCKABLE) return false;
-        return getNodeLevel(node) < node.getMaxLevel() && (skillTreePoints.getOrDefault(node.getTree().getId(), 0) + skillTreePoints.getOrDefault("global", 0) >= node.getSkillTreePointsConsumed());
+        return node.hasPermissionRequirement(this)&&getNodeLevel(node) < node.getMaxLevel() && (skillTreePoints.getOrDefault(node.getTree().getId(), 0) + skillTreePoints.getOrDefault("global", 0) >= node.getSkillTreePointsConsumed());
     }
 
     /**
@@ -296,27 +297,6 @@ public class PlayerData extends SynchronizedDataHolder implements OfflinePlayerD
         node.getTree().setupNodeStates(this);
     }
 
-    /**
-     * Returns the icon the node should have.
-     */
-    public Icon getIcon(SkillTreeNode node) {
-        SkillTree skillTree = node.getTree();
-
-        DisplayInfo displayInfo = new DisplayInfo(nodeStates.get(node), node.getSize());
-
-        return skillTree.getIcon(displayInfo);
-    }
-
-    public Icon getIcon(SkillTree skillTree, IntegerCoordinates coordinates) {
-
-        if (skillTree.isNode(coordinates)) {
-            SkillTreeNode node = skillTree.getNode(coordinates);
-            DisplayInfo displayInfo = new DisplayInfo(nodeStates.get(node), node.getSize());
-            return skillTree.getIcon(displayInfo);
-        }
-        if (skillTree.isPath(coordinates)) return skillTree.getIcon(DisplayInfo.pathInfo);
-        return null;
-    }
 
     public int getSkillTreePoint(String treeId) {
         return skillTreePoints.getOrDefault(treeId, 0);
@@ -330,7 +310,7 @@ public class PlayerData extends SynchronizedDataHolder implements OfflinePlayerD
         nodeStates.put(node, nodeStatus);
     }
 
-    public NodeStatus getNodeState(SkillTreeNode node) {
+    public NodeStatus getNodeStatus(SkillTreeNode node) {
         return nodeStates.get(node);
     }
 
@@ -389,6 +369,7 @@ public class PlayerData extends SynchronizedDataHolder implements OfflinePlayerD
      */
     public boolean unlock(Unlockable unlockable) {
         Validate.isTrue(!unlockable.isUnlockedByDefault(), "Cannot unlock an item unlocked by default");
+        unlockable.whenUnlocked(this);
         final boolean wasLocked = unlockedItems.add(unlockable.getUnlockNamespacedKey());
         // Call the event synchronously
         if (wasLocked)
@@ -404,6 +385,7 @@ public class PlayerData extends SynchronizedDataHolder implements OfflinePlayerD
      */
     public boolean lock(Unlockable unlockable) {
         Validate.isTrue(!unlockable.isUnlockedByDefault(), "Cannot lock an item unlocked by default");
+        unlockable.whenLocked(this);
         boolean wasUnlocked = unlockedItems.remove(unlockable.getUnlockNamespacedKey());
         if (wasUnlocked)
             //Calls the event synchronously
@@ -819,7 +801,8 @@ public class PlayerData extends SynchronizedDataHolder implements OfflinePlayerD
      *                         If it's null, no hologram will be displayed
      * @param splitExp         Should the exp be split among party members
      */
-    public void giveExperience(double value, @NotNull EXPSource source, @Nullable Location hologramLocation, boolean splitExp) {
+    public void giveExperience(double value, @NotNull EXPSource source, @Nullable Location hologramLocation,
+                               boolean splitExp) {
         if (value <= 0) {
             experience = Math.max(0, experience + value);
             return;
@@ -872,7 +855,8 @@ public class PlayerData extends SynchronizedDataHolder implements OfflinePlayerD
             level = getLevel() + 1;
 
             // Apply class experience table
-            if (getProfess().hasExperienceTable()) getProfess().getExperienceTable().claim(this, level, getProfess());
+            if (getProfess().hasExperienceTable())
+                getProfess().getExperienceTable().claim(this, level, getProfess());
         }
 
         if (level > oldLevel) {
@@ -896,10 +880,6 @@ public class PlayerData extends SynchronizedDataHolder implements OfflinePlayerD
     @NotNull
     public PlayerClass getProfess() {
         return profess == null ? MMOCore.plugin.classManager.getDefaultClass() : profess;
-    }
-
-    public boolean isProfessNull() {
-        return profess == null;
     }
 
     /**
@@ -1094,6 +1074,11 @@ public class PlayerData extends SynchronizedDataHolder implements OfflinePlayerD
         return getProfess().hasSkill(skill.getHandler().getId()) && hasSkillUnlocked(getProfess().getSkill(skill.getHandler().getId()));
     }
 
+    @Deprecated
+    public boolean hasSkillUnlocked(ClassSkill skill) {
+        return hasUnlockedLevel(skill);
+    }
+
     /**
      * Checks for the player's level and compares it to the skill unlock level.
      * <p>
@@ -1104,7 +1089,7 @@ public class PlayerData extends SynchronizedDataHolder implements OfflinePlayerD
      *
      * @return If the player unlocked the skill
      */
-    public boolean hasSkillUnlocked(ClassSkill skill) {
+    public boolean hasUnlockedLevel(ClassSkill skill){
         return getLevel() >= skill.getUnlockLevel();
     }
 

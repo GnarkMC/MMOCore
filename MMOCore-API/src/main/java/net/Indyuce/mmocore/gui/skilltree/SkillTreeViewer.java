@@ -1,24 +1,26 @@
-package net.Indyuce.mmocore.gui;
+package net.Indyuce.mmocore.gui.skilltree;
 
 import io.lumine.mythic.lib.MythicLib;
 import net.Indyuce.mmocore.MMOCore;
-import net.Indyuce.mmocore.api.player.PlayerData;
-import net.Indyuce.mmocore.skilltree.NodeStatus;
-import net.Indyuce.mmocore.skilltree.tree.SkillTree;
-import net.Indyuce.mmocore.skilltree.tree.display.Icon;
 import net.Indyuce.mmocore.api.SoundEvent;
+import net.Indyuce.mmocore.api.player.PlayerData;
+import net.Indyuce.mmocore.api.util.MMOCoreUtils;
 import net.Indyuce.mmocore.gui.api.EditableInventory;
 import net.Indyuce.mmocore.gui.api.GeneratedInventory;
 import net.Indyuce.mmocore.gui.api.InventoryClickContext;
 import net.Indyuce.mmocore.gui.api.item.InventoryItem;
 import net.Indyuce.mmocore.gui.api.item.Placeholders;
 import net.Indyuce.mmocore.gui.api.item.SimplePlaceholderItem;
-import net.Indyuce.mmocore.skilltree.IntegerCoordinates;
-import net.Indyuce.mmocore.skilltree.SkillTreeNode;
+import net.Indyuce.mmocore.gui.skilltree.display.*;
+import net.Indyuce.mmocore.skilltree.*;
+import net.Indyuce.mmocore.skilltree.tree.SkillTree;
+import org.apache.commons.lang.Validate;
+import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
 import org.bukkit.configuration.ConfigurationSection;
+import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.event.inventory.ClickType;
 import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
@@ -26,15 +28,36 @@ import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.persistence.PersistentDataContainer;
 import org.bukkit.persistence.PersistentDataType;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
+import java.util.*;
 
 public class SkillTreeViewer extends EditableInventory {
-
+    protected final Map<DisplayInfo, Icon> icons = new HashMap<>();
 
     public SkillTreeViewer() {
         super("skill-tree");
+    }
+
+    @Override
+    public void reload(FileConfiguration config) {
+        super.reload(config);
+        //Loads all the pathDisplayInfo
+        for (PathStatus status : PathStatus.values())
+            for (PathType pathType : PathType.values()) {
+                if (!config.contains("display.paths." + MMOCoreUtils.ymlName(status.name()) + "." + MMOCoreUtils.ymlName(pathType.name()))) {
+                    MMOCore.log("Missing path type: " + MMOCoreUtils.ymlName(pathType.name()) + " for status: " + MMOCoreUtils.ymlName(status.name()));
+                    continue;
+                }
+                icons.put(new PathDisplayInfo(pathType, status), new Icon(config.getConfigurationSection("display.paths." + MMOCoreUtils.ymlName(status.name()) + "." + MMOCoreUtils.ymlName(pathType.name()))));
+            }
+        //Loads all the nodeDisplayInfo
+        for (NodeStatus status : NodeStatus.values())
+            for (NodeType nodeType : NodeType.values()) {
+                if (!config.contains("display.nodes." + MMOCoreUtils.ymlName(status.name()) + "." + MMOCoreUtils.ymlName(nodeType.name()))) {
+                    MMOCore.log("Missing node type: " + MMOCoreUtils.ymlName(nodeType.name()) + " for status: " + MMOCoreUtils.ymlName(status.name()));
+                    continue;
+                }
+                icons.put(new NodeDisplayInfo(nodeType, status), new Icon(config.getConfigurationSection("display.nodes." + MMOCoreUtils.ymlName(status.name()) + "." + MMOCoreUtils.ymlName(nodeType.name()))));
+            }
     }
 
     @Override
@@ -190,7 +213,7 @@ public class SkillTreeViewer extends EditableInventory {
         public ItemStack display(SkillTreeInventory inv, int n) {
             IntegerCoordinates coordinates = inv.getCoordinates(n);
             if (inv.getSkillTree().isNode(coordinates) || inv.getSkillTree().isPath(coordinates)) {
-                Icon icon = inv.getPlayerData().getIcon(inv.getSkillTree(), coordinates);
+                Icon icon = inv.getIcon(coordinates);
                 ItemStack item = super.display(inv, n, icon.getMaterial(), icon.getCustomModelData());
                 ItemMeta meta = item.getItemMeta();
                 if (inv.getSkillTree().isNode(coordinates)) {
@@ -201,9 +224,11 @@ public class SkillTreeViewer extends EditableInventory {
                         if (str.contains("{node-lore}")) {
                             lore.addAll(node.getLore(inv.getPlayerData()));
                         } else if (str.contains("{strong-parents}")) {
-                            lore.addAll(getParentsLore(inv, node, node.getStrongParents()));
+                            lore.addAll(getParentsLore(inv, node, node.getParents(ParentType.STRONG)));
                         } else if (str.contains("{soft-parents}")) {
-                            lore.addAll(getParentsLore(inv, node, node.getSoftParents()));
+                            lore.addAll(getParentsLore(inv, node, node.getParents(ParentType.SOFT)));
+                        } else if (str.contains("{incompatible-parents}")) {
+                            lore.addAll(getParentsLore(inv, node, node.getParents(ParentType.INCOMPATIBLE)));
                         } else
                             lore.add(getPlaceholders(inv, n).apply(inv.getPlayer(), str));
                     });
@@ -247,7 +272,7 @@ public class SkillTreeViewer extends EditableInventory {
             if (inv.getSkillTree().isNode(inv.getCoordinates(n))) {
                 SkillTreeNode node = inv.getNode(n);
                 holders.register("current-level", inv.getPlayerData().getNodeLevel(node));
-                holders.register("current-state", inv.getPlayerData().getNodeState(node));
+                holders.register("current-state", inv.getPlayerData().getNodeStatus(node));
                 holders.register("max-level", node.getMaxLevel());
                 holders.register("max-children", node.getMaxChildren());
                 holders.register("size", node.getSize());
@@ -313,6 +338,33 @@ public class SkillTreeViewer extends EditableInventory {
             return maxTreeListPage;
         }
 
+
+        public Icon getIcon(IntegerCoordinates coordinates) {
+            boolean hasUpPath = skillTree.isPath(new IntegerCoordinates(coordinates.getX(), coordinates.getY() - 1));
+            boolean hasDownPath = skillTree.isPath(new IntegerCoordinates(coordinates.getX(), coordinates.getY() + 1));
+            boolean hasRightPath = skillTree.isPath(new IntegerCoordinates(coordinates.getX() + 1, coordinates.getY()));
+            boolean hasLeftPath = skillTree.isPath(new IntegerCoordinates(coordinates.getX() - 1, coordinates.getY()));
+
+            if (skillTree.isNode(coordinates)) {
+                SkillTreeNode node = skillTree.getNode(coordinates);
+                NodeStatus nodeStatus = playerData.getNodeStatus(node);
+                //If the node has its own display, it will be shown.
+                if (node.hasIcon(nodeStatus))
+                    return node.getIcon(nodeStatus);
+
+                NodeType nodeType = NodeType.getNodeType(hasUpPath, hasRightPath, hasDownPath, hasLeftPath);
+                Icon icon = icons.get(new NodeDisplayInfo(nodeType, nodeStatus));
+                Validate.notNull(icon, "The node " + node.getFullId() + " has no icon for the type " + nodeType + " and the status " + nodeStatus);
+                return icon;
+            } else {
+                PathType pathType = PathType.getPathType(hasUpPath, hasRightPath, hasDownPath, hasLeftPath);
+                SkillTreePath path = skillTree.getPath(coordinates);
+                Icon icon = icons.get(new PathDisplayInfo(pathType, path.getStatus(playerData)));
+                Validate.notNull(icon, "There is no icon for the path type " + pathType + " and the status " + path.getStatus(playerData));
+                return icon;
+            }
+        }
+
         @Override
         public String calculateName() {
             return getEditable().getName().replace("{skill-tree-name}", skillTree.getName()).replace("{skill-tree-id}", skillTree.getId());
@@ -375,14 +427,12 @@ public class SkillTreeViewer extends EditableInventory {
                 if (spent < 1) {
                     MMOCore.plugin.configManager.getSimpleMessage("no-skill-tree-points-spent").send(player);
                     MMOCore.plugin.soundManager.getSound(SoundEvent.NOT_ENOUGH_POINTS).playTo(getPlayer());
-                    event.setCancelled(true);
                     return;
                 }
 
                 if (getPlayerData().getSkillTreeReallocationPoints() <= 0) {
                     MMOCore.plugin.configManager.getSimpleMessage("not-skill-tree-reallocation-point").send(player);
                     MMOCore.plugin.soundManager.getSound(SoundEvent.NOT_ENOUGH_POINTS).playTo(getPlayer());
-                    event.setCancelled(true);
                     return;
                 } else {
                     int reallocated = playerData.getPointSpent(skillTree);
@@ -393,7 +443,6 @@ public class SkillTreeViewer extends EditableInventory {
                     skillTree.setupNodeStates(playerData);
                     MMOCore.plugin.configManager.getSimpleMessage("reallocated-points", "points", "" + playerData.getSkillTreePoint(skillTree.getId()), "skill-tree", skillTree.getName()).send(player);
                     MMOCore.plugin.soundManager.getSound(SoundEvent.RESET_SKILL_TREE).playTo(player);
-                    event.setCancelled(true);
                     open();
                     return;
 
@@ -406,7 +455,6 @@ public class SkillTreeViewer extends EditableInventory {
                 MMOCore.plugin.soundManager.getSound(SoundEvent.CHANGE_SKILL_TREE).playTo(player);
                 skillTree = MMOCore.plugin.skillTreeManager.get(id);
                 open();
-                event.setCancelled(true);
                 return;
             }
 
@@ -416,16 +464,13 @@ public class SkillTreeViewer extends EditableInventory {
                     int x = container.get(new NamespacedKey(MMOCore.plugin, "coordinates.x"), PersistentDataType.INTEGER);
                     int y = container.get(new NamespacedKey(MMOCore.plugin, "coordinates.y"), PersistentDataType.INTEGER);
                     if (!skillTree.isNode(new IntegerCoordinates(x, y))) {
-                        event.setCancelled(true);
                         return;
                     }
                     SkillTreeNode node = skillTree.getNode(new IntegerCoordinates(x, y));
                     if (playerData.getPointSpent(skillTree) >= skillTree.getMaxPointSpent()) {
                         MMOCore.plugin.configManager.getSimpleMessage("max-points-reached").send(player);
                         MMOCore.plugin.soundManager.getSound(SoundEvent.NOT_ENOUGH_POINTS).playTo(getPlayer());
-                        event.setCancelled(true);
                         return;
-
                     }
 
                     if (playerData.canIncrementNodeLevel(node)) {
@@ -433,27 +478,22 @@ public class SkillTreeViewer extends EditableInventory {
                         MMOCore.plugin.configManager.getSimpleMessage("upgrade-skill-node", "skill-node", node.getName(), "level", "" + playerData.getNodeLevel(node)).send(player);
                         MMOCore.plugin.soundManager.getSound(SoundEvent.LEVEL_UP).playTo(getPlayer());
                         open();
-                        event.setCancelled(true);
-                        return;
-                    } else if (playerData.getNodeState(node) == NodeStatus.LOCKED || playerData.getNodeState(node) == NodeStatus.FULLY_LOCKED) {
+                    } else if (playerData.getNodeStatus(node) == NodeStatus.LOCKED || playerData.getNodeStatus(node) == NodeStatus.FULLY_LOCKED) {
                         MMOCore.plugin.configManager.getSimpleMessage("locked-node").send(player);
                         MMOCore.plugin.soundManager.getSound(SoundEvent.NOT_ENOUGH_POINTS).playTo(getPlayer());
-                        event.setCancelled(true);
-                        return;
 
                     } else if (playerData.getNodeLevel(node) >= node.getMaxLevel()) {
                         MMOCore.plugin.configManager.getSimpleMessage("skill-node-max-level-hit").send(player);
                         MMOCore.plugin.soundManager.getSound(SoundEvent.NOT_ENOUGH_POINTS).playTo(getPlayer());
-                        event.setCancelled(true);
-                        return;
+                    } else if (!node.hasPermissionRequirement(playerData)) {
+                        MMOCore.plugin.configManager.getSimpleMessage("missing-skill-node-permission").send(player);
+                        MMOCore.plugin.soundManager.getSound(SoundEvent.NOT_ENOUGH_POINTS).playTo(getPlayer());
                     }
 
                     //Else the player doesn't doesn't have the skill tree points
                     else {
                         MMOCore.plugin.configManager.getSimpleMessage("not-enough-skill-tree-points", "point", "" + node.getSkillTreePointsConsumed()).send(player);
                         MMOCore.plugin.soundManager.getSound(SoundEvent.NOT_ENOUGH_POINTS).playTo(getPlayer());
-                        event.setCancelled(true);
-                        return;
                     }
 
                 }
