@@ -1,6 +1,7 @@
 package net.Indyuce.mmocore.player;
 
 import net.Indyuce.mmocore.api.player.PlayerData;
+import net.Indyuce.mmocore.manager.data.PlayerDataManager;
 import net.Indyuce.mmocore.skilltree.SkillTreeNode;
 import org.bukkit.attribute.Attribute;
 import org.bukkit.configuration.ConfigurationSection;
@@ -136,13 +137,15 @@ public class DefaultPlayerData implements ClassDataContainer {
 
     public void apply(PlayerData player) {
         player.setLevel(level);
+        player.setExperience(0);
         player.setClassPoints(classPoints);
         player.setSkillPoints(skillPoints);
         player.setAttributePoints(attributePoints);
         player.setAttributeReallocationPoints(attrReallocPoints);
         player.setSkillTreeReallocationPoints(skillTreeReallocPoints);
         player.setSkillReallocationPoints(skillReallocPoints);
-        player.getPlayer().setHealth(Math.min(health, player.getPlayer().getAttribute(Attribute.GENERIC_MAX_HEALTH).getValue()));
+        if (player.isOnline())
+            player.getPlayer().setHealth(Math.min(health, player.getPlayer().getAttribute(Attribute.GENERIC_MAX_HEALTH).getValue()));
         player.setMana(mana);
         player.setStamina(stamina);
         player.setStellium(stellium);

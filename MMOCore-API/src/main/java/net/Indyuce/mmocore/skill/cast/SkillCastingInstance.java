@@ -8,13 +8,13 @@ import org.bukkit.event.HandlerList;
 import org.bukkit.event.Listener;
 import org.bukkit.scheduler.BukkitRunnable;
 
-public abstract class SkillCastingHandler extends BukkitRunnable implements Listener {
+public abstract class SkillCastingInstance extends BukkitRunnable implements Listener {
     private final PlayerData caster;
 
     private boolean open = true;
     private int j;
 
-    public SkillCastingHandler(PlayerData caster, int runnablePeriod) {
+    public SkillCastingInstance(PlayerData caster, int runnablePeriod) {
         this.caster = caster;
 
         runTaskTimer(MMOCore.plugin, 0, runnablePeriod);

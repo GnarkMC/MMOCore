@@ -140,6 +140,14 @@
         </dependency>
 
         <dependency>
+            <groupId>fr.phoenixdevt</groupId>
+            <artifactId>Profile-API</artifactId>
+            <version>1.0</version>
+            <scope>provided</scope>
+            <optional>true</optional>
+        </dependency>
+
+        <dependency>
             <groupId>me.clip</groupId>
             <artifactId>placeholderapi</artifactId>
             <version>2.9.2</version>

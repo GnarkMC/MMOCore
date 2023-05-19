@@ -22,6 +22,7 @@ public abstract class GeneratedInventory extends PluginInventory {
 
     public GeneratedInventory(PlayerData playerData, EditableInventory editable) {
         super(playerData);
+
         this.editable = editable;
         this.adaptor = editable.getAdaptorType().supply(this);
     }
@@ -66,6 +67,8 @@ public abstract class GeneratedInventory extends PluginInventory {
 
     @Override
     public void open() {
+        if (!getPlayerData().isOnline()) return;
+
         /*
          * Very important, in order to prevent ghost items, the loaded items map
          * must be cleared when the inventory is updated or open at least twice

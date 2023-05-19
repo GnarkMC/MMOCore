@@ -1,10 +1,11 @@
-package net.Indyuce.mmocore.manager.data.mysql;
+package net.Indyuce.mmocore.manager.data.sql;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
+import io.lumine.mythic.lib.data.sql.SQLDataSource;
 import net.Indyuce.mmocore.MMOCore;
 import net.Indyuce.mmocore.api.player.PlayerData;
-import net.Indyuce.mmocore.manager.data.yaml.YAMLPlayerDataManager;
+import net.Indyuce.mmocore.manager.data.yaml.YAMLPlayerDataHandler;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -17,19 +18,23 @@ import java.util.Map;
 import java.util.Set;
 import java.util.logging.Level;
 
+/**
+ * @deprecated Not implemented yet
+ */
+@Deprecated
 public class PlayerDataTableUpdater {
     private final PlayerData playerData;
-    private final MySQLDataProvider provider;
+    private final SQLDataSource provider;
     private final Map<String, String> requestMap = new HashMap<>();
 
-    public PlayerDataTableUpdater(MySQLDataProvider provider, PlayerData playerData) {
+    public PlayerDataTableUpdater(SQLDataSource provider, PlayerData playerData) {
         this.playerData = playerData;
         this.provider = provider;
     }
 
-    public void executeRequest(boolean logout) {
+    public void executeRequest(boolean autosave) {
         final String request = "INSERT INTO mmocore_playerdata(uuid, " + formatCollection(requestMap.keySet(), false)
-                + ") VALUES('" + playerData.getUniqueId() + "'," + formatCollection(requestMap.values(), true) + ")" +
+                + ") VALUES('" + playerData.getProfileId() + "'," + formatCollection(requestMap.values(), true) + ")" +
                 " ON DUPLICATE KEY UPDATE " + formatMap() + ";";
 
         try {
@@ -39,22 +44,22 @@ public class PlayerDataTableUpdater {
                 try {
                     statement.executeUpdate();
                 } catch (SQLException exception) {
-                    MMOCore.log(Level.WARNING, "Could not save player data of " + playerData.getUniqueId() + ", saving through YAML instead");
-                    new YAMLPlayerDataManager(provider).saveData(playerData, logout);
+                    MMOCore.log(Level.WARNING, "Could not save player data of " + playerData.getProfileId() + ", saving through YAML instead");
+                    new YAMLPlayerDataHandler(MMOCore.plugin).saveData(playerData, autosave);
                     exception.printStackTrace();
                 } finally {
                     statement.close();
                 }
             } catch (SQLException exception) {
-                MMOCore.log(Level.WARNING, "Could not save player data of " + playerData.getUniqueId() + ", saving through YAML instead");
-                new YAMLPlayerDataManager(provider).saveData(playerData, logout);
+                MMOCore.log(Level.WARNING, "Could not save player data of " + playerData.getProfileId() + ", saving through YAML instead");
+                new YAMLPlayerDataHandler(MMOCore.plugin).saveData(playerData, autosave);
                 exception.printStackTrace();
             } finally {
                 connection.close();
             }
         } catch (SQLException exception) {
-            MMOCore.log(Level.WARNING, "Could not save player data of " + playerData.getUniqueId() + ", saving through YAML instead");
-            new YAMLPlayerDataManager(provider).saveData(playerData, logout);
+            MMOCore.log(Level.WARNING, "Could not save player data of " + playerData.getProfileId() + ", saving through YAML instead");
+            new YAMLPlayerDataHandler(MMOCore.plugin).saveData(playerData, autosave);
             exception.printStackTrace();
         }
     }
@@ -95,7 +100,7 @@ public class PlayerDataTableUpdater {
         addData(key, json.toString());
     }
 
-    public <T,V> void  addJSONObject(String key, Set<Map.Entry<T, V>> collection) {
+    public <T, V> void addJSONObject(String key, Set<Map.Entry<T, V>> collection) {
         JsonObject json = new JsonObject();
         for (Map.Entry<T, V> entry : collection)
             json.addProperty(entry.getKey().toString(), entry.getValue().toString());

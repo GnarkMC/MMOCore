@@ -1,11 +1,16 @@
 package net.Indyuce.mmocore.skill.cast;
 
+import net.Indyuce.mmocore.MMOCore;
 import net.Indyuce.mmocore.skill.cast.listener.SkillBar;
 import net.Indyuce.mmocore.skill.cast.listener.KeyCombos;
+import net.Indyuce.mmocore.skill.cast.listener.SkillCastingDisabled;
 import net.Indyuce.mmocore.skill.cast.listener.SkillScroller;
+import org.apache.commons.lang.Validate;
+import org.bukkit.Bukkit;
 import org.bukkit.configuration.ConfigurationSection;
-import org.bukkit.event.Listener;
+import org.jetbrains.annotations.NotNull;
 
+import java.util.Objects;
 import java.util.function.Function;
 
 public enum SkillCastingMode {
@@ -23,7 +28,7 @@ public enum SkillCastingMode {
      * to navigate through the entire castable skill list. Then press
      * one key to cast the one selected.
      */
-    SKILL_SCROLL(config -> new SkillScroller(config)),
+    SKILL_SCROLLER(config -> new SkillScroller(config)),
 
     /**
      * Initialize your skill combo by pressing some key.
@@ -37,8 +42,7 @@ public enum SkillCastingMode {
     /**
      * Entirely disables skill casting.
      */
-    NONE(config -> new Listener() {
-    });
+    NONE(config -> new SkillCastingDisabled());
 
     /**
      * Not implemented yet.
@@ -59,13 +63,25 @@ public enum SkillCastingMode {
 
     ;
 
-    private final Function<ConfigurationSection, Listener> listenerLoader;
+    private final Function<ConfigurationSection, SkillCastingListener> listenerLoader;
 
-    SkillCastingMode(Function<ConfigurationSection, Listener> listenerLoader) {
+    private static SkillCastingListener current;
+
+    SkillCastingMode(Function<ConfigurationSection, SkillCastingListener> listenerLoader) {
         this.listenerLoader = listenerLoader;
     }
 
-    public Listener loadFromConfig(ConfigurationSection config) {
-        return listenerLoader.apply(config);
+    public void setCurrent(@NotNull ConfigurationSection config) {
+        Validate.isTrue(current == null, "Skill casting mode already initialized");
+        current = listenerLoader.apply(config);
+        if (this == NONE) return;
+
+        // Register listener
+        Bukkit.getPluginManager().registerEvents(current, MMOCore.plugin);
+    }
+
+    @NotNull
+    public static SkillCastingListener getCurrent() {
+        return Objects.requireNonNull(current, "Skill casting mode hasn't been initialized yet");
     }
 }

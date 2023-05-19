@@ -2,9 +2,10 @@ package net.Indyuce.mmocore.command.rpg.admin;
 
 import io.lumine.mythic.lib.api.player.MMOPlayerData;
 import io.lumine.mythic.lib.command.api.CommandTreeNode;
+import io.lumine.mythic.lib.data.sql.SQLDataSource;
 import net.Indyuce.mmocore.MMOCore;
 import net.Indyuce.mmocore.api.player.PlayerData;
-import net.Indyuce.mmocore.manager.data.mysql.MySQLDataProvider;
+import net.Indyuce.mmocore.manager.data.sql.SQLDataHandler;
 import org.bukkit.command.CommandSender;
 import org.bukkit.scheduler.BukkitRunnable;
 
@@ -51,9 +52,9 @@ public class ExportDataTreeNode extends CommandTreeNode {
                 .map(file -> UUID.fromString(file.getName().replace(".yml", ""))).collect(Collectors.toList());
 
         // Initialize fake SQL data provider
-        final MySQLDataProvider sqlProvider;
+        final SQLDataHandler sqlHandler;
         try {
-            sqlProvider = new MySQLDataProvider(MMOCore.plugin.getConfig());
+            sqlHandler = new SQLDataHandler(new SQLDataSource(MMOCore.plugin));
         } catch (RuntimeException exception) {
             sender.sendMessage("Could not initialize SQL provider (see console for stack trace): " + exception.getMessage());
             return CommandResult.FAILURE;
@@ -80,7 +81,7 @@ public class ExportDataTreeNode extends CommandTreeNode {
                     if (index >= playerIds.size()) {
                         cancel();
 
-                        sqlProvider.close();
+                        sqlHandler.close();
                         MMOCore.plugin.getLogger().log(Level.WARNING, "Exported " + playerIds.size() + " player datas to SQL database. Total errors: " + errorCount);
                         return;
                     }
@@ -88,10 +89,10 @@ public class ExportDataTreeNode extends CommandTreeNode {
                     final UUID playerId = playerIds.get(index);
                     try {
                         final PlayerData offlinePlayerData = new PlayerData(new MMOPlayerData(playerId));
-                        MMOCore.plugin.dataProvider.getDataManager().loadData(offlinePlayerData);
+                        MMOCore.plugin.dataProvider.getDataManager().getDataHandler().loadData(offlinePlayerData);
 
                         // Player data is loaded, now it gets saved through SQL
-                        sqlProvider.getDataManager().saveData(offlinePlayerData, true);
+                        sqlHandler.saveData(offlinePlayerData, true);
                     } catch (RuntimeException exception) {
                         errorCount++;
                         exception.printStackTrace();

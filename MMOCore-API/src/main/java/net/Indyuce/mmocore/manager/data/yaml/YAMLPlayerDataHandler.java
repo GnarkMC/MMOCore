@@ -1,54 +1,65 @@
 package net.Indyuce.mmocore.manager.data.yaml;
 
+import io.lumine.mythic.lib.data.yaml.YAMLSynchronizedDataHandler;
 import net.Indyuce.mmocore.MMOCore;
-import net.Indyuce.mmocore.api.ConfigFile;
-import net.Indyuce.mmocore.api.player.OfflinePlayerData;
 import net.Indyuce.mmocore.api.player.PlayerData;
 import net.Indyuce.mmocore.api.player.profess.PlayerClass;
 import net.Indyuce.mmocore.api.player.profess.SavedClassInformation;
 import net.Indyuce.mmocore.api.util.MMOCoreUtils;
 import net.Indyuce.mmocore.guild.provided.Guild;
-import net.Indyuce.mmocore.manager.data.DataProvider;
-import net.Indyuce.mmocore.manager.data.PlayerDataManager;
+import net.Indyuce.mmocore.manager.data.OfflinePlayerData;
 import net.Indyuce.mmocore.skill.ClassSkill;
 import net.Indyuce.mmocore.skilltree.SkillTreeNode;
 import org.apache.commons.lang.Validate;
 import org.bukkit.attribute.Attribute;
 import org.bukkit.configuration.ConfigurationSection;
-import org.bukkit.configuration.file.FileConfiguration;
+import org.bukkit.plugin.Plugin;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.UUID;
 import java.util.logging.Level;
 import java.util.stream.Collectors;
 
-public class YAMLPlayerDataManager extends PlayerDataManager {
-    private final DataProvider provider;
-
-    public YAMLPlayerDataManager(DataProvider provider) {
-        this.provider = provider;
+public class YAMLPlayerDataHandler extends YAMLSynchronizedDataHandler<PlayerData, OfflinePlayerData> {
+    public YAMLPlayerDataHandler(Plugin owning) {
+        super(owning);
     }
 
     @Override
-    public void loadData(PlayerData data) {
-        FileConfiguration config = new ConfigFile(data.getUniqueId()).getConfig();
+    public void setup() {
+
+    }
+
+    @Override
+    public void close() {
+
+    }
+
+    @Override
+    public void loadFromSection(PlayerData data, ConfigurationSection config) {
 
         // Reset stats linked to triggers.
         data.resetTriggerStats();
 
-        data.setClassPoints(config.getInt("class-points", getDefaultData().getClassPoints()));
-        data.setSkillPoints(config.getInt("skill-points", getDefaultData().getSkillPoints()));
-        data.setSkillReallocationPoints(config.getInt("skill-reallocation-points", getDefaultData().getSkillReallocationPoints()));
-        data.setSkillTreeReallocationPoints(config.getInt("skill-tree-reallocation-points", getDefaultData().getSkillTreeReallocationPoints()));
-        data.setAttributePoints(config.getInt("attribute-points", getDefaultData().getAttributePoints()));
-        data.setAttributeReallocationPoints(config.getInt("attribute-realloc-points", getDefaultData().getAttributeReallocationPoints()));
-        data.setLevel(config.getInt("level", getDefaultData().getLevel()));
+        // Load default data
+        if (!config.contains("class-points")) {
+            MMOCore.plugin.playerDataManager.getDefaultData().apply(data);
+            return;
+        }
+
+        data.setClassPoints(config.getInt("class-points"));
+        data.setSkillPoints(config.getInt("skill-points"));
+        data.setSkillReallocationPoints(config.getInt("skill-reallocation-points"));
+        data.setSkillTreeReallocationPoints(config.getInt("skill-tree-reallocation-points"));
+        data.setAttributePoints(config.getInt("attribute-points"));
+        data.setAttributeReallocationPoints(config.getInt("attribute-realloc-points"));
+        data.setLevel(config.getInt("level"));
         data.setExperience(config.getInt("experience"));
-        if (config.contains("class"))
-            data.setClass(MMOCore.plugin.classManager.get(config.getString("class")));
+        if (config.contains("class")) data.setClass(MMOCore.plugin.classManager.get(config.getString("class")));
 
         if (config.contains("guild")) {
-            Guild guild = provider.getGuildManager().getGuild(config.getString("guild"));
+            Guild guild = MMOCore.plugin.nativeGuildManager.getGuild(config.getString("guild"));
             data.setGuild(guild.hasMember(data.getUniqueId()) ? guild : null);
         }
         if (config.contains("attribute"))
@@ -67,7 +78,8 @@ public class YAMLPlayerDataManager extends PlayerDataManager {
         if (config.isConfigurationSection("bound-skills"))
             for (String key : config.getConfigurationSection("bound-skills").getKeys(false)) {
                 ClassSkill skill = data.getProfess().getSkill(config.getString("bound-skills." + key));
-                data.bindSkill(Integer.parseInt(key), skill);
+                if (skill != null)
+                    data.bindSkill(Integer.parseInt(key), skill);
             }
 
         for (String key : MMOCore.plugin.skillTreeManager.getAll().
@@ -124,14 +136,10 @@ public class YAMLPlayerDataManager extends PlayerDataManager {
 
         if (data.isOnline())
             data.getPlayer().setHealth(MMOCoreUtils.fixResource(config.getDouble("health"), data.getPlayer().getAttribute(Attribute.GENERIC_MAX_HEALTH).getValue()));
-
-        data.setFullyLoaded();
     }
 
     @Override
-    public void saveData(PlayerData data, boolean logout) {
-        ConfigFile file = new ConfigFile(data.getUniqueId());
-        FileConfiguration config = file.getConfig();
+    public void saveInSection(PlayerData data, ConfigurationSection config) {
 
         config.set("class-points", data.getClassPoints());
         config.set("skill-points", data.getSkillPoints());
@@ -149,11 +157,11 @@ public class YAMLPlayerDataManager extends PlayerDataManager {
         data.mapSkillTreePoints().forEach((key1, value) -> config.set("skill-tree-points." + key1, value));
         config.set("skill-tree-reallocation-points", data.getSkillTreeReallocationPoints());
         config.set("skill", null);
-        config.set("health",data.getHealth());
+        config.set("health", data.getHealth());
         config.set("mana", data.getMana());
         config.set("stellium", data.getStellium());
         config.set("stamina", data.getStamina());
-        //Saves the nodes levels
+        // Saves the nodes levels
         MMOCore.plugin.skillTreeManager.getAllNodes().forEach(node -> config.set("skill-tree-level." + node.getFullId(), data.getNodeLevel(node)));
         data.mapSkillLevels().forEach((key1, value) -> config.set("skill." + key1, value));
         data.getItemClaims().forEach((key, times) -> config.set("times-claimed." + key, times));
@@ -194,14 +202,12 @@ public class YAMLPlayerDataManager extends PlayerDataManager {
             info.mapBoundSkills().forEach((slot, skill) -> config.set("class-info." + key + ".bound-skills." + slot, skill));
             config.set("class-info." + key + ".unlocked-items", new ArrayList<>(info.getUnlockedItems()));
         }
-
-        file.save();
     }
 
     @NotNull
     @Override
     public OfflinePlayerData getOffline(UUID uuid) {
-        return isLoaded(uuid) ? get(uuid) : new YAMLOfflinePlayerData(uuid);
+        return new YAMLOfflinePlayerData(uuid);
     }
 }
 

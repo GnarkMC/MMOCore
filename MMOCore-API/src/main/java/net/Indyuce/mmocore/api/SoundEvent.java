@@ -6,7 +6,6 @@ public enum SoundEvent {
     WARP_CANCELLED,
     WARP_CHARGE,
     WARP_UNLOCK,
-    HOTBAR_SWAP,
     SPELL_CAST_BEGIN,
     SPELL_CAST_END,
     CANT_SELECT_CLASS,

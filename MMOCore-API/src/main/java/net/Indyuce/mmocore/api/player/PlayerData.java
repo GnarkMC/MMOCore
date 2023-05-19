@@ -4,6 +4,7 @@ import io.lumine.mythic.lib.MythicLib;
 import io.lumine.mythic.lib.api.player.MMOPlayerData;
 import io.lumine.mythic.lib.api.stat.StatInstance;
 import io.lumine.mythic.lib.api.stat.modifier.StatModifier;
+import io.lumine.mythic.lib.data.SynchronizedDataHolder;
 import io.lumine.mythic.lib.player.cooldown.CooldownMap;
 import net.Indyuce.mmocore.MMOCore;
 import net.Indyuce.mmocore.api.ConfigMessage;
@@ -34,6 +35,7 @@ import net.Indyuce.mmocore.experience.droptable.ExperienceItem;
 import net.Indyuce.mmocore.experience.droptable.ExperienceTable;
 import net.Indyuce.mmocore.guild.provided.Guild;
 import net.Indyuce.mmocore.loot.chest.particle.SmallParticleEffect;
+import net.Indyuce.mmocore.manager.data.OfflinePlayerData;
 import net.Indyuce.mmocore.party.AbstractParty;
 import net.Indyuce.mmocore.party.provided.MMOCorePartyModule;
 import net.Indyuce.mmocore.party.provided.Party;
@@ -44,7 +46,8 @@ import net.Indyuce.mmocore.skill.ClassSkill;
 import net.Indyuce.mmocore.skill.RegisteredSkill;
 import net.Indyuce.mmocore.skill.binding.BoundSkillInfo;
 import net.Indyuce.mmocore.skill.binding.SkillSlot;
-import net.Indyuce.mmocore.skill.cast.SkillCastingHandler;
+import net.Indyuce.mmocore.skill.cast.SkillCastingInstance;
+import net.Indyuce.mmocore.skill.cast.SkillCastingMode;
 import net.Indyuce.mmocore.skilltree.NodeStatus;
 import net.Indyuce.mmocore.skilltree.SkillTreeNode;
 import net.Indyuce.mmocore.skilltree.tree.SkillTree;
@@ -66,14 +69,7 @@ import java.util.*;
 import java.util.logging.Level;
 import java.util.stream.Collectors;
 
-public class PlayerData extends OfflinePlayerData implements Closable, ExperienceTableClaimer, ClassDataContainer {
-
-    /**
-     * Corresponds to the MythicLib player data. It is used to keep
-     * track of the Player instance corresponding to that player data,
-     * as well as other things like the last time the player logged in/out
-     */
-    private final MMOPlayerData mmoData;
+public class PlayerData extends SynchronizedDataHolder implements OfflinePlayerData, Closable, ExperienceTableClaimer, ClassDataContainer {
 
     /**
      * Can be null, the {@link #getProfess()} method will return the
@@ -90,7 +86,7 @@ public class PlayerData extends OfflinePlayerData implements Closable, Experienc
      */
     private double health;
     private Guild guild;
-    private SkillCastingHandler skillCasting;
+    private SkillCastingInstance skillCasting;
     private final PlayerQuests questData;
     private final PlayerStats playerStats;
     private final List<UUID> friends = new ArrayList<>();
@@ -101,7 +97,6 @@ public class PlayerData extends OfflinePlayerData implements Closable, Experienc
     @Deprecated
     private final Set<String> waypoints = new HashSet<>();
     private final Map<String, Integer> skills = new HashMap<>();
-    // TODO change it to an array....... Map<Integer, BoundSkillInfo> is just BoundSkillInfo[]
     private final Map<Integer, BoundSkillInfo> boundSkills = new HashMap<>();
     private final PlayerProfessions collectSkills = new PlayerProfessions(this);
     private final PlayerAttributes attributes = new PlayerAttributes(this);
@@ -138,16 +133,9 @@ public class PlayerData extends OfflinePlayerData implements Closable, Experienc
     // NON-FINAL player data stuff made public to facilitate field change
     public boolean noCooldown;
 
-    /**
-     * Player data is stored in the data map before it's actually fully loaded
-     * so that external plugins don't necessarily have to listen to the PlayerDataLoadEvent.
-     */
-    private boolean fullyLoaded = false;
-
     public PlayerData(MMOPlayerData mmoData) {
-        super(mmoData.getUniqueId());
+        super(mmoData);
 
-        this.mmoData = mmoData;
         questData = new PlayerQuests(this);
         playerStats = new PlayerStats(this);
     }
@@ -168,19 +156,19 @@ public class PlayerData extends OfflinePlayerData implements Closable, Experienc
             MMOCore.log(Level.SEVERE, "[Userdata] Could not find class " + getProfess().getId() + " while refreshing player data.");
         }
         //We remove all the stats and buffs associated to triggers.
-        mmoData.getStatMap().getInstances().forEach(statInstance -> statInstance.removeIf(key -> key.startsWith(Trigger.TRIGGER_PREFIX)));
-        mmoData.getSkillModifierMap().getInstances().forEach(skillModifierInstance -> skillModifierInstance.removeIf(key -> key.startsWith(Trigger.TRIGGER_PREFIX)));
-        Map<Integer, BoundSkillInfo> boundSkillsToRemove = new HashMap<>(boundSkills);
-        for (int slot : boundSkillsToRemove.keySet())
+        getMMOPlayerData().getStatMap().getInstances().forEach(statInstance -> statInstance.removeIf(key -> key.startsWith(Trigger.TRIGGER_PREFIX)));
+        getMMOPlayerData().getSkillModifierMap().getInstances().forEach(skillModifierInstance -> skillModifierInstance.removeIf(key -> key.startsWith(Trigger.TRIGGER_PREFIX)));
+        final Iterator<Map.Entry<Integer, BoundSkillInfo>> ite = boundSkills.entrySet().iterator();
+        while (ite.hasNext())
             try {
-                final BoundSkillInfo info = boundSkills.get(slot);
-                final @Nullable SkillSlot skillSlot = getProfess().getSkillSlot(slot);
-                final String skillId = info.getClassSkill().getSkill().getHandler().getId();
+                final Map.Entry<Integer, BoundSkillInfo> entry = ite.next();
+                final @Nullable SkillSlot skillSlot = getProfess().getSkillSlot(entry.getKey());
+                final String skillId = entry.getValue().getClassSkill().getSkill().getHandler().getId();
                 final @Nullable ClassSkill classSkill = getProfess().getSkill(skillId);
-                Validate.notNull(skillSlot, "Could not find skill slot n" + slot);
+                Validate.notNull(skillSlot, "Could not find skill slot n" + entry.getKey());
                 Validate.notNull(classSkill, "Could not find skill with ID '" + skillId + "'");
-                unbindSkill(slot);
-                bindSkill(slot, classSkill);
+                unbindSkill(entry.getKey());
+                bindSkill(entry.getKey(), classSkill);
             } catch (Exception exception) {
                 MMOCore.plugin.getLogger().log(Level.WARNING, "Could not reload data of '" + getPlayer().getName() + "': " + exception.getMessage());
             }
@@ -253,7 +241,7 @@ public class PlayerData extends OfflinePlayerData implements Closable, Experienc
     }
 
     public void resetTriggerStats() {
-        for (StatInstance instance : mmoData.getStatMap().getInstances()) {
+        for (StatInstance instance : getMMOPlayerData().getStatMap().getInstances()) {
             Iterator<StatModifier> iter = instance.getModifiers().iterator();
             while (iter.hasNext()) {
                 StatModifier modifier = iter.next();
@@ -417,6 +405,7 @@ public class PlayerData extends OfflinePlayerData implements Closable, Experienc
     @Override
     public void close() {
 
+        // Saves player health before saveData as the player will be considered offline into it if it is async
         health = getPlayer().getHealth();
 
         // Remove from party if it is MMO Party Module
@@ -438,10 +427,6 @@ public class PlayerData extends OfflinePlayerData implements Closable, Experienc
         if (isCasting()) leaveSkillCasting();
     }
 
-    public MMOPlayerData getMMOPlayerData() {
-        return mmoData;
-    }
-
     public List<UUID> getFriends() {
         return friends;
     }
@@ -452,10 +437,6 @@ public class PlayerData extends OfflinePlayerData implements Closable, Experienc
 
     public PlayerQuests getQuestData() {
         return questData;
-    }
-
-    public Player getPlayer() {
-        return mmoData.getPlayer();
     }
 
     public long getLastActivity(PlayerActivity activity) {
@@ -476,7 +457,7 @@ public class PlayerData extends OfflinePlayerData implements Closable, Experienc
 
     @Override
     public long getLastLogin() {
-        return mmoData.getLastLogActivity();
+        return getMMOPlayerData().getLastLogActivity();
     }
 
     @Override
@@ -571,7 +552,7 @@ public class PlayerData extends OfflinePlayerData implements Closable, Experienc
     }
 
     public boolean isOnline() {
-        return mmoData.isOnline();
+        return getMMOPlayerData().isOnline();
     }
 
     public boolean inGuild() {
@@ -666,7 +647,11 @@ public class PlayerData extends OfflinePlayerData implements Closable, Experienc
     }
 
     public void unloadClassInfo(PlayerClass profess) {
-        classSlots.remove(profess.getId());
+        unloadClassInfo(profess.getId());
+    }
+
+    public void unloadClassInfo(String profess) {
+        classSlots.remove(profess);
     }
 
     public Set<String> getWaypoints() {
@@ -1005,25 +990,35 @@ public class PlayerData extends OfflinePlayerData implements Closable, Experienc
         stellium = Math.max(0, Math.min(amount, getStats().getStat("MAX_STELLIUM")));
     }
 
+    @Deprecated
     public boolean isFullyLoaded() {
-        return fullyLoaded;
+        return isSynchronized();
     }
 
+    @Deprecated
     public void setFullyLoaded() {
-        this.fullyLoaded = true;
+        markAsSynchronized();
     }
 
     public boolean isCasting() {
         return skillCasting != null;
     }
 
-    public void setSkillCasting(SkillCastingHandler skillCasting) {
+    public void setSkillCasting(@NotNull SkillCastingInstance skillCasting) {
         Validate.isTrue(!isCasting(), "Player already in casting mode");
         this.skillCasting = skillCasting;
     }
 
+    /**
+     * API Method
+     */
+    public void setSkillCasting() {
+        Validate.isTrue(!isCasting(), "Player already in casting mode");
+        setSkillCasting(SkillCastingMode.getCurrent().newInstance(this));
+    }
+
     @NotNull
-    public SkillCastingHandler getSkillCasting() {
+    public SkillCastingInstance getSkillCasting() {
         return Objects.requireNonNull(skillCasting, "Player not in casting mode");
     }
 
@@ -1075,11 +1070,11 @@ public class PlayerData extends OfflinePlayerData implements Closable, Experienc
         return getProfess().hasSkill(skill.getHandler().getId()) && hasSkillUnlocked(getProfess().getSkill(skill.getHandler().getId()));
     }
 
-
     @Deprecated
     public boolean hasSkillUnlocked(ClassSkill skill) {
         return hasUnlockedLevel(skill);
     }
+
     /**
      * Checks for the player's level and compares it to the skill unlock level.
      * <p>
@@ -1123,7 +1118,7 @@ public class PlayerData extends OfflinePlayerData implements Closable, Experienc
     }
 
     public CooldownMap getCooldownMap() {
-        return mmoData.getCooldownMap();
+        return getMMOPlayerData().getCooldownMap();
     }
 
     public void setClass(@Nullable PlayerClass profess) {
@@ -1216,12 +1211,12 @@ public class PlayerData extends OfflinePlayerData implements Closable, Experienc
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         PlayerData that = (PlayerData) o;
-        return getUniqueId().equals(that.mmoData.getUniqueId());
+        return getUniqueId().equals(that.getUniqueId());
     }
 
     @Override
     public int hashCode() {
-        return mmoData.hashCode();
+        return getMMOPlayerData().hashCode();
     }
 
     public static PlayerData get(OfflinePlayer player) {

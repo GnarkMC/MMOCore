@@ -28,7 +28,7 @@ public class ConfigManager {
     public final CommandVerbose commandVerbose = new CommandVerbose();
 
     public boolean overrideVanillaExp, canCreativeCast, passiveSkillNeedBound, cobbleGeneratorXP, saveDefaultClassInfo, splitMainExp, splitProfessionExp, disableQuestBossBar,
-            pvpModeEnabled, pvpModeInvulnerabilityCanDamage;
+            pvpModeEnabled, pvpModeInvulnerabilityCanDamage, forceClassSelection;
     public String partyChatPrefix, noSkillBoundPlaceholder;
     public ChatColor staminaFull, staminaHalf, staminaEmpty;
     public long combatLogTimer, lootChestExpireTime, lootChestPlayerCooldown, globalSkillCooldown;
@@ -133,6 +133,7 @@ public class ConfigManager {
         splitMainExp = MMOCore.plugin.getConfig().getBoolean("party.main-exp-split");
         splitProfessionExp = MMOCore.plugin.getConfig().getBoolean("party.profession-exp-split");
         disableQuestBossBar = MMOCore.plugin.getConfig().getBoolean("mmocore-quests.disable-boss-bar");
+        forceClassSelection = MMOCore.plugin.getConfig().getBoolean("force-class-selection");
 
         // Combat
         pvpModeEnabled = config.getBoolean("pvp_mode.enabled");

@@ -1,5 +1,7 @@
 package net.Indyuce.mmocore;
 
+import io.lumine.mythic.lib.MythicLib;
+import net.Indyuce.mmocore.comp.profile.ForceClassProfileDataModule;
 import net.Indyuce.mmocore.listener.*;
 import net.Indyuce.mmocore.listener.event.PlayerPressKeyListener;
 import net.Indyuce.mmocore.listener.option.*;
@@ -30,6 +32,9 @@ public class MMOCoreBukkit {
 
         if (plugin.getConfig().getBoolean("vanilla-exp-redirection.enabled"))
             Bukkit.getPluginManager().registerEvents(new RedirectVanillaExp(plugin.getConfig().getDouble("vanilla-exp-redirection.ratio")), plugin);
+
+        if (plugin.getConfig().getBoolean("force-class-selection") && MythicLib.plugin.hasProfiles())
+            new ForceClassProfileDataModule();
 
         Bukkit.getPluginManager().registerEvents(new WaypointsListener(), plugin);
         Bukkit.getPluginManager().registerEvents(new PlayerListener(), plugin);

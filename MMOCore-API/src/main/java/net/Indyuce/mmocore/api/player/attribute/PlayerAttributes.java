@@ -128,6 +128,11 @@ public class PlayerAttributes {
             return spent;
         }
 
+        @Deprecated
+        public int getSpent() {
+            return getBase();
+        }
+
         public void setBase(int value) {
             spent = Math.max(0, value);
 
@@ -163,10 +168,6 @@ public class PlayerAttributes {
 
             // cast to int at the last moment
             return (int) d;
-        }
-
-        public int getSpent() {
-            return spent;
         }
 
         public AttributeModifier getModifier(String key) {

@@ -7,6 +7,7 @@ config-version: 9
 auto-save:
   enabled: true
   interval: 1800 # In seconds (1800 = 30 minutes)
+  log: true
 
 # MySQL Support
 mysql:
@@ -192,7 +193,15 @@ vanilla-exp-redirection:
 # Requires a SERVER reload when changed.
 override-vanilla-exp: true
 
-# Check the target player's RPG profile when shift when shift right clicking.
+# When enabled and when using a profile plugin, MMOCore will
+# force the user to choose a class. The profile will not be
+# created until they choose a class. Similarly, a player cannot
+# log into a profile with default class before choosing another class
+#
+# This option is useless unless you have installed a profile plugin.
+force-class-selection: true
+
+# Check the target player's RPG profile on shift-right click.
 shift-click-player-profile-check: false
 
 # If main class experience holograms should be displayed
@@ -211,7 +220,8 @@ max-skill-slots: 8
 
 # When set to true, passive skills must be bound in order to take effect.
 # When set to false, unlocked skills will take effect right away.
-passive-skill-need-bound: true
+# Disabled for now.
+# passive-skill-need-bound: true
 
 # Set this to true to allow players in
 # creative mode to enter casting mode
