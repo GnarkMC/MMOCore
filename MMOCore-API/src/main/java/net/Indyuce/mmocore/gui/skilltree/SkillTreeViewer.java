@@ -340,10 +340,10 @@ public class SkillTreeViewer extends EditableInventory {
 
 
         public Icon getIcon(IntegerCoordinates coordinates) {
-            boolean hasUpPath = skillTree.isPath(new IntegerCoordinates(coordinates.getX(), coordinates.getY() - 1));
-            boolean hasDownPath = skillTree.isPath(new IntegerCoordinates(coordinates.getX(), coordinates.getY() + 1));
-            boolean hasRightPath = skillTree.isPath(new IntegerCoordinates(coordinates.getX() + 1, coordinates.getY()));
-            boolean hasLeftPath = skillTree.isPath(new IntegerCoordinates(coordinates.getX() - 1, coordinates.getY()));
+            boolean hasUpPath = skillTree.isPathOrNode(new IntegerCoordinates(coordinates.getX(), coordinates.getY() - 1));
+            boolean hasDownPath = skillTree.isPathOrNode(new IntegerCoordinates(coordinates.getX(), coordinates.getY() + 1));
+            boolean hasRightPath = skillTree.isPathOrNode(new IntegerCoordinates(coordinates.getX() + 1, coordinates.getY()));
+            boolean hasLeftPath = skillTree.isPathOrNode(new IntegerCoordinates(coordinates.getX() - 1, coordinates.getY()));
 
             if (skillTree.isNode(coordinates)) {
                 SkillTreeNode node = skillTree.getNode(coordinates);

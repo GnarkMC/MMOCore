@@ -232,6 +232,10 @@ public abstract class SkillTree extends PostLoadObject implements RegisteredObje
         return coordinatesPaths.keySet().contains(coordinates);
     }
 
+    public boolean isPathOrNode(IntegerCoordinates coordinates) {
+        return isNode(coordinates) || isPath(coordinates);
+    }
+
     public Material getItem() {
         return item;
     }
