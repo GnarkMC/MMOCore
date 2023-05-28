@@ -86,6 +86,10 @@ chance-stat-weight:
   fishing-drops: 1
   drop-items: 1
 
+#The steps made for x and y when scrolling in the skill tree UI.
+skill-tree-scroll-step-x: 1
+skill-tree-scroll-step-y: 1
+
 # Whether blocks generated with a "cobblegenerator" should
 # provide the player with experience points or not
 should-cobblestone-generators-give-exp: false

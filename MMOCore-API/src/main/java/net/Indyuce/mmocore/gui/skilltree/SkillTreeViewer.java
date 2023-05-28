@@ -400,20 +400,20 @@ public class SkillTreeViewer extends EditableInventory {
                 open();
             }
             if (item.getFunction().equals("up")) {
-                y--;
+                y -= MMOCore.plugin.configManager.skillTreeScrollStepY;
                 open();
 
             }
             if (item.getFunction().equals("right")) {
-                x++;
+                x += MMOCore.plugin.configManager.skillTreeScrollStepX;
                 open();
             }
             if (item.getFunction().equals("down")) {
-                y++;
+                y += MMOCore.plugin.configManager.skillTreeScrollStepY;
                 open();
             }
             if (item.getFunction().equals("left")) {
-                x--;
+                x -= MMOCore.plugin.configManager.skillTreeScrollStepX;
                 open();
             }
 
