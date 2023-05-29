@@ -1,7 +1,7 @@
 package net.Indyuce.mmocore.api.player.profess;
 
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
+import io.lumine.mythic.lib.gson.JsonElement;
+import io.lumine.mythic.lib.gson.JsonObject;
 import net.Indyuce.mmocore.MMOCore;
 import net.Indyuce.mmocore.api.player.PlayerData;
 import net.Indyuce.mmocore.api.player.attribute.PlayerAttribute;
@@ -107,7 +107,7 @@ public class SavedClassInformation implements ClassDataContainer {
             for (Entry<String, JsonElement> entry : json.getAsJsonObject("bound-skills").entrySet())
                 boundSkills.put(Integer.parseInt(entry.getKey()), entry.getValue().getAsString());
         if (json.has("unlocked-items"))
-            for (JsonElement unlockedItem : json.get("unlocked-items").getAsJsonArray())
+            for ( JsonElement unlockedItem : json.get("unlocked-items").getAsJsonArray())
                 unlockedItems.add(unlockedItem.getAsString());
     }
 

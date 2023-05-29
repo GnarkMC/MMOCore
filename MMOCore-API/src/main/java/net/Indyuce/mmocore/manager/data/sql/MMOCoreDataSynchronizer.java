@@ -1,19 +1,18 @@
 package net.Indyuce.mmocore.manager.data.sql;
 
-import com.google.gson.JsonArray;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
 import io.lumine.mythic.lib.MythicLib;
 import io.lumine.mythic.lib.UtilityMethods;
 import io.lumine.mythic.lib.data.sql.SQLDataSynchronizer;
+import io.lumine.mythic.lib.gson.JsonArray;
+import io.lumine.mythic.lib.gson.JsonElement;
+import io.lumine.mythic.lib.gson.JsonObject;
 import net.Indyuce.mmocore.MMOCore;
 import net.Indyuce.mmocore.api.player.PlayerData;
 import net.Indyuce.mmocore.api.player.profess.PlayerClass;
 import net.Indyuce.mmocore.api.player.profess.SavedClassInformation;
 import net.Indyuce.mmocore.api.util.MMOCoreUtils;
 import net.Indyuce.mmocore.guild.provided.Guild;
-import net.Indyuce.mmocore.manager.data.PlayerDataManager;
+import net.Indyuce.mmocore.skill.ClassSkill;
 import net.Indyuce.mmocore.skilltree.SkillTreeNode;
 import net.Indyuce.mmocore.skilltree.tree.SkillTree;
 import org.apache.commons.lang.Validate;
@@ -52,11 +51,11 @@ public class MMOCoreDataSynchronizer extends SQLDataSynchronizer<PlayerData> {
             getData().setClass(MMOCore.plugin.classManager.get(result.getString("class")));
 
         if (!isEmpty(result.getString("times_claimed"))) {
-            JsonObject json = new JsonParser().parse(result.getString("times_claimed")).getAsJsonObject();
+            JsonObject json = MythicLib.plugin.getGson().fromJson(result.getString("times_claimed"), JsonObject.class);
             json.entrySet().forEach(entry -> getData().getItemClaims().put(entry.getKey(), entry.getValue().getAsInt()));
         }
         if (!isEmpty(result.getString("skill_tree_points"))) {
-            JsonObject json = new JsonParser().parse(result.getString("skill_tree_points")).getAsJsonObject();
+            JsonObject json = MythicLib.plugin.getGson().fromJson(result.getString("skill_tree_points"), JsonObject.class);
             for (SkillTree skillTree : MMOCore.plugin.skillTreeManager.getAll()) {
                 getData().setSkillTreePoints(skillTree.getId(), json.has(skillTree.getId()) ? json.get(skillTree.getId()).getAsInt() : 0);
             }
@@ -64,7 +63,7 @@ public class MMOCoreDataSynchronizer extends SQLDataSynchronizer<PlayerData> {
         }
 
         if (!isEmpty(result.getString("skill_tree_levels"))) {
-            JsonObject json = new JsonParser().parse(result.getString("skill_tree_levels")).getAsJsonObject();
+            JsonObject json = MythicLib.plugin.getGson().fromJson(result.getString("skill_tree_levels"), JsonObject.class);
             for (SkillTreeNode skillTreeNode : MMOCore.plugin.skillTreeManager.getAllNodes()) {
                 getData().setNodeLevel(skillTreeNode, json.has(skillTreeNode.getFullId()) ? json.get(skillTreeNode.getFullId()).getAsInt() : 0);
             }
@@ -72,7 +71,7 @@ public class MMOCoreDataSynchronizer extends SQLDataSynchronizer<PlayerData> {
         getData().setupSkillTree();
         Set<String> unlockedItems = new HashSet<>();
         if (!isEmpty(result.getString("unlocked_items"))) {
-            JsonArray unlockedItemsArray = new JsonParser().parse(result.getString("unlocked_items")).getAsJsonArray();
+            JsonArray unlockedItemsArray = MythicLib.plugin.getGson().fromJson(result.getString("unlocked_items"), JsonArray.class);
             for (JsonElement item : unlockedItemsArray)
                 unlockedItems.add(item.getAsString());
         }
@@ -100,8 +99,13 @@ public class MMOCoreDataSynchronizer extends SQLDataSynchronizer<PlayerData> {
         }
         if (!isEmpty(result.getString("bound_skills"))) {
             JsonObject object = MythicLib.plugin.getGson().fromJson(result.getString("bound_skills"), JsonObject.class);
-            for (Map.Entry<String, JsonElement> entry : object.entrySet())
-                getData().bindSkill(Integer.parseInt(entry.getKey()), getData().getProfess().getSkill(entry.getValue().getAsString()));
+            for (Map.Entry<String, JsonElement> entry : object.entrySet()) {
+                ClassSkill skill = getData().getProfess().getSkill(entry.getValue().getAsString());
+                MMOCore.log(skill.getSkill().getName());
+                if (skill != null)
+                    getData().bindSkill(Integer.parseInt(entry.getKey()), skill);
+
+            }
         }
         if (!isEmpty(result.getString("class_info"))) {
             JsonObject object = MythicLib.plugin.getGson().fromJson(result.getString("class_info"), JsonObject.class);
