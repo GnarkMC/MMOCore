@@ -93,7 +93,12 @@ public class SubclassSelect extends EditableInventory {
 
         @Override
         public boolean canDisplay(SubclassSelectionInventory inv) {
-            return inv.getPlayerData().getProfess().hasSubclass(playerClass);
+            return inv.getPlayerData()
+                    .getProfess()
+                    .getSubclasses()
+                    .stream()
+                    .anyMatch(subclass -> subclass.getLevel() <= inv.getPlayerData().getLevel()
+                            && subclass.getProfess().getId().equals(playerClass.getId()));
         }
     }
 
