@@ -40,7 +40,7 @@ public class Ambers extends SkillHandler<SimpleSkillResult> implements Listener 
         Location loc = target.getLocation();
 
         double a = random.nextDouble() * 2 * Math.PI;
-        new Amber(skillMeta.getCaster().getData(), EntityLocationType.BODY.getLocation(target), loc.clone().add(4 * Math.cos(a), 0, 4 * Math.sin(a)), skillMeta.getModifier("percent"));
+        new Amber(skillMeta.getCaster().getData(), EntityLocationType.BODY.getLocation(target), loc.clone().add(4 * Math.cos(a), 0, 4 * Math.sin(a)), skillMeta.getParameter("percent"));
     }
 
     @EventHandler

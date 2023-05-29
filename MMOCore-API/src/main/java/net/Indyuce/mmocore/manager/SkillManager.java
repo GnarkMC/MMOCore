@@ -74,11 +74,11 @@ public class SkillManager implements MMOCoreManager {
                 config.getConfig().set("name", MMOCoreUtils.caseOnWords(handler.getId().replace("_", " ").replace("-", " ").toLowerCase()));
                 config.getConfig().set("lore", Arrays.asList("This is the default skill description", "", "&e{cooldown}s Cooldown", "&9Costs {mana} {mana_name}"));
                 config.getConfig().set("material", "BOOK");
-                for (Object mod : handler.getModifiers()) {
-                    config.getConfig().set(mod + ".base", 0);
-                    config.getConfig().set(mod + ".per-level", 0);
-                    config.getConfig().set(mod + ".min", 0);
-                    config.getConfig().set(mod + ".max", 0);
+                for (Object param : handler.getParameters()) {
+                    config.getConfig().set(param + ".base", 0);
+                    config.getConfig().set(param + ".per-level", 0);
+                    config.getConfig().set(param + ".min", 0);
+                    config.getConfig().set(param + ".max", 0);
                 }
                 config.save();
             }

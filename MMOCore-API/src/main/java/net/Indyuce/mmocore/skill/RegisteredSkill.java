@@ -18,11 +18,10 @@ import java.util.*;
 public class RegisteredSkill {
     private final SkillHandler<?> handler;
     private final String name;
-    private final Map<String, LinearValue> defaultModifiers = new HashMap<>();
+    private final Map<String, LinearValue> defaultParameters = new HashMap<>();
     private final ItemStack icon;
     private final List<String> lore;
     private final List<String> categories;
-    @NotNull
     private final TriggerType triggerType;
 
     public RegisteredSkill(SkillHandler<?> handler, ConfigurationSection config) {
@@ -44,14 +43,14 @@ public class RegisteredSkill {
             categories.add("ACTIVE");
 
         // Load default modifier formulas
-        for (String mod : handler.getModifiers())
-            defaultModifiers.put(mod, config.contains(mod) ? new LinearValue(config.getConfigurationSection(mod)) : LinearValue.ZERO);
+        for (String param : handler.getParameters())
+            defaultParameters.put(param, config.contains(param) ? new LinearValue(config.getConfigurationSection(param)) : LinearValue.ZERO);
 
         /*
          * This is so that SkillAPI skill level matches the MMOCore skill level
          * https://gitlab.com/phoenix-dvpmt/mmocore/-/issues/531
          */
-        defaultModifiers.put("level", new IntegerLinearValue(0, 1));
+        defaultParameters.put("level", new IntegerLinearValue(0, 1));
     }
 
     public RegisteredSkill(SkillHandler<?> handler, String name, ItemStack icon, List<String> lore, @Nullable TriggerType triggerType) {
@@ -83,8 +82,16 @@ public class RegisteredSkill {
         return icon.clone();
     }
 
+    public boolean hasParameter(String parameter) {
+        return defaultParameters.containsKey(parameter);
+    }
+
+    /**
+     * Skills modifiers are now called parameters.
+     */
+    @Deprecated
     public boolean hasModifier(String modifier) {
-        return defaultModifiers.containsKey(modifier);
+        return defaultParameters.containsKey(modifier);
     }
 
     @NotNull
@@ -92,27 +99,45 @@ public class RegisteredSkill {
         return Objects.requireNonNull(triggerType, "Skill has no trigger");
     }
 
+    /**
+     * Skill modifiers are now called parameters.
+     */
+    @Deprecated
     public void addModifier(String modifier, LinearValue linear) {
-        defaultModifiers.put(modifier, linear);
+        defaultParameters.put(modifier, linear);
     }
+
+    public void addParameter(String parameter, LinearValue linear) {
+        defaultParameters.put(parameter, linear);
+    }
+
 
     @Deprecated
     public void addModifierIfNone(String mod, LinearValue defaultValue) {
-        if (!hasModifier(mod))
-            addModifier(mod, defaultValue);
+        if (!hasParameter(mod))
+            addParameter(mod, defaultValue);
+    }
+
+
+    /**
+     * Skill modifiers are now called parameters.
+     */
+    @Deprecated
+    public LinearValue getModifierInfo(String modifier) {
+        return defaultParameters.get(modifier);
     }
 
     /**
      * @return Modifier formula.
-     *         Not null as long as the modifier is well defined
+     * Not null as long as the modifier is well defined
      */
     @NotNull
-    public LinearValue getModifierInfo(String modifier) {
-        return defaultModifiers.get(modifier);
+    public LinearValue getParameterInfo(String parameter) {
+        return defaultParameters.get(parameter);
     }
 
     public double getModifier(String modifier, int level) {
-        return defaultModifiers.get(modifier).calculate(level);
+        return defaultParameters.get(modifier).calculate(level);
     }
 
     public boolean matchesFormula(String formula) {

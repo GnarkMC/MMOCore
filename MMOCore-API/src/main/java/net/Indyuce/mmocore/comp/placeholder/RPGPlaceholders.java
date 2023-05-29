@@ -72,13 +72,13 @@ public class RPGPlaceholders extends PlaceholderExpansion {
             String id = identifier.substring(12);
             RegisteredSkill skill = Objects.requireNonNull(MMOCore.plugin.skillManager.getSkill(id), "Could not find skill with ID '" + id + "'");
             return String.valueOf(playerData.getSkillLevel(skill));
-        } else if (identifier.startsWith("skill_modifier_")) {
-            String[] ids = identifier.substring(15).split(":");
-            String modifierId = ids[0];
+        } else if (identifier.startsWith("skill_modifier_")||identifier.startsWith("skill_parameter_")) {
+            String[] ids= (identifier.startsWith("skill_modifier_")?identifier.substring(16):identifier.substring(17)).split(":");
+            String parameterId = ids[0];
             String skillId = ids[1];
             RegisteredSkill skill = Objects.requireNonNull(MMOCore.plugin.skillManager.getSkill(skillId), "Could not find skill with ID '" + skillId + "'");
             ClassSkill classSkill = playerData.getProfess().getSkill(skill);
-            double value = classSkill.toCastable(playerData).getModifier(modifierId);
+            double value = classSkill.toCastable(playerData).getParameter(parameterId);
             return MythicLib.plugin.getMMOConfig().decimal.format(value);
         } else if (identifier.startsWith("attribute_points_spent_")) {
             String attributeId = identifier.substring(31);

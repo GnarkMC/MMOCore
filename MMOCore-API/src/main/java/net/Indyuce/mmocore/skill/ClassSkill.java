@@ -5,7 +5,6 @@ import io.lumine.mythic.lib.api.player.EquipmentSlot;
 import io.lumine.mythic.lib.player.cooldown.CooldownObject;
 import io.lumine.mythic.lib.player.modifier.ModifierSource;
 import io.lumine.mythic.lib.player.skill.PassiveSkill;
-import io.lumine.mythic.lib.script.condition.Condition;
 import net.Indyuce.mmocore.MMOCore;
 import net.Indyuce.mmocore.api.player.PlayerData;
 import net.Indyuce.mmocore.api.util.math.formula.IntegerLinearValue;
@@ -22,7 +21,7 @@ public class ClassSkill implements CooldownObject, Unlockable {
     private final RegisteredSkill skill;
     private final int unlockLevel, maxSkillLevel;
     private final boolean unlockedByDefault;
-    private final Map<String, LinearValue> modifiers = new HashMap<>();
+    private final Map<String, LinearValue> parameters = new HashMap<>();
 
     /**
      * Class used to save information about skills IN A CLASS CONTEXT
@@ -42,8 +41,8 @@ public class ClassSkill implements CooldownObject, Unlockable {
         this.unlockLevel = unlockLevel;
         this.maxSkillLevel = maxSkillLevel;
         this.unlockedByDefault = unlockedByDefault;
-        for (String mod : skill.getHandler().getModifiers())
-            this.modifiers.put(mod, skill.getModifierInfo(mod));
+        for (String param : skill.getHandler().getParameters())
+            this.parameters.put(param, skill.getParameterInfo(param));
     }
 
     public ClassSkill(RegisteredSkill skill, ConfigurationSection config) {
@@ -51,9 +50,9 @@ public class ClassSkill implements CooldownObject, Unlockable {
         unlockLevel = config.getInt("level");
         maxSkillLevel = config.getInt("max-level");
         unlockedByDefault = config.getBoolean("unlocked-by-default", true);
-        for (String mod : skill.getHandler().getModifiers()) {
-            LinearValue defaultValue = skill.getModifierInfo(mod);
-            this.modifiers.put(mod, config.isConfigurationSection(mod) ? readLinearValue(defaultValue, config.getConfigurationSection(mod)) : defaultValue);
+        for (String param : skill.getHandler().getParameters()) {
+            LinearValue defaultValue = skill.getParameterInfo(param);
+            this.parameters.put(param, config.isConfigurationSection(param) ? readLinearValue(defaultValue, config.getConfigurationSection(param)) : defaultValue);
         }
     }
 
@@ -101,17 +100,35 @@ public class ClassSkill implements CooldownObject, Unlockable {
             playerData.getStats().updateStats();
     }
 
+
+
     /**
-     * This method can only override default modifiers and
+     * Skill modifiers are now called parameters.
+     */
+    @Deprecated
+    public void addModifier(String modifier, LinearValue linear) {
+        addParameter(modifier, linear);
+    }
+    /**
+     * This method can only override default parameters and
      * will throw an error when trying to define non existing modifiers
      */
-    public void addModifier(String modifier, LinearValue linear) {
-        Validate.isTrue(modifiers.containsKey(modifier), "Could not find modifier '" + modifier + "'");
-        modifiers.put(modifier, linear);
+    public void addParameter(String parameter, LinearValue linear) {
+        Validate.isTrue(parameters.containsKey(parameter), "Could not find parameter '" + parameter + "'");
+        parameters.put(parameter, linear);
     }
 
+
+    /**
+     * Skill modifiers are now called parameters.
+     */
+    @Deprecated
     public double getModifier(String modifier, int level) {
-        return Objects.requireNonNull(modifiers.get(modifier), "Could not find modifier '" + modifier + "'").calculate(level);
+        return getParameter(modifier, level);
+    }
+
+    public double getParameter(String parameter, int level) {
+        return Objects.requireNonNull(parameters.get(parameter), "Could not find parameter '" + parameter + "'").calculate(level);
     }
 
     public List<String> calculateLore(PlayerData data) {
@@ -122,7 +139,7 @@ public class ClassSkill implements CooldownObject, Unlockable {
 
         // Calculate placeholders
         Placeholders placeholders = new Placeholders();
-        modifiers.keySet().forEach(modifier -> placeholders.register(modifier, MythicLib.plugin.getMMOConfig().decimal.format(data.getMMOPlayerData().getSkillModifierMap().getInstance(skill.getHandler(), modifier).getTotal(modifiers.get(modifier).calculate(x)))));
+        parameters.keySet().forEach(modifier -> placeholders.register(modifier, MythicLib.plugin.getMMOConfig().decimal.format(data.getMMOPlayerData().getSkillModifierMap().getInstance(skill.getHandler(), modifier).getTotal(parameters.get(modifier).calculate(x)))));
         placeholders.register("mana_name", data.getProfess().getManaDisplay().getName());
         placeholders.register("mana_color", data.getProfess().getManaDisplay().getFull().toString());
 

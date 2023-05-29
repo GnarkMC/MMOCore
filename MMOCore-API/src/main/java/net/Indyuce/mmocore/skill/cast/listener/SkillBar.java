@@ -17,7 +17,6 @@ import org.bukkit.GameMode;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
-import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerItemHeldEvent;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.jetbrains.annotations.NotNull;
@@ -151,11 +150,11 @@ public class SkillBar implements SkillCastingListener {
         }
 
         private boolean noMana(PlayerData data, ClassSkill skill) {
-            return skill.getSkill().hasModifier("mana") && skill.getModifier("mana", data.getSkillLevel(skill.getSkill())) > data.getMana();
+            return skill.getSkill().hasParameter("mana") && skill.getParameter("mana", data.getSkillLevel(skill.getSkill())) > data.getMana();
         }
 
         private boolean noStamina(PlayerData data, ClassSkill skill) {
-            return skill.getSkill().hasModifier("stamina") && skill.getModifier("stamina", data.getSkillLevel(skill.getSkill())) > data.getStamina();
+            return skill.getSkill().hasParameter("stamina") && skill.getParameter("stamina", data.getSkillLevel(skill.getSkill())) > data.getStamina();
         }
 
         @Override
