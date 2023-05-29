@@ -158,7 +158,7 @@ public class PlayerData extends SynchronizedDataHolder implements OfflinePlayerD
         //We remove all the stats and buffs associated to triggers.
         getMMOPlayerData().getStatMap().getInstances().forEach(statInstance -> statInstance.removeIf(key -> key.startsWith(Trigger.TRIGGER_PREFIX)));
         getMMOPlayerData().getSkillModifierMap().getInstances().forEach(skillModifierInstance -> skillModifierInstance.removeIf(key -> key.startsWith(Trigger.TRIGGER_PREFIX)));
-        final Iterator<Map.Entry<Integer, BoundSkillInfo>> ite = boundSkills.entrySet().iterator();
+        final Iterator<Map.Entry<Integer, BoundSkillInfo>> ite = new HashMap(boundSkills).entrySet().iterator();
         while (ite.hasNext())
             try {
                 final Map.Entry<Integer, BoundSkillInfo> entry = ite.next();
@@ -171,6 +171,7 @@ public class PlayerData extends SynchronizedDataHolder implements OfflinePlayerD
                 bindSkill(entry.getKey(), classSkill);
             } catch (Exception exception) {
                 MMOCore.plugin.getLogger().log(Level.WARNING, "Could not reload data of '" + getPlayer().getName() + "': " + exception.getMessage());
+                exception.printStackTrace();
             }
 
         for (SkillTree skillTree : getProfess().getSkillTrees())

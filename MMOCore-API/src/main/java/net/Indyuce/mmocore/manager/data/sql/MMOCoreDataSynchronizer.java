@@ -101,7 +101,6 @@ public class MMOCoreDataSynchronizer extends SQLDataSynchronizer<PlayerData> {
             JsonObject object = MythicLib.plugin.getGson().fromJson(result.getString("bound_skills"), JsonObject.class);
             for (Map.Entry<String, JsonElement> entry : object.entrySet()) {
                 ClassSkill skill = getData().getProfess().getSkill(entry.getValue().getAsString());
-                MMOCore.log(skill.getSkill().getName());
                 if (skill != null)
                     getData().bindSkill(Integer.parseInt(entry.getKey()), skill);
 
