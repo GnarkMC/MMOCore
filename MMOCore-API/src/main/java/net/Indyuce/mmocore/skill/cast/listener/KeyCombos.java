@@ -112,7 +112,7 @@ public class KeyCombos implements SkillCastingListener {
 
         // Hash current combo and check
         if (casting.combos.getCombos().containsKey(casting.current)) {
-            final int spellSlot = casting.combos.getCombos().get(casting.current) - 1;
+            final int spellSlot = casting.combos.getCombos().get(casting.current);
             playerData.leaveSkillCasting();
 
             // Cast spell
