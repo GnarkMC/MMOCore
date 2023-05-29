@@ -88,7 +88,7 @@ public class SkillList extends EditableInventory {
                 }
             };
         }
-        if(function.equals("selected"))
+        if (function.equals("selected"))
             return new SelectedItem(config);
 
         return new SimplePlaceholderItem(config);
@@ -101,23 +101,19 @@ public class SkillList extends EditableInventory {
     public class SelectedItem extends InventoryItem<SkillViewerInventory> {
         public SelectedItem(ConfigurationSection config) {
             //We must use this constructor to show that there are not specified material
-            super(Material.BARRIER,config);
+            super(Material.BARRIER, config);
         }
 
         @Override
         public ItemStack display(SkillViewerInventory inv, int n) {
-            ItemStack item =super.display(inv, n);
-            if(inv.selected== null)
+            if (inv.selected == null)
                 return new ItemStack(Material.AIR);
-            if (inv.selected != null) {
-                item.setType(inv.selected.getSkill().getIcon().getType());
-            }
-            return item;
+            return new ItemStack(inv.selected.getSkill().getIcon());
         }
 
         @Override
         public Placeholders getPlaceholders(SkillViewerInventory inv, int n) {
-            Placeholders holders= new Placeholders();
+            Placeholders holders = new Placeholders();
             holders.register("selected", inv.selected.getSkill().getName());
             return holders;
         }
