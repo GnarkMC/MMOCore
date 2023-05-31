@@ -224,8 +224,7 @@ max-skill-slots: 8
 
 # When set to true, passive skills must be bound in order to take effect.
 # When set to false, unlocked skills will take effect right away.
-# Disabled for now.
-# passive-skill-need-bound: true
+passive-skill-need-bound: true
 
 # Set this to true to allow players in
 # creative mode to enter casting mode
