@@ -489,6 +489,7 @@ nodes:
 
 
 
+
 # This section is to have a specific display for the skill tree in the GUI.
 # It is optional as if you don't fill it the config in gui/skill-tree.yml will be used.
 # For each node it will first look if the node has a specific display, if not it will look if
@@ -517,6 +518,28 @@ nodes:
 #        custom-model-data: 0
 #      default:
 #        item: "WHITE_DYE"
+#        custom-model-data: 0
+#    unlockable:
+#      up:
+#        item: "BLUE_DYE"
+#        custom-model-data: 0
+#      up-right:
+#        item: "BLUE_DYE"
+#        custom-model-data: 0
+#      up-left:
+#        item: "BLUE_DYE"
+#        custom-model-data: 0
+#      down-right:
+#        item: "BLUE_DYE"
+#        custom-model-data: 0
+#      down-left:
+#        item: "BLUE_DYE"
+#        custom-model-data: 0
+#      right:
+#        item: "BLUE_DYE"
+#        custom-model-data: 0
+#      default:
+#        item: "BLUE_DYE"
 #        custom-model-data: 0
 #    locked:
 #      up:

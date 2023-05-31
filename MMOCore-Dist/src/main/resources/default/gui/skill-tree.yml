@@ -123,6 +123,28 @@ display:
       default:
         item: "WHITE_DYE"
         custom-model-data: 0
+    unlockable:
+      up:
+        item: "BLUE_DYE"
+        custom-model-data: 0
+      up-right:
+        item: "BLUE_DYE"
+        custom-model-data: 0
+      up-left:
+        item: "BLUE_DYE"
+        custom-model-data: 0
+      down-right:
+        item: "BLUE_DYE"
+        custom-model-data: 0
+      down-left:
+        item: "BLUE_DYE"
+        custom-model-data: 0
+      right:
+        item: "BLUE_DYE"
+        custom-model-data: 0
+      default:
+        item: "BLUE_DYE"
+        custom-model-data: 0
     locked:
       up:
         item: "GRAY_DYE"
