@@ -493,20 +493,273 @@ nodes:
         - "&eAdditional magic skill damage in +%3"
 
 
-
-
-icons: 
-  unlocked:
-    1: 
-      item: 'GREEN_DYE'
-  locked: 
-    1: 
-      item: "BROWN_DYE"
-  unlockable:
-    1:
-      item: "BLUE_DYE"
-  fully-locked:
-    1:
-      item: "BLACK_DYE"
-  path: 
-    item: "WHITE_DYE"
+# This section is to have a specific display for the skill tree in the GUI.
+# It is optional as if you don't fill it the config in gui/skill-tree.yml will be used.
+# For each node it will first look if the node has a specific display, if not it will look if
+# the display is defined in this section. If not it will use the default display in gui/skill-tree.yml.
+#
+#display:
+#  paths:
+#    unlocked:
+#      up:
+#        item: "WHITE_DYE"
+#        custom-model-data: 0
+#      up-right:
+#        item: "WHITE_DYE"
+#        custom-model-data: 0
+#      up-left:
+#        item: "WHITE_DYE"
+#        custom-model-data: 0
+#      down-right:
+#        item: "WHITE_DYE"
+#        custom-model-data: 0
+#      down-left:
+#        item: "WHITE_DYE"
+#        custom-model-data: 0
+#      right:
+#        item: "WHITE_DYE"
+#        custom-model-data: 0
+#      default:
+#        item: "WHITE_DYE"
+#        custom-model-data: 0
+#    locked:
+#      up:
+#        item: "GRAY_DYE"
+#        custom-model-data: 0
+#      up-right:
+#        item: "GRAY_DYE"
+#        custom-model-data: 0
+#      up-left:
+#        item: "GRAY_DYE"
+#        custom-model-data: 0
+#      down-right:
+#        item: "GRAY_DYE"
+#        custom-model-data: 0
+#      down-left:
+#        item: "GRAY_DYE"
+#        custom-model-data: 0
+#      right:
+#        item: "GRAY_DYE"
+#        custom-model-data: 0
+#      default:
+#        item: "GRAY_DYE"
+#        custom-model-data: 0
+#    fully-locked:
+#      up:
+#        item: "BLACK_DYE"
+#        custom-model-data: 0
+#      up-right:
+#        item: "BLACK_DYE"
+#        custom-model-data: 0
+#      up-left:
+#        item: "BLACK_DYE"
+#        custom-model-data: 0
+#      down-right:
+#        item: "BLACK_DYE"
+#        custom-model-data: 0
+#      down-left:
+#        item: "BLACK_DYE"
+#        custom-model-data: 0
+#      right:
+#        item: "BLACK_DYE"
+#        custom-model-data: 0
+#      default:
+#        item: "BLACK_DYE"
+#        custom-model-data: 0
+#  nodes:
+#    unlocked:
+#      up-right-down-left:
+#        item: "WHITE_CONCRETE"
+#        custom-model-data: 0
+#      up-right-down:
+#        item: "WHITE_CONCRETE"
+#        custom-model-data: 0
+#      up-right-left:
+#        item: "WHITE_CONCRETE"
+#        custom-model-data: 0
+#      up-down-left:
+#        item: "WHITE_CONCRETE"
+#        custom-model-data: 0
+#      down-right-left:
+#        item: "WHITE_CONCRETE"
+#        custom-model-data: 0
+#      up-right:
+#        item: "WHITE_CONCRETE"
+#        custom-model-data: 0
+#      up-down:
+#        item: "WHITE_CONCRETE"
+#        custom-model-data: 0
+#      up-left:
+#        item: "WHITE_CONCRETE"
+#        custom-model-data: 0
+#      down-right:
+#        item: "WHITE_CONCRETE"
+#        custom-model-data: 0
+#      down-left:
+#        item: "WHITE_CONCRETE"
+#        custom-model-data: 0
+#      right-left:
+#        item: "WHITE_CONCRETE"
+#        custom-model-data: 0
+#      right:
+#        item: "WHITE_CONCRETE"
+#        custom-model-data: 0
+#      left:
+#        item: "WHITE_CONCRETE"
+#        custom-model-data: 0
+#      up:
+#        item: "WHITE_CONCRETE"
+#        custom-model-data: 0
+#      down:
+#        item: "WHITE_CONCRETE"
+#        custom-model-data: 0
+#      no-path:
+#        item: "WHITE_CONCRETE"
+#        custom-model-data: 0
+#    locked:
+#      up-right-down-left:
+#        item: "GRAY_CONCRETE"
+#        custom-model-data: 0
+#      up-right-down:
+#        item: "GRAY_CONCRETE"
+#        custom-model-data: 0
+#      up-right-left:
+#        item: "GRAY_CONCRETE"
+#        custom-model-data: 0
+#      up-down-left:
+#        item: "GRAY_CONCRETE"
+#        custom-model-data: 0
+#      down-right-left:
+#        item: "GRAY_CONCRETE"
+#        custom-model-data: 0
+#      up-right:
+#        item: "GRAY_CONCRETE"
+#        custom-model-data: 0
+#      up-down:
+#        item: "GRAY_CONCRETE"
+#        custom-model-data: 0
+#      up-left:
+#        item: "GRAY_CONCRETE"
+#        custom-model-data: 0
+#      down-right:
+#        item: "GRAY_CONCRETE"
+#        custom-model-data: 0
+#      down-left:
+#        item: "GRAY_CONCRETE"
+#        custom-model-data: 0
+#      right-left:
+#        item: "GRAY_CONCRETE"
+#        custom-model-data: 0
+#      right:
+#        item: "GRAY_CONCRETE"
+#        custom-model-data: 0
+#      left:
+#        item: "GRAY_CONCRETE"
+#        custom-model-data: 0
+#      up:
+#        item: "GRAY_CONCRETE"
+#        custom-model-data: 0
+#      down:
+#        item: "GRAY_CONCRETE"
+#        custom-model-data: 0
+#      no-path:
+#        item: "GRAY_CONCRETE"
+#        custom-model-data: 0
+#    unlockable:
+#      up-right-down-left:
+#        item: "BLUE_CONCRETE"
+#        custom-model-data: 0
+#      up-right-down:
+#        item: "BLUE_CONCRETE"
+#        custom-model-data: 0
+#      up-right-left:
+#        item: "BLUE_CONCRETE"
+#        custom-model-data: 0
+#      up-down-left:
+#        item: "BLUE_CONCRETE"
+#        custom-model-data: 0
+#      down-right-left:
+#        item: "BLUE_CONCRETE"
+#        custom-model-data: 0
+#      up-right:
+#        item: "BLUE_CONCRETE"
+#        custom-model-data: 0
+#      up-down:
+#        item: "BLUE_CONCRETE"
+#        custom-model-data: 0
+#      up-left:
+#        item: "BLUE_CONCRETE"
+#        custom-model-data: 0
+#      down-right:
+#        item: "BLUE_CONCRETE"
+#        custom-model-data: 0
+#      down-left:
+#        item: "BLUE_CONCRETE"
+#        custom-model-data: 0
+#      right-left:
+#        item: "BLUE_CONCRETE"
+#        custom-model-data: 0
+#      right:
+#        item: "BLUE_CONCRETE"
+#        custom-model-data: 0
+#      left:
+#        item: "BLUE_CONCRETE"
+#        custom-model-data: 0
+#      up:
+#        item: "BLUE_CONCRETE"
+#        custom-model-data: 0
+#      down:
+#        item: "BLUE_CONCRETE"
+#        custom-model-data: 0
+#      no-path:
+#        item: "BLUE_CONCRETE"
+#        custom-model-data: 0
+#    fully-locked:
+#      up-right-down-left:
+#        item: "BLACK_CONCRETE"
+#        custom-model-data: 0
+#      up-right-down:
+#        item: "BLACK_CONCRETE"
+#        custom-model-data: 0
+#      up-right-left:
+#        item: "BLACK_CONCRETE"
+#        custom-model-data: 0
+#      up-down-left:
+#        item: "BLACK_CONCRETE"
+#        custom-model-data: 0
+#      down-right-left:
+#        item: "BLACK_CONCRETE"
+#        custom-model-data: 0
+#      up-right:
+#        item: "BLACK_CONCRETE"
+#        custom-model-data: 0
+#      up-down:
+#        item: "BLACK_CONCRETE"
+#        custom-model-data: 0
+#      up-left:
+#        item: "BLACK_CONCRETE"
+#        custom-model-data: 0
+#      down-right:
+#        item: "BLACK_CONCRETE"
+#        custom-model-data: 0
+#      down-left:
+#        item: "BLACK_CONCRETE"
+#        custom-model-data: 0
+#      right-left:
+#        item: "BLACK_CONCRETE"
+#        custom-model-data: 0
+#      right:
+#        item: "BLACK_CONCRETE"
+#        custom-model-data: 0
+#      left:
+#        item: "BLACK_CONCRETE"
+#        custom-model-data: 0
+#      up:
+#        item: "BLACK_CONCRETE"
+#        custom-model-data: 0
+#      down:
+#        item: "BLACK_CONCRETE"
+#        custom-model-data: 0
+#      no-path:
+#        item: "BLACK_CONCRETE"
+#        custom-model-data: 0

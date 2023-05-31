@@ -5,11 +5,14 @@ import io.lumine.mythic.lib.UtilityMethods;
 import io.lumine.mythic.lib.api.util.PostLoadObject;
 import net.Indyuce.mmocore.MMOCore;
 import net.Indyuce.mmocore.api.player.PlayerData;
+import net.Indyuce.mmocore.api.util.MMOCoreUtils;
+import net.Indyuce.mmocore.gui.skilltree.display.*;
 import net.Indyuce.mmocore.manager.registry.RegisteredObject;
 import net.Indyuce.mmocore.skilltree.*;
 import org.apache.commons.lang.Validate;
 import org.bukkit.Material;
 import org.bukkit.configuration.ConfigurationSection;
+import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -53,6 +56,9 @@ public abstract class SkillTree extends PostLoadObject implements RegisteredObje
     //Caches the height of the skill tree
     protected final List<SkillTreeNode> roots = new ArrayList<>();
 
+    protected final Map<DisplayInfo, Icon> icons = new HashMap<>();
+
+
     public SkillTree(ConfigurationSection config) {
         super(config);
 
@@ -87,8 +93,24 @@ public abstract class SkillTree extends PostLoadObject implements RegisteredObje
                     }
                 }
             }
-
         }
+        //Loads all the pathDisplayInfo
+        for (PathStatus status : PathStatus.values())
+            for (PathType pathType : PathType.values()) {
+                ConfigurationSection section = config.getConfigurationSection("display.paths." + MMOCoreUtils.ymlName(status.name()) + "." + MMOCoreUtils.ymlName(pathType.name()));
+                if (section != null)
+                    icons.put(new PathDisplayInfo(pathType, status), new Icon(section));
+            }
+
+        //Loads all the nodeDisplayInfo
+        for (NodeStatus status : NodeStatus.values())
+            for (NodeType nodeType : NodeType.values()) {
+                ConfigurationSection section = config.getConfigurationSection("display.nodes." + MMOCoreUtils.ymlName(status.name()) + "." + MMOCoreUtils.ymlName(nodeType.name()));
+                if (section != null)
+                    icons.put(new NodeDisplayInfo(nodeType, status), new Icon(section));
+            }
+
+
     }
 
     /**
@@ -266,6 +288,14 @@ public abstract class SkillTree extends PostLoadObject implements RegisteredObje
     @NotNull
     public SkillTreeNode getNode(String name) {
         return Objects.requireNonNull(nodes.get(name), "Could not find node in tree '" + id + "' with name '" + name + "'");
+    }
+
+    public boolean hasIcon(DisplayInfo displayInfo) {
+        return icons.containsKey(displayInfo);
+    }
+
+    public Icon getIcon(DisplayInfo displayInfo) {
+        return icons.get(displayInfo);
     }
 
 

@@ -340,10 +340,10 @@ public class SkillTreeViewer extends EditableInventory {
 
 
         public Icon getIcon(IntegerCoordinates coordinates) {
-            boolean hasUpPath = skillTree.isPathOrNode(new IntegerCoordinates(coordinates.getX(), coordinates.getY() - 1));
-            boolean hasDownPath = skillTree.isPathOrNode(new IntegerCoordinates(coordinates.getX(), coordinates.getY() + 1));
-            boolean hasRightPath = skillTree.isPathOrNode(new IntegerCoordinates(coordinates.getX() + 1, coordinates.getY()));
-            boolean hasLeftPath = skillTree.isPathOrNode(new IntegerCoordinates(coordinates.getX() - 1, coordinates.getY()));
+            boolean hasUpPathOrNode = skillTree.isPathOrNode(new IntegerCoordinates(coordinates.getX(), coordinates.getY() - 1));
+            boolean hasDownPathOrNode = skillTree.isPathOrNode(new IntegerCoordinates(coordinates.getX(), coordinates.getY() + 1));
+            boolean hasRightPathOrNode = skillTree.isPathOrNode(new IntegerCoordinates(coordinates.getX() + 1, coordinates.getY()));
+            boolean hasLeftPathOrNode = skillTree.isPathOrNode(new IntegerCoordinates(coordinates.getX() - 1, coordinates.getY()));
 
             if (skillTree.isNode(coordinates)) {
                 SkillTreeNode node = skillTree.getNode(coordinates);
@@ -351,15 +351,23 @@ public class SkillTreeViewer extends EditableInventory {
                 //If the node has its own display, it will be shown.
                 if (node.hasIcon(nodeStatus))
                     return node.getIcon(nodeStatus);
+                NodeType nodeType = NodeType.getNodeType(hasUpPathOrNode, hasRightPathOrNode, hasDownPathOrNode, hasLeftPathOrNode);
+                DisplayInfo displayInfo = new NodeDisplayInfo(nodeType, nodeStatus);
+                //Takes the display defined in the skill tree config if it exists.
+                if (skillTree.hasIcon(displayInfo))
+                    return skillTree.getIcon(displayInfo);
 
-                NodeType nodeType = NodeType.getNodeType(hasUpPath, hasRightPath, hasDownPath, hasLeftPath);
-                Icon icon = icons.get(new NodeDisplayInfo(nodeType, nodeStatus));
+                Icon icon = icons.get(displayInfo);
                 Validate.notNull(icon, "The node " + node.getFullId() + " has no icon for the type " + nodeType + " and the status " + nodeStatus);
                 return icon;
             } else {
-                PathType pathType = PathType.getPathType(hasUpPath, hasRightPath, hasDownPath, hasLeftPath);
+                PathType pathType = PathType.getPathType(hasUpPathOrNode, hasRightPathOrNode, hasDownPathOrNode, hasLeftPathOrNode);
                 SkillTreePath path = skillTree.getPath(coordinates);
-                Icon icon = icons.get(new PathDisplayInfo(pathType, path.getStatus(playerData)));
+                DisplayInfo displayInfo = new PathDisplayInfo(pathType, path.getStatus(playerData));
+                //Takes the display defined in the skill tree config if it exists.
+                if (skillTree.hasIcon(displayInfo))
+                    return skillTree.getIcon(displayInfo);
+                Icon icon = icons.get(displayInfo);
                 Validate.notNull(icon, "There is no icon for the path type " + pathType + " and the status " + path.getStatus(playerData));
                 return icon;
             }
