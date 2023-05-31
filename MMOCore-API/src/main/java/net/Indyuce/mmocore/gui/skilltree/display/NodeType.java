@@ -12,32 +12,44 @@ public enum NodeType {
     DOWN_RIGHT,
     DOWN_LEFT,
     RIGHT_LEFT,
+
+    RIGHT,
+    LEFT,
+    DOWN,
+    UP,
     NO_PATH;
 
-    public static NodeType getNodeType(boolean hasUpPath, boolean hasRightPath, boolean hasDownPath, boolean hasLeftPath) {
-        if (hasUpPath && hasRightPath && hasDownPath && hasLeftPath) {
+    public static NodeType getNodeType(boolean hasUpPathOrNode, boolean hasRightPathOrNode, boolean hasDownPathOrNode, boolean hasLeftPathOrNode) {
+        if (hasUpPathOrNode && hasRightPathOrNode && hasDownPathOrNode && hasLeftPathOrNode)
             return UP_RIGHT_DOWN_LEFT;
-        } else if (hasUpPath && hasRightPath && hasDownPath) {
+        else if (hasUpPathOrNode && hasRightPathOrNode && hasDownPathOrNode)
             return UP_RIGHT_DOWN;
-        } else if (hasUpPath && hasRightPath && hasLeftPath) {
+        else if (hasUpPathOrNode && hasRightPathOrNode && hasLeftPathOrNode)
             return UP_RIGHT_LEFT;
-        } else if (hasUpPath && hasDownPath && hasLeftPath) {
+        else if (hasUpPathOrNode && hasDownPathOrNode && hasLeftPathOrNode)
             return UP_DOWN_LEFT;
-        } else if (hasDownPath && hasRightPath && hasLeftPath) {
+        else if (hasDownPathOrNode && hasRightPathOrNode && hasLeftPathOrNode)
             return DOWN_RIGHT_LEFT;
-        } else if (hasUpPath && hasRightPath) {
+        else if (hasUpPathOrNode && hasRightPathOrNode)
             return UP_RIGHT;
-        } else if (hasUpPath && hasDownPath) {
+        else if (hasUpPathOrNode && hasDownPathOrNode)
             return UP_DOWN;
-        } else if (hasUpPath && hasLeftPath) {
+        else if (hasUpPathOrNode && hasLeftPathOrNode)
             return UP_LEFT;
-        } else if (hasDownPath && hasRightPath) {
+        else if (hasDownPathOrNode && hasRightPathOrNode)
             return DOWN_RIGHT;
-        } else if (hasDownPath && hasLeftPath) {
+        else if (hasDownPathOrNode && hasLeftPathOrNode)
             return DOWN_LEFT;
-        } else if (hasRightPath && hasLeftPath) {
+        else if (hasRightPathOrNode && hasLeftPathOrNode)
             return RIGHT_LEFT;
-        }
+        else if (hasUpPathOrNode)
+            return UP;
+        else if (hasDownPathOrNode)
+            return DOWN;
+        else if (hasRightPathOrNode)
+            return RIGHT;
+        else if (hasLeftPathOrNode)
+            return LEFT;
         return NO_PATH;
     }
 }

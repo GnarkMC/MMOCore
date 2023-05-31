@@ -202,6 +202,18 @@ display:
       right-left:
         item: "WHITE_CONCRETE"
         custom-model-data: 0
+      right:
+        item: "WHITE_CONCRETE"
+        custom-model-data: 0
+      left:
+        item: "WHITE_CONCRETE"
+        custom-model-data: 0
+      up:
+        item: "WHITE_CONCRETE"
+        custom-model-data: 0
+      down:
+        item: "WHITE_CONCRETE"
+        custom-model-data: 0
       no-path:
         item: "WHITE_CONCRETE"
         custom-model-data: 0
@@ -237,6 +249,18 @@ display:
         item: "GRAY_CONCRETE"
         custom-model-data: 0
       right-left:
+        item: "GRAY_CONCRETE"
+        custom-model-data: 0
+      right:
+        item: "GRAY_CONCRETE"
+        custom-model-data: 0
+      left:
+        item: "GRAY_CONCRETE"
+        custom-model-data: 0
+      up:
+        item: "GRAY_CONCRETE"
+        custom-model-data: 0
+      down:
         item: "GRAY_CONCRETE"
         custom-model-data: 0
       no-path:
@@ -276,6 +300,18 @@ display:
       right-left:
         item: "BLUE_CONCRETE"
         custom-model-data: 0
+      right:
+        item: "BLUE_CONCRETE"
+        custom-model-data: 0
+      left:
+        item: "BLUE_CONCRETE"
+        custom-model-data: 0
+      up:
+        item: "BLUE_CONCRETE"
+        custom-model-data: 0
+      down:
+        item: "BLUE_CONCRETE"
+        custom-model-data: 0
       no-path:
         item: "BLUE_CONCRETE"
         custom-model-data: 0
@@ -311,6 +347,18 @@ display:
         item: "BLACK_CONCRETE"
         custom-model-data: 0
       right-left:
+        item: "BLACK_CONCRETE"
+        custom-model-data: 0
+      right:
+        item: "BLACK_CONCRETE"
+        custom-model-data: 0
+      left:
+        item: "BLACK_CONCRETE"
+        custom-model-data: 0
+      up:
+        item: "BLACK_CONCRETE"
+        custom-model-data: 0
+      down:
         item: "BLACK_CONCRETE"
         custom-model-data: 0
       no-path:
