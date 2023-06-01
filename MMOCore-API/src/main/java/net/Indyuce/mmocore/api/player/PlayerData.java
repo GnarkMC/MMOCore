@@ -267,7 +267,7 @@ public class PlayerData extends SynchronizedDataHolder implements OfflinePlayerD
         NodeStatus nodeStatus = nodeStates.get(node);
         //Check the State of the node
         if (nodeStatus != NodeStatus.UNLOCKED && nodeStatus != NodeStatus.UNLOCKABLE) return false;
-        return node.hasPermissionRequirement(this)&&getNodeLevel(node) < node.getMaxLevel() && (skillTreePoints.getOrDefault(node.getTree().getId(), 0) + skillTreePoints.getOrDefault("global", 0) >= node.getSkillTreePointsConsumed());
+        return node.hasPermissionRequirement(this) && getNodeLevel(node) < node.getMaxLevel() && (skillTreePoints.getOrDefault(node.getTree().getId(), 0) + skillTreePoints.getOrDefault("global", 0) >= node.getSkillTreePointsConsumed());
     }
 
     /**
@@ -1086,7 +1086,7 @@ public class PlayerData extends SynchronizedDataHolder implements OfflinePlayerD
      *
      * @return If the player unlocked the skill
      */
-    public boolean hasUnlockedLevel(ClassSkill skill){
+    public boolean hasUnlockedLevel(ClassSkill skill) {
         return getLevel() >= skill.getUnlockLevel();
     }
 
@@ -1129,6 +1129,8 @@ public class PlayerData extends SynchronizedDataHolder implements OfflinePlayerD
         boundSkills.forEach((slot, info) -> info.close());
         boundSkills.clear();
 
+        //Update skill tree.
+        setupSkillTree();
         // Update stats
         if (isOnline()) getStats().updateStats();
     }
