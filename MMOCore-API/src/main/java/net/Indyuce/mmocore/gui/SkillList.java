@@ -200,17 +200,19 @@ public class SkillList extends EditableInventory {
             List<String> lore = new ArrayList<>(getLore());
 
             int index = lore.indexOf("{slot-lore}");
-            lore.remove(index);
-            List<String> slotLore = skillSlot.getLore();
-            for (int j = 0; j < slotLore.size(); j++)
-                lore.add(index + j, slotLore.get(j));
-
+            if (index != -1) {
+                lore.remove(index);
+                List<String> slotLore = skillSlot.getLore();
+                for (int j = 0; j < slotLore.size(); j++)
+                    lore.add(index + j, slotLore.get(j));
+            }
             index = lore.indexOf("{skill-lore}");
-            lore.remove(index);
-            List<String> skillLore = boundSkill == null ? new ArrayList() : boundSkill.calculateLore(inv.getPlayerData());
-            for (int j = 0; j < skillLore.size(); j++)
-                lore.add(index + j, skillLore.get(j));
-
+            if (index != -1) {
+                lore.remove(index);
+                List<String> skillLore = boundSkill == null ? new ArrayList() : boundSkill.calculateLore(inv.getPlayerData());
+                for (int j = 0; j < skillLore.size(); j++)
+                    lore.add(index + j, skillLore.get(j));
+            }
 
             for (int j = 0; j < lore.size(); j++)
                 lore.set(j, ChatColor.GRAY + holders.apply(inv.getPlayer(), lore.get(j)));
