@@ -22,10 +22,10 @@ public class SkillSlot implements Unlockable {
     private final boolean isUnlockedByDefault;
     private final boolean canManuallyBind;
 
-    private final List<SkillModifierTrigger> skillBuffTriggers = new ArrayList<>();
+    private final List<SkillModifierTrigger> skillModifierTriggers = new ArrayList<>();
     private final Material item;
 
-    public SkillSlot(int slot, int modelData, String formula, String name, List<String> lore, boolean isUnlockedByDefault, boolean canManuallyBind, List<SkillModifierTrigger> skillBuffTriggers) {
+    public SkillSlot(int slot, int modelData, String formula, String name, List<String> lore, boolean isUnlockedByDefault, boolean canManuallyBind, List<SkillModifierTrigger> skillModifierTriggers) {
         this.slot = slot;
         this.modelData = modelData;
         this.formula = formula;
@@ -34,7 +34,7 @@ public class SkillSlot implements Unlockable {
         this.item = null;
         this.canManuallyBind = canManuallyBind;
         this.isUnlockedByDefault = isUnlockedByDefault;
-        this.skillBuffTriggers.addAll(skillBuffTriggers);
+        this.skillModifierTriggers.addAll(skillModifierTriggers);
     }
 
     public SkillSlot(ConfigurationSection section) {
@@ -49,7 +49,7 @@ public class SkillSlot implements Unlockable {
         if (section.contains("skill-buffs"))
             for (String skillBuff : section.getStringList("skill-buffs"))
                 if (skillBuff.startsWith("skill_buff"))
-                    skillBuffTriggers.add((SkillModifierTrigger) MMOCore.plugin.loadManager.loadTrigger(new MMOLineConfig(skillBuff)));
+                    skillModifierTriggers.add((SkillModifierTrigger) MMOCore.plugin.loadManager.loadTrigger(new MMOLineConfig(skillBuff)));
     }
 
     public int getSlot() {
@@ -81,8 +81,8 @@ public class SkillSlot implements Unlockable {
         return isUnlockedByDefault;
     }
 
-    public List<SkillModifierTrigger> getSkillBuffTriggers() {
-        return skillBuffTriggers;
+    public List<SkillModifierTrigger> getSkillModifierTriggers() {
+        return skillModifierTriggers;
     }
 
     public boolean canManuallyBind() {

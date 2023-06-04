@@ -190,7 +190,7 @@ public class PlayerData extends SynchronizedDataHolder implements OfflinePlayerD
         // Stat triggers setup
         for (SkillTree skillTree : MMOCore.plugin.skillTreeManager.getAll())
             for (SkillTreeNode node : skillTree.getNodes())
-                node.getExperienceTable().claimStatTriggers(this, node);
+                node.getExperienceTable().claimRemovableTrigger(this, node);
     }
 
     public int getPointSpent(SkillTree skillTree) {
