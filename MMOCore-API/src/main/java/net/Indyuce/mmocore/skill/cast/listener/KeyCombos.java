@@ -12,6 +12,7 @@ import net.Indyuce.mmocore.api.event.PlayerKeyPressEvent;
 import net.Indyuce.mmocore.api.player.PlayerData;
 import net.Indyuce.mmocore.gui.api.item.Placeholders;
 import net.Indyuce.mmocore.skill.cast.*;
+import org.bukkit.GameMode;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -70,6 +71,8 @@ public class KeyCombos implements SkillCastingListener {
     public void whenPressingKey(PlayerKeyPressEvent event) {
         PlayerData playerData = event.getData();
         Player player = playerData.getPlayer();
+        if(player.getGameMode()== GameMode.CREATIVE&&!MMOCore.plugin.configManager.canCreativeCast)
+            return;
 
         // Start combo when there is an initializer key
         if (!event.getData().isCasting() && initializerKey != null) {
