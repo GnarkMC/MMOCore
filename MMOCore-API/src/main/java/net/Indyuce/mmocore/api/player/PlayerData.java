@@ -9,9 +9,7 @@ import io.lumine.mythic.lib.player.cooldown.CooldownMap;
 import net.Indyuce.mmocore.MMOCore;
 import net.Indyuce.mmocore.api.ConfigMessage;
 import net.Indyuce.mmocore.api.SoundEvent;
-import net.Indyuce.mmocore.api.event.PlayerExperienceGainEvent;
-import net.Indyuce.mmocore.api.event.PlayerLevelUpEvent;
-import net.Indyuce.mmocore.api.event.PlayerResourceUpdateEvent;
+import net.Indyuce.mmocore.api.event.*;
 import net.Indyuce.mmocore.api.event.unlocking.ItemLockedEvent;
 import net.Indyuce.mmocore.api.event.unlocking.ItemUnlockedEvent;
 import net.Indyuce.mmocore.api.player.attribute.PlayerAttribute;
@@ -1007,6 +1005,12 @@ public class PlayerData extends SynchronizedDataHolder implements OfflinePlayerD
 
     public void setSkillCasting(@NotNull SkillCastingInstance skillCasting) {
         Validate.isTrue(!isCasting(), "Player already in casting mode");
+        PlayerEnterCastingModeEvent event = new PlayerEnterCastingModeEvent(getPlayer());
+        Bukkit.getPluginManager().callEvent(event);
+
+        if (event.isCancelled()){
+            return;
+        }
         this.skillCasting = skillCasting;
     }
 
@@ -1025,6 +1029,13 @@ public class PlayerData extends SynchronizedDataHolder implements OfflinePlayerD
 
     public void leaveSkillCasting() {
         Validate.isTrue(isCasting(), "Player not in casting mode");
+        PlayerExitCastingModeEvent event = new PlayerExitCastingModeEvent(getPlayer());
+        Bukkit.getPluginManager().callEvent(event);
+
+        if (event.isCancelled()){
+            return;
+        }
+
         skillCasting.close();
         this.skillCasting = null;
         setLastActivity(PlayerActivity.ACTION_BAR_MESSAGE, 0); // Reset action bar
