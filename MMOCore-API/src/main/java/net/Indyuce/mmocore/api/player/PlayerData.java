@@ -1009,6 +1009,7 @@ public class PlayerData extends SynchronizedDataHolder implements OfflinePlayerD
         Bukkit.getPluginManager().callEvent(event);
 
         if (event.isCancelled()){
+            skillCasting.close();
             return;
         }
         this.skillCasting = skillCasting;
