@@ -54,7 +54,7 @@ public class SoundObject {
         }
 
         this.sound = sound;
-        this.key = key;
+        this.key = key.toLowerCase();
 
         volume = (float) config.getDouble("volume", 1);
         pitch = (float) config.getDouble("pitch", 1);
@@ -92,7 +92,7 @@ public class SoundObject {
 
     public void playTo(Player player, float volume, float pitch) {
         if (isCustom())
-            player.playSound(player.getLocation(), key.toLowerCase(), volume, pitch);
+            player.playSound(player.getLocation(), key, volume, pitch);
         else
             player.playSound(player.getLocation(), sound, volume, pitch);
     }
@@ -103,7 +103,7 @@ public class SoundObject {
 
     public void playAt(Location loc, float volume, float pitch) {
         if (isCustom())
-            loc.getWorld().playSound(loc, key.toLowerCase(), volume, pitch);
+            loc.getWorld().playSound(loc, key, volume, pitch);
         else
             loc.getWorld().playSound(loc, sound, volume, pitch);
     }
