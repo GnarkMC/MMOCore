@@ -1028,15 +1028,26 @@ public class PlayerData extends SynchronizedDataHolder implements OfflinePlayerD
         return Objects.requireNonNull(skillCasting, "Player not in casting mode");
     }
 
-    public void leaveSkillCasting() {
+    /**
+     * API Method to leave casting mode and fire the PlayerExitCastingModeEvent
+     */
+    public void leaveSkillCasting(){
+        this.leaveSkillCasting(false);
+    }
+
+    /**
+     * @param skipEvent Skip the PlayerExitCastingModeEvent
+     */
+    public void leaveSkillCasting(boolean skipEvent) {
         Validate.isTrue(isCasting(), "Player not in casting mode");
-        PlayerExitCastingModeEvent event = new PlayerExitCastingModeEvent(getPlayer());
-        Bukkit.getPluginManager().callEvent(event);
+        if (!skipEvent) {
+            PlayerExitCastingModeEvent event = new PlayerExitCastingModeEvent(getPlayer());
+            Bukkit.getPluginManager().callEvent(event);
 
-        if (event.isCancelled()){
-            return;
+            if (event.isCancelled()) {
+                return;
+            }
         }
-
         skillCasting.close();
         this.skillCasting = null;
         setLastActivity(PlayerActivity.ACTION_BAR_MESSAGE, 0); // Reset action bar
