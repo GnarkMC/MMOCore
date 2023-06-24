@@ -48,7 +48,7 @@ import net.Indyuce.mmocore.skill.binding.BoundSkillInfo;
 import net.Indyuce.mmocore.skill.binding.SkillSlot;
 import net.Indyuce.mmocore.skill.cast.SkillCastingInstance;
 import net.Indyuce.mmocore.skill.cast.SkillCastingMode;
-import net.Indyuce.mmocore.skilltree.NodeStatus;
+import net.Indyuce.mmocore.skilltree.SkillTreeStatus;
 import net.Indyuce.mmocore.skilltree.SkillTreeNode;
 import net.Indyuce.mmocore.skilltree.tree.SkillTree;
 import net.Indyuce.mmocore.waypoint.Waypoint;
@@ -112,7 +112,7 @@ public class PlayerData extends SynchronizedDataHolder implements OfflinePlayerD
     /**
      * Cached for easier access. Current status of each skill tree node.
      */
-    private final Map<SkillTreeNode, NodeStatus> nodeStates = new HashMap<>();
+    private final Map<SkillTreeNode, SkillTreeStatus> nodeStates = new HashMap<>();
     private final Map<SkillTreeNode, Integer> nodeLevels = new HashMap<>();
     private final Map<String, Integer> skillTreePoints = new HashMap<>();
 
@@ -264,9 +264,9 @@ public class PlayerData extends SynchronizedDataHolder implements OfflinePlayerD
     }
 
     public boolean canIncrementNodeLevel(SkillTreeNode node) {
-        NodeStatus nodeStatus = nodeStates.get(node);
+        SkillTreeStatus skillTreeStatus = nodeStates.get(node);
         //Check the State of the node
-        if (nodeStatus != NodeStatus.UNLOCKED && nodeStatus != NodeStatus.UNLOCKABLE) return false;
+        if (skillTreeStatus != SkillTreeStatus.UNLOCKED && skillTreeStatus != SkillTreeStatus.UNLOCKABLE) return false;
         return node.hasPermissionRequirement(this) && getNodeLevel(node) < node.getMaxLevel() && (skillTreePoints.getOrDefault(node.getTree().getId(), 0) + skillTreePoints.getOrDefault("global", 0) >= node.getSkillTreePointsConsumed());
     }
 
@@ -280,7 +280,7 @@ public class PlayerData extends SynchronizedDataHolder implements OfflinePlayerD
         // Claims the nodes experience table.
         node.getExperienceTable().claim(this, getNodeLevel(node), node);
 
-        if (nodeStates.get(node) == NodeStatus.UNLOCKABLE) setNodeState(node, NodeStatus.UNLOCKED);
+        if (nodeStates.get(node) == SkillTreeStatus.UNLOCKABLE) setNodeState(node, SkillTreeStatus.UNLOCKED);
         int pointToWithdraw = node.getSkillTreePointsConsumed();
         if (skillTreePoints.get(node.getTree().getId()) > 0) {
             int pointWithdrawn = Math.min(pointToWithdraw, skillTreePoints.get(node.getTree().getId()));
@@ -303,11 +303,11 @@ public class PlayerData extends SynchronizedDataHolder implements OfflinePlayerD
         skillTreePoints.put(treeId, skillTreePoints.get(treeId) - withdraw);
     }
 
-    public void setNodeState(SkillTreeNode node, NodeStatus nodeStatus) {
-        nodeStates.put(node, nodeStatus);
+    public void setNodeState(SkillTreeNode node, SkillTreeStatus skillTreeStatus) {
+        nodeStates.put(node, skillTreeStatus);
     }
 
-    public NodeStatus getNodeStatus(SkillTreeNode node) {
+    public SkillTreeStatus getNodeStatus(SkillTreeNode node) {
         return nodeStates.get(node);
     }
 
@@ -334,7 +334,7 @@ public class PlayerData extends SynchronizedDataHolder implements OfflinePlayerD
         skillTree.setupNodeStates(this);
     }
 
-    public Map<SkillTreeNode, NodeStatus> getNodeStates() {
+    public Map<SkillTreeNode, SkillTreeStatus> getNodeStates() {
         return new HashMap<>(nodeStates);
     }
 

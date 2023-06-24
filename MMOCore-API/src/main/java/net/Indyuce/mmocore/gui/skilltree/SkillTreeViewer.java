@@ -1,7 +1,9 @@
 package net.Indyuce.mmocore.gui.skilltree;
 
 import io.lumine.mythic.lib.MythicLib;
+import io.lumine.mythic.lib.UtilityMethods;
 import net.Indyuce.mmocore.MMOCore;
+import java.util.logging.Level;
 import net.Indyuce.mmocore.api.SoundEvent;
 import net.Indyuce.mmocore.api.player.PlayerData;
 import net.Indyuce.mmocore.api.util.MMOCoreUtils;
@@ -15,7 +17,6 @@ import net.Indyuce.mmocore.gui.skilltree.display.*;
 import net.Indyuce.mmocore.skilltree.*;
 import net.Indyuce.mmocore.skilltree.tree.SkillTree;
 import org.apache.commons.lang.Validate;
-import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
@@ -32,6 +33,7 @@ import java.util.*;
 
 public class SkillTreeViewer extends EditableInventory {
     protected final Map<DisplayInfo, Icon> icons = new HashMap<>();
+    protected final Map<SkillTreeStatus, String> statusNames = new HashMap<>();
 
     public SkillTreeViewer() {
         super("skill-tree");
@@ -40,20 +42,24 @@ public class SkillTreeViewer extends EditableInventory {
     @Override
     public void reload(FileConfiguration config) {
         super.reload(config);
+        if (config.contains("status-names"))
+            for (SkillTreeStatus skillTreeStatus : SkillTreeStatus.values())
+                statusNames.put(skillTreeStatus, config.getString("status-names." + UtilityMethods.ymlName(skillTreeStatus.name()), skillTreeStatus.name()));
+
         //Loads all the pathDisplayInfo
         for (PathStatus status : PathStatus.values())
             for (PathType pathType : PathType.values()) {
                 if (!config.contains("display.paths." + MMOCoreUtils.ymlName(status.name()) + "." + MMOCoreUtils.ymlName(pathType.name()))) {
-                    MMOCore.log("Missing path type: " + MMOCoreUtils.ymlName(pathType.name()) + " for status: " + MMOCoreUtils.ymlName(status.name()));
+                    MMOCore.log(Level.WARNING, "An error occurred while loading skill tree GUI: Missing path type: " + MMOCoreUtils.ymlName(pathType.name()) + " for status: " + MMOCoreUtils.ymlName(status.name()));
                     continue;
                 }
                 icons.put(new PathDisplayInfo(pathType, status), new Icon(config.getConfigurationSection("display.paths." + MMOCoreUtils.ymlName(status.name()) + "." + MMOCoreUtils.ymlName(pathType.name()))));
             }
         //Loads all the nodeDisplayInfo
-        for (NodeStatus status : NodeStatus.values())
+        for (SkillTreeStatus status : SkillTreeStatus.values())
             for (NodeType nodeType : NodeType.values()) {
                 if (!config.contains("display.nodes." + MMOCoreUtils.ymlName(status.name()) + "." + MMOCoreUtils.ymlName(nodeType.name()))) {
-                    MMOCore.log("Missing node type: " + MMOCoreUtils.ymlName(nodeType.name()) + " for status: " + MMOCoreUtils.ymlName(status.name()));
+                    MMOCore.log(Level.WARNING, "An error occurred while loading skill tree GUI: Missing node type: " + MMOCoreUtils.ymlName(nodeType.name()) + " for status: " + MMOCoreUtils.ymlName(status.name()));
                     continue;
                 }
                 icons.put(new NodeDisplayInfo(nodeType, status), new Icon(config.getConfigurationSection("display.nodes." + MMOCoreUtils.ymlName(status.name()) + "." + MMOCoreUtils.ymlName(nodeType.name()))));
@@ -219,10 +225,10 @@ public class SkillTreeViewer extends EditableInventory {
                 if (inv.getSkillTree().isNode(coordinates)) {
                     SkillTreeNode node = inv.getSkillTree().getNode(coordinates);
                     List<String> lore = new ArrayList<>();
-
+                    Placeholders holders = getPlaceholders(inv, n);
                     getLore().forEach(str -> {
                         if (str.contains("{node-lore}")) {
-                            lore.addAll(node.getLore(inv.getPlayerData()));
+                            node.getLore(inv.getPlayerData()).forEach(s -> lore.add(holders.apply(inv.getPlayer(), s)));
                         } else if (str.contains("{strong-parents}")) {
                             lore.addAll(getParentsLore(inv, node, node.getParents(ParentType.STRONG)));
                         } else if (str.contains("{soft-parents}")) {
@@ -230,7 +236,7 @@ public class SkillTreeViewer extends EditableInventory {
                         } else if (str.contains("{incompatible-parents}")) {
                             lore.addAll(getParentsLore(inv, node, node.getParents(ParentType.INCOMPATIBLE)));
                         } else
-                            lore.add(getPlaceholders(inv, n).apply(inv.getPlayer(), str));
+                            lore.add(holders.apply(inv.getPlayer(), str));
                     });
                     meta.setLore(lore);
                     meta.setDisplayName(node.getName());
@@ -272,7 +278,8 @@ public class SkillTreeViewer extends EditableInventory {
             if (inv.getSkillTree().isNode(inv.getCoordinates(n))) {
                 SkillTreeNode node = inv.getNode(n);
                 holders.register("current-level", inv.getPlayerData().getNodeLevel(node));
-                holders.register("current-state", inv.getPlayerData().getNodeStatus(node));
+                SkillTreeStatus status = inv.getPlayerData().getNodeStatus(node);
+                holders.register("current-state", statusNames.getOrDefault(status, status.name()));
                 holders.register("max-level", node.getMaxLevel());
                 holders.register("max-children", node.getMaxChildren());
                 holders.register("size", node.getSize());
@@ -347,18 +354,18 @@ public class SkillTreeViewer extends EditableInventory {
 
             if (skillTree.isNode(coordinates)) {
                 SkillTreeNode node = skillTree.getNode(coordinates);
-                NodeStatus nodeStatus = playerData.getNodeStatus(node);
+                SkillTreeStatus skillTreeStatus = playerData.getNodeStatus(node);
                 //If the node has its own display, it will be shown.
-                if (node.hasIcon(nodeStatus))
-                    return node.getIcon(nodeStatus);
+                if (node.hasIcon(skillTreeStatus))
+                    return node.getIcon(skillTreeStatus);
                 NodeType nodeType = NodeType.getNodeType(hasUpPathOrNode, hasRightPathOrNode, hasDownPathOrNode, hasLeftPathOrNode);
-                DisplayInfo displayInfo = new NodeDisplayInfo(nodeType, nodeStatus);
+                DisplayInfo displayInfo = new NodeDisplayInfo(nodeType, skillTreeStatus);
                 //Takes the display defined in the skill tree config if it exists.
                 if (skillTree.hasIcon(displayInfo))
                     return skillTree.getIcon(displayInfo);
 
                 Icon icon = icons.get(displayInfo);
-                Validate.notNull(icon, "The node " + node.getFullId() + " has no icon for the type " + nodeType + " and the status " + nodeStatus);
+                Validate.notNull(icon, "The node " + node.getFullId() + " has no icon for the type " + nodeType + " and the status " + skillTreeStatus);
                 return icon;
             } else {
                 PathType pathType = PathType.getPathType(hasUpPathOrNode, hasRightPathOrNode, hasDownPathOrNode, hasLeftPathOrNode);
@@ -486,7 +493,7 @@ public class SkillTreeViewer extends EditableInventory {
                         MMOCore.plugin.configManager.getSimpleMessage("upgrade-skill-node", "skill-node", node.getName(), "level", "" + playerData.getNodeLevel(node)).send(player);
                         MMOCore.plugin.soundManager.getSound(SoundEvent.LEVEL_UP).playTo(getPlayer());
                         open();
-                    } else if (playerData.getNodeStatus(node) == NodeStatus.LOCKED || playerData.getNodeStatus(node) == NodeStatus.FULLY_LOCKED) {
+                    } else if (playerData.getNodeStatus(node) == SkillTreeStatus.LOCKED || playerData.getNodeStatus(node) == SkillTreeStatus.FULLY_LOCKED) {
                         MMOCore.plugin.configManager.getSimpleMessage("locked-node").send(player);
                         MMOCore.plugin.soundManager.getSound(SoundEvent.NOT_ENOUGH_POINTS).playTo(getPlayer());
 

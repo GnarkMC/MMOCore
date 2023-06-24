@@ -12,7 +12,6 @@ import net.Indyuce.mmocore.skilltree.*;
 import org.apache.commons.lang.Validate;
 import org.bukkit.Material;
 import org.bukkit.configuration.ConfigurationSection;
-import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -103,7 +102,7 @@ public abstract class SkillTree extends PostLoadObject implements RegisteredObje
             }
 
         //Loads all the nodeDisplayInfo
-        for (NodeStatus status : NodeStatus.values())
+        for (SkillTreeStatus status : SkillTreeStatus.values())
             for (NodeType nodeType : NodeType.values()) {
                 ConfigurationSection section = config.getConfigurationSection("display.nodes." + MMOCoreUtils.ymlName(status.name()) + "." + MMOCoreUtils.ymlName(nodeType.name()));
                 if (section != null)
@@ -173,9 +172,9 @@ public abstract class SkillTree extends PostLoadObject implements RegisteredObje
      */
     private void setupNodeStateFrom(SkillTreeNode node, PlayerData playerData) {
         if (playerData.getNodeLevel(node) > 0) {
-            playerData.setNodeState(node, NodeStatus.UNLOCKED);
+            playerData.setNodeState(node, SkillTreeStatus.UNLOCKED);
         } else if (playerData.getNodeLevel(node) == 0 && node.isRoot()) {
-            playerData.setNodeState(node, NodeStatus.UNLOCKABLE);
+            playerData.setNodeState(node, SkillTreeStatus.UNLOCKABLE);
         } else {
             Set<SkillTreeNode> strongParents = node.getParents(ParentType.STRONG);
             Set<SkillTreeNode> softParents = node.getParents(ParentType.SOFT);
@@ -199,7 +198,7 @@ public abstract class SkillTree extends PostLoadObject implements RegisteredObje
                         numberChildren++;
 
                 //We must check if the parent is Fully Locked or not and if it can unlock a new node(with its max children constraint)
-                if (numberChildren >= strongParent.getMaxChildren() || playerData.getNodeStatus(strongParent) == NodeStatus.FULLY_LOCKED)
+                if (numberChildren >= strongParent.getMaxChildren() || playerData.getNodeStatus(strongParent) == SkillTreeStatus.FULLY_LOCKED)
                     isFullyLockedFromStrongParent = true;
             }
 
@@ -213,7 +212,7 @@ public abstract class SkillTree extends PostLoadObject implements RegisteredObje
                 for (SkillTreeNode child : softParent.getChildren())
                     if (playerData.getNodeLevel(child) > 0)
                         numberChildren++;
-                if (numberChildren < softParent.getMaxChildren() && playerData.getNodeStatus(softParent) != NodeStatus.FULLY_LOCKED)
+                if (numberChildren < softParent.getMaxChildren() && playerData.getNodeStatus(softParent) != SkillTreeStatus.FULLY_LOCKED)
                     isFullyLockedFromSoftParent = false;
             }
             for (SkillTreeNode incompatibleParent : incompatibleParents) {
@@ -226,11 +225,11 @@ public abstract class SkillTree extends PostLoadObject implements RegisteredObje
             boolean isFullyLocked = isFullyLockedFromSoftParent || isFullyLockedFromStrongParent || isFullyLockedFromIncompatibleParent;
             boolean isUnlockable = isUnlockableFromSoftParent && isUnlockableFromStrongParent;
             if (isFullyLocked)
-                playerData.setNodeState(node, NodeStatus.FULLY_LOCKED);
+                playerData.setNodeState(node, SkillTreeStatus.FULLY_LOCKED);
             else if (isUnlockable)
-                playerData.setNodeState(node, NodeStatus.UNLOCKABLE);
+                playerData.setNodeState(node, SkillTreeStatus.UNLOCKABLE);
             else
-                playerData.setNodeState(node, NodeStatus.LOCKED);
+                playerData.setNodeState(node, SkillTreeStatus.LOCKED);
         }
         //We recursively call the algorithm for all the children of the current node
         for (SkillTreeNode child : node.getChildren())
