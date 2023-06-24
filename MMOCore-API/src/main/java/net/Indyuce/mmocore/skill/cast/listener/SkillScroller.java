@@ -77,10 +77,10 @@ public class SkillScroller implements SkillCastingListener {
             if (event.getPressed().shouldCancelEvent()) event.setCancelled(true);
 
             // Enter casting mode
-            playerData.setSkillCasting(new CustomSkillCastingInstance(playerData));
-            if (!playerData.isCasting()){
+            if (!playerData.setSkillCasting(new CustomSkillCastingInstance(playerData))) {
                 return;
             }
+
             if (enterSound != null) enterSound.playTo(player);
         }
 

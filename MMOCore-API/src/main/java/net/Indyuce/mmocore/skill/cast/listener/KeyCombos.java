@@ -79,8 +79,9 @@ public class KeyCombos implements SkillCastingListener {
                 if (event.getPressed().shouldCancelEvent()) event.setCancelled(true);
 
                 // Start combo
-                playerData.setSkillCasting(new CustomSkillCastingInstance(playerData));
-                if (beginComboSound != null) beginComboSound.playTo(player);
+                if (playerData.setSkillCasting(new CustomSkillCastingInstance(playerData))) {
+                    if (beginComboSound != null) beginComboSound.playTo(player);
+                }
             }
             return;
         }
@@ -95,8 +96,7 @@ public class KeyCombos implements SkillCastingListener {
             final @NotNull ComboMap comboMap = Objects.requireNonNullElse(playerData.getProfess().getComboMap(), this.comboMap);
             if (comboMap.isComboStart(event.getPressed())) {
                 casting = new CustomSkillCastingInstance(playerData);
-                playerData.setSkillCasting(casting);
-                if (!playerData.isCasting()){
+                if (!playerData.setSkillCasting(casting)) {
                     return;
                 }
                 if (beginComboSound != null) beginComboSound.playTo(player);
