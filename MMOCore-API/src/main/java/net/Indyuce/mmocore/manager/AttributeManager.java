@@ -5,6 +5,7 @@ import net.Indyuce.mmocore.MMOCore;
 import net.Indyuce.mmocore.api.ConfigFile;
 import net.Indyuce.mmocore.api.player.attribute.MMOCoreAttributeStatHandler;
 import net.Indyuce.mmocore.api.player.attribute.PlayerAttribute;
+import org.bukkit.configuration.ConfigurationSection;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -46,8 +47,9 @@ public class AttributeManager implements MMOCoreManager {
                 MMOCore.log(Level.WARNING, "Could not load attribute '" + key + "': " + exception.getMessage());
             }
 
+        final ConfigurationSection statsConfig = new ConfigFile(MythicLib.plugin, "", "stats").getConfig();
         for (PlayerAttribute attr : getAll()) {
-            final MMOCoreAttributeStatHandler handler = new MMOCoreAttributeStatHandler(attr);
+            final MMOCoreAttributeStatHandler handler = new MMOCoreAttributeStatHandler(statsConfig, attr);
             MythicLib.plugin.getStats().registerStat(handler.getStat(), handler);
             MythicLib.plugin.getStats().registerStat(handler.getStat() + "_PERCENT", handler);
         }

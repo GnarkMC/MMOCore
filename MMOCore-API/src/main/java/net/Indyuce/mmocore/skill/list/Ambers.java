@@ -53,7 +53,7 @@ public class Ambers extends SkillHandler<SimpleSkillResult> implements Listener 
         if (passive == null)
             return;
 
-        passive.getTriggeredSkill().cast(new TriggerMetadata(event.getAttacker(), event.getAttack(), event.getEntity()));
+        passive.getTriggeredSkill().cast(new TriggerMetadata(event));
     }
 
     public static class Amber extends BukkitRunnable {
