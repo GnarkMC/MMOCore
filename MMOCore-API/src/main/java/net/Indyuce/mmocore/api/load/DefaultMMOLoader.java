@@ -119,6 +119,12 @@ public class DefaultMMOLoader extends MMOLoader {
         if (config.getKey().equals("permission"))
             return new PermissionCondition(config);
 
+        if (config.getKey().equals("weather"))
+            return new WeatherCondition(config);
+
+        if (config.getKey().equals("time"))
+            return new TimeCondition(config);
+
         return null;
     }
 

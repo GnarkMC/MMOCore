@@ -275,25 +275,12 @@ public class MMOCore extends JavaPlugin {
     @Override
     public void onDisable() {
 
-        // Executes all the pending asynchronous task (like saving the playerData)
-        Bukkit.getScheduler().getPendingTasks().forEach(worker -> {
-            if (worker.getOwner().equals(this)) {
-                ((Runnable) worker).run();
-            }
-        });
-
-        // Save player data
-        for (PlayerData data : PlayerData.getAll())
-            if (data.isSynchronized()) {
-                data.close();
-                dataProvider.getDataManager().getDataHandler().saveData(data, true);
-            }
-
         // Save guild info
         for (Guild guild : dataProvider.getGuildManager().getAll())
             dataProvider.getGuildManager().save(guild);
 
         // Close MySQL data provider (memory leaks)
+        playerDataManager.saveAll(false);
         playerDataManager.getDataHandler().close();
 
         // Reset active blocks
