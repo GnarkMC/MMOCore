@@ -353,7 +353,7 @@ public class PlayerData extends SynchronizedDataHolder implements OfflinePlayerD
 
     /**
      * @return If the item is unlocked by the player
-     * This is used for skills that can be locked & unlocked.
+     *         This is used for skills that can be locked & unlocked.
      */
     public boolean hasUnlocked(Unlockable unlockable) {
         return unlockable.isUnlockedByDefault() || unlockedItems.contains(unlockable.getUnlockNamespacedKey());
@@ -747,6 +747,7 @@ public class PlayerData extends SynchronizedDataHolder implements OfflinePlayerD
             final int y = getPlayer().getLocation().getBlockY();
             final int z = getPlayer().getLocation().getBlockZ();
             final int warpTime = target.getWarpTime();
+            final boolean hasPerm = getPlayer().hasPermission("mmocore.bypass-waypoint-wait");
             int t;
 
             public void run() {
@@ -759,7 +760,7 @@ public class PlayerData extends SynchronizedDataHolder implements OfflinePlayerD
                 }
 
                 MMOCore.plugin.configManager.getSimpleMessage("warping-comencing", "left", String.valueOf((warpTime - t) / 20)).send(getPlayer());
-                if (t++ >= warpTime) {
+                if (hasPerm || t++ >= warpTime) {
                     getPlayer().teleport(target.getLocation());
                     getPlayer().addPotionEffect(new PotionEffect(PotionEffectType.BLINDNESS, 20, 1, false, false));
                     MMOCore.plugin.soundManager.getSound(SoundEvent.WARP_TELEPORT).playTo(getPlayer());
@@ -1191,7 +1192,7 @@ public class PlayerData extends SynchronizedDataHolder implements OfflinePlayerD
      * checks if they could potentially upgrade to one of these
      *
      * @return If the player can change its current class to
-     * a subclass
+     *         a subclass
      */
     @Deprecated
     public boolean canChooseSubclass() {
