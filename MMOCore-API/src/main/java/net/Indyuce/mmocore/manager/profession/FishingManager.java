@@ -39,6 +39,7 @@ public class FishingManager extends SpecificProfessionManager {
 		MMOCore.plugin.statManager.registerProfession("CRITICAL_FISHING_FAILURE_CHANCE", getLinkedProfession());
 	}
 
+	@NotNull
 	public FishingDropTable calculateDropTable(@NotNull Player player, @NotNull FishHook hook) {
 		ConditionInstance conditionEntity = new ConditionInstance(player, hook.getLocation());
 
