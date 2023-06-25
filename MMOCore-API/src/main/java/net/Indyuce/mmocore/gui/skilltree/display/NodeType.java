@@ -1,6 +1,6 @@
 package net.Indyuce.mmocore.gui.skilltree.display;
 
-public enum NodeType {
+public enum NodeType implements DisplayType {
     UP_RIGHT_DOWN_LEFT,
     UP_RIGHT_DOWN,
     UP_RIGHT_LEFT,

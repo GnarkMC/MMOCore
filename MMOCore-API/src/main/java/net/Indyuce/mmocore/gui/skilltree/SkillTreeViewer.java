@@ -3,7 +3,9 @@ package net.Indyuce.mmocore.gui.skilltree;
 import io.lumine.mythic.lib.MythicLib;
 import io.lumine.mythic.lib.UtilityMethods;
 import net.Indyuce.mmocore.MMOCore;
+
 import java.util.logging.Level;
+
 import net.Indyuce.mmocore.api.SoundEvent;
 import net.Indyuce.mmocore.api.player.PlayerData;
 import net.Indyuce.mmocore.api.util.MMOCoreUtils;
@@ -30,6 +32,7 @@ import org.bukkit.persistence.PersistentDataContainer;
 import org.bukkit.persistence.PersistentDataType;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 public class SkillTreeViewer extends EditableInventory {
     protected final Map<DisplayInfo, Icon> icons = new HashMap<>();
@@ -200,8 +203,14 @@ public class SkillTreeViewer extends EditableInventory {
 
 
     public class SkillTreeNodeItem extends InventoryItem<SkillTreeInventory> {
+
+        private final List<String> pathLore = new ArrayList<>();
+
+
         public SkillTreeNodeItem(ConfigurationSection config) {
             super(Material.AIR, config);
+            if (config.isList("path-lore"))
+                pathLore.addAll(config.getStringList("path-lore"));
         }
 
         @Override
@@ -222,10 +231,10 @@ public class SkillTreeViewer extends EditableInventory {
                 Icon icon = inv.getIcon(coordinates);
                 ItemStack item = super.display(inv, n, icon.getMaterial(), icon.getCustomModelData());
                 ItemMeta meta = item.getItemMeta();
+                Placeholders holders = getPlaceholders(inv, n);
                 if (inv.getSkillTree().isNode(coordinates)) {
                     SkillTreeNode node = inv.getSkillTree().getNode(coordinates);
                     List<String> lore = new ArrayList<>();
-                    Placeholders holders = getPlaceholders(inv, n);
                     getLore().forEach(str -> {
                         if (str.contains("{node-lore}")) {
                             node.getLore(inv.getPlayerData()).forEach(s -> lore.add(holders.apply(inv.getPlayer(), s)));
@@ -243,7 +252,7 @@ public class SkillTreeViewer extends EditableInventory {
                 }
                 //If it is path we remove the display name and the lore.
                 else {
-                    meta.setLore(new ArrayList<>());
+                    meta.setLore(pathLore.stream().map(str -> holders.apply(inv.getPlayer(), str)).collect(Collectors.toList()));
                     meta.setDisplayName(" ");
                 }
                 meta.addItemFlags(ItemFlag.HIDE_ATTRIBUTES);
@@ -290,6 +299,8 @@ public class SkillTreeViewer extends EditableInventory {
             holders.register("point-spent", inv.getPlayerData().getPointSpent(inv.getSkillTree()));
             holders.register("skill-tree-points", inv.getPlayerData().getSkillTreePoint(inv.getSkillTree().getId()));
             holders.register("global-points", inv.getPlayerData().getSkillTreePoint("global"));
+            holders.register("display-type", inv.getDisplayType(inv.getCoordinates(n)));
+
             return holders;
         }
     }
@@ -346,19 +357,26 @@ public class SkillTreeViewer extends EditableInventory {
         }
 
 
-        public Icon getIcon(IntegerCoordinates coordinates) {
+        public DisplayType getDisplayType(IntegerCoordinates coordinates) {
+            Validate.isTrue(skillTree.isNode(coordinates), "The coordinates must be a node");
             boolean hasUpPathOrNode = skillTree.isPathOrNode(new IntegerCoordinates(coordinates.getX(), coordinates.getY() - 1));
             boolean hasDownPathOrNode = skillTree.isPathOrNode(new IntegerCoordinates(coordinates.getX(), coordinates.getY() + 1));
             boolean hasRightPathOrNode = skillTree.isPathOrNode(new IntegerCoordinates(coordinates.getX() + 1, coordinates.getY()));
             boolean hasLeftPathOrNode = skillTree.isPathOrNode(new IntegerCoordinates(coordinates.getX() - 1, coordinates.getY()));
+            if (skillTree.isNode(coordinates))
+                return NodeType.getNodeType(hasUpPathOrNode, hasRightPathOrNode, hasDownPathOrNode, hasLeftPathOrNode);
+            return PathType.getPathType(hasUpPathOrNode, hasRightPathOrNode, hasDownPathOrNode, hasLeftPathOrNode);
+        }
 
+        public Icon getIcon(IntegerCoordinates coordinates) {
+            DisplayType displayType = getDisplayType(coordinates);
             if (skillTree.isNode(coordinates)) {
+                NodeType nodeType = (NodeType) displayType;
                 SkillTreeNode node = skillTree.getNode(coordinates);
                 SkillTreeStatus skillTreeStatus = playerData.getNodeStatus(node);
                 //If the node has its own display, it will be shown.
                 if (node.hasIcon(skillTreeStatus))
                     return node.getIcon(skillTreeStatus);
-                NodeType nodeType = NodeType.getNodeType(hasUpPathOrNode, hasRightPathOrNode, hasDownPathOrNode, hasLeftPathOrNode);
                 DisplayInfo displayInfo = new NodeDisplayInfo(nodeType, skillTreeStatus);
                 //Takes the display defined in the skill tree config if it exists.
                 if (skillTree.hasIcon(displayInfo))
@@ -368,7 +386,7 @@ public class SkillTreeViewer extends EditableInventory {
                 Validate.notNull(icon, "The node " + node.getFullId() + " has no icon for the type " + nodeType + " and the status " + skillTreeStatus);
                 return icon;
             } else {
-                PathType pathType = PathType.getPathType(hasUpPathOrNode, hasRightPathOrNode, hasDownPathOrNode, hasLeftPathOrNode);
+                PathType pathType = (PathType) displayType;
                 SkillTreePath path = skillTree.getPath(coordinates);
                 DisplayInfo displayInfo = new PathDisplayInfo(pathType, path.getStatus(playerData));
                 //Takes the display defined in the skill tree config if it exists.

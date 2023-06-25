@@ -35,7 +35,7 @@ items:
   skill-tree:
     name: '{skill-tree-node}'
     function: skill-tree
-    slots: [9,18,27]
+    slots: [ 9,18,27 ]
     lore:
       - ''
       - '&aDescription:'
@@ -62,7 +62,7 @@ items:
   reallocation:
     function: reallocation
     item: CAULDRON
-    slots: [45]
+    slots: [ 45 ]
     name: '&aReallocate Skill Tree Points'
     lore:
       - ''
@@ -76,7 +76,7 @@ items:
   skill-tree-node:
 
     function: 'skill-tree-node'
-    slots: [1,2,3,4,5,6,7,8,10,11,12,13,14,15,16,17,19,20,21,22,23,24,25,26,28,29,30,31,32,33,34,35,37,38,39,40,41,42,43,44]
+    slots: [ 1,2,3,4,5,6,7,8,10,11,12,13,14,15,16,17,19,20,21,22,23,24,25,26,28,29,30,31,32,33,34,35,37,38,39,40,41,42,43,44 ]
     #The lore that will be displayed after the lore of the node.
     #The {node-lore} placeholder will be replaced by the lore specified in the skill tree node config.
     #All the placeholders you see here can also be used in the node lore.
@@ -101,6 +101,8 @@ items:
       - '&e◆Points spent for {skill-tree}&e:&6 {point-spent}'
       - '&e◆Current {skill-tree} &epoints: &6{skill-tree-points}'
       - '&e◆Current &6global&e points: &6{global-points}'
+    path-lore:
+      - ''
 
 #This is the name that will be displayed for each status.
 status-names:

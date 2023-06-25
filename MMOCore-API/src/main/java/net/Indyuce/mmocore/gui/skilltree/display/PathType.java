@@ -3,7 +3,7 @@ package net.Indyuce.mmocore.gui.skilltree.display;
 /**
  * The direction of the path.
  */
-public enum PathType {
+public enum PathType implements DisplayType {
 
     UP,
     /**
