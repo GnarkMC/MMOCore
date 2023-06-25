@@ -12,11 +12,11 @@ import net.Indyuce.mmocore.api.event.PlayerKeyPressEvent;
 import net.Indyuce.mmocore.api.player.PlayerData;
 import net.Indyuce.mmocore.gui.api.item.Placeholders;
 import net.Indyuce.mmocore.skill.cast.*;
+import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
-import org.bukkit.event.Listener;
 import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.Nullable;
@@ -82,7 +82,7 @@ public class KeyCombos implements SkillCastingListener {
                 if (event.getPressed().shouldCancelEvent()) event.setCancelled(true);
 
                 // Start combo
-                if (playerData.setSkillCasting(new CustomSkillCastingInstance(playerData)) && beginComboSound != null)
+                if (playerData.setSkillCasting() && beginComboSound != null)
                     beginComboSound.playTo(player);
 
             }
@@ -97,10 +97,9 @@ public class KeyCombos implements SkillCastingListener {
             // Start combo when there is NO initializer key
         else {
             final @NotNull ComboMap comboMap = Objects.requireNonNullElse(playerData.getProfess().getComboMap(), this.comboMap);
-            if (comboMap.isComboStart(event.getPressed())) {
-                casting = new CustomSkillCastingInstance(playerData);
-                if (playerData.setSkillCasting(new CustomSkillCastingInstance(playerData)) && beginComboSound != null)
-                    beginComboSound.playTo(player);
+            if (comboMap.isComboStart(event.getPressed()) && playerData.setSkillCasting()) {
+                casting = (CustomSkillCastingInstance) playerData.getSkillCasting();
+                if (beginComboSound != null) beginComboSound.playTo(player);
             }
         }
 
@@ -174,6 +173,7 @@ public class KeyCombos implements SkillCastingListener {
 
         @Override
         public void onTick() {
+            Bukkit.broadcastMessage("runnable combos");
             if (actionBarOptions != null) if (actionBarOptions.isSubtitle)
                 getCaster().getPlayer().sendTitle(" ", actionBarOptions.format(this), 0, 20, 0);
             else getCaster().displayActionBar(actionBarOptions.format(this));

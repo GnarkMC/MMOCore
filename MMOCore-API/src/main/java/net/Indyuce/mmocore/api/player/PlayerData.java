@@ -46,8 +46,8 @@ import net.Indyuce.mmocore.skill.binding.BoundSkillInfo;
 import net.Indyuce.mmocore.skill.binding.SkillSlot;
 import net.Indyuce.mmocore.skill.cast.SkillCastingInstance;
 import net.Indyuce.mmocore.skill.cast.SkillCastingMode;
-import net.Indyuce.mmocore.skilltree.SkillTreeStatus;
 import net.Indyuce.mmocore.skilltree.SkillTreeNode;
+import net.Indyuce.mmocore.skilltree.SkillTreeStatus;
 import net.Indyuce.mmocore.skilltree.tree.SkillTree;
 import net.Indyuce.mmocore.waypoint.Waypoint;
 import net.Indyuce.mmocore.waypoint.WaypointOption;
@@ -1004,29 +1004,32 @@ public class PlayerData extends SynchronizedDataHolder implements OfflinePlayerD
         return skillCasting != null;
     }
 
-    /**
-     * @return true if the PlayerEnterCastingModeEvent successfully put the player into casting mode, otherwise if the event is cancelled, returns false.
-     * @apiNote Changed to a boolean to reflect the cancellation state of the event being fired
-     */
+    @Deprecated
     public boolean setSkillCasting(@NotNull SkillCastingInstance skillCasting) {
         Validate.isTrue(!isCasting(), "Player already in casting mode");
         PlayerEnterCastingModeEvent event = new PlayerEnterCastingModeEvent(getPlayer());
         Bukkit.getPluginManager().callEvent(event);
+        if (event.isCancelled()) return false;
 
-        if (event.isCancelled()){
-            skillCasting.close();
-            return false;
-        }
-        this.skillCasting = skillCasting;
+        skillCasting.close();
+        setSkillCasting();
         return true;
     }
 
     /**
-     * API Method
+     * @return true if the PlayerEnterCastingModeEvent successfully put the player into casting mode, otherwise if the event is cancelled, returns false.
+     * @apiNote Changed to a boolean to reflect the cancellation state of the event being fired
      */
-    public void setSkillCasting() {
+    public boolean setSkillCasting() {
         Validate.isTrue(!isCasting(), "Player already in casting mode");
-        setSkillCasting(SkillCastingMode.getCurrent().newInstance(this));
+        PlayerEnterCastingModeEvent event = new PlayerEnterCastingModeEvent(getPlayer());
+        Bukkit.getPluginManager().callEvent(event);
+        if (event.isCancelled()) return false;
+
+        Bukkit.broadcastMessage("Entering casting mode");
+
+        this.skillCasting = SkillCastingMode.getCurrent().newInstance(this);
+        return true;
     }
 
     @NotNull
@@ -1036,27 +1039,27 @@ public class PlayerData extends SynchronizedDataHolder implements OfflinePlayerD
 
     /**
      * API Method to leave casting mode and fire the PlayerExitCastingModeEvent
+     *
      * @return true if the skill casting mode was left, or false if the event was cancelled, keeping the player in casting mode.
      */
-    public boolean leaveSkillCasting(){
-       return this.leaveSkillCasting(false);
+    public boolean leaveSkillCasting() {
+        return leaveSkillCasting(false);
     }
 
     /**
      * @param skipEvent Skip Firing the PlayerExitCastingModeEvent
      * @return true if the PlayerExitCastingModeEvent is not cancelled, or if the event is skipped.
-     *
      */
     public boolean leaveSkillCasting(boolean skipEvent) {
         Validate.isTrue(isCasting(), "Player not in casting mode");
         if (!skipEvent) {
             PlayerExitCastingModeEvent event = new PlayerExitCastingModeEvent(getPlayer());
             Bukkit.getPluginManager().callEvent(event);
-
-            if (event.isCancelled()) {
-                return false;
-            }
+            if (event.isCancelled()) return false;
         }
+
+        Bukkit.broadcastMessage("Leaving casting mode");
+
         skillCasting.close();
         this.skillCasting = null;
         setLastActivity(PlayerActivity.ACTION_BAR_MESSAGE, 0); // Reset action bar

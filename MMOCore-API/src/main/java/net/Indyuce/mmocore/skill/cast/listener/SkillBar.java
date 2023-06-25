@@ -55,11 +55,9 @@ public class SkillBar implements SkillCastingListener {
 
         // Enter spell casting
         final PlayerData playerData = event.getData();
-        if (player.getGameMode() != GameMode.SPECTATOR && (MMOCore.plugin.configManager.canCreativeCast || player.getGameMode() != GameMode.CREATIVE) && !playerData.isCasting() && !playerData.getBoundSkills().isEmpty()) {
-            if (playerData.setSkillCasting(new CustomSkillCastingInstance(playerData))) {
+        if (player.getGameMode() != GameMode.SPECTATOR && (MMOCore.plugin.configManager.canCreativeCast || player.getGameMode() != GameMode.CREATIVE) && !playerData.isCasting() && !playerData.getBoundSkills().isEmpty())
+            if (playerData.setSkillCasting())
                 MMOCore.plugin.soundManager.getSound(SoundEvent.SPELL_CAST_BEGIN).playTo(player);
-            }
-        }
     }
 
     public class CustomSkillCastingInstance extends SkillCastingInstance {
