@@ -1,16 +1,16 @@
 package net.Indyuce.mmocore.player;
 
+import io.lumine.mythic.lib.util.Closeable;
 import net.Indyuce.mmocore.MMOCore;
 import net.Indyuce.mmocore.api.event.PlayerCombatEvent;
 import net.Indyuce.mmocore.api.player.PlayerData;
-import net.Indyuce.mmocore.api.util.Closable;
 import net.Indyuce.mmocore.command.PvpModeCommand;
 import org.apache.commons.lang.Validate;
 import org.bukkit.Bukkit;
 import org.bukkit.scheduler.BukkitTask;
 import org.jetbrains.annotations.Nullable;
 
-public class CombatHandler implements Closable {
+public class CombatHandler implements Closeable {
     private final PlayerData player;
     private long lastEntry = System.currentTimeMillis(), lastHit = System.currentTimeMillis(), invulnerableTill;
 

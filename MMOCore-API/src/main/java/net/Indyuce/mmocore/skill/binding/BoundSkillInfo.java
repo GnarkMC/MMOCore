@@ -1,15 +1,15 @@
 package net.Indyuce.mmocore.skill.binding;
 
 import io.lumine.mythic.lib.player.skill.PassiveSkill;
+import io.lumine.mythic.lib.util.Closeable;
 import net.Indyuce.mmocore.api.player.PlayerData;
 import net.Indyuce.mmocore.api.quest.trigger.SkillModifierTrigger;
-import net.Indyuce.mmocore.api.util.Closable;
 import net.Indyuce.mmocore.skill.ClassSkill;
 import org.apache.commons.lang.Validate;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-public class BoundSkillInfo implements Closable {
+public class BoundSkillInfo implements Closeable {
     private final SkillSlot skillSlot;
     private final PlayerData playerData;
     private final ClassSkill classSkill;
