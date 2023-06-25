@@ -149,7 +149,10 @@ public class ClassSkill implements CooldownObject, Unlockable {
 
         // Calculate placeholders
         Placeholders placeholders = new Placeholders();
-        parameters.keySet().forEach(modifier -> placeholders.register(modifier, MythicLib.plugin.getMMOConfig().decimal.format(data.getMMOPlayerData().getSkillModifierMap().getInstance(skill.getHandler(), modifier).getTotal(parameters.get(modifier).calculate(x)))));
+        parameters.keySet()
+                .forEach(param -> {
+                    placeholders.register(param, skill.getDecimalFormat(param).format(data.getMMOPlayerData().getSkillModifierMap().getInstance(skill.getHandler(), param).getTotal(parameters.get(param).calculate(x))));
+                });
         placeholders.register("mana_name", data.getProfess().getManaDisplay().getName());
         placeholders.register("mana_color", data.getProfess().getManaDisplay().getFull().toString());
 

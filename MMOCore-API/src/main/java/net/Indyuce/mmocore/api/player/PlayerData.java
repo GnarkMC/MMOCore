@@ -6,6 +6,7 @@ import io.lumine.mythic.lib.api.stat.StatInstance;
 import io.lumine.mythic.lib.api.stat.modifier.StatModifier;
 import io.lumine.mythic.lib.data.SynchronizedDataHolder;
 import io.lumine.mythic.lib.player.cooldown.CooldownMap;
+import io.lumine.mythic.lib.util.Closeable;
 import net.Indyuce.mmocore.MMOCore;
 import net.Indyuce.mmocore.api.ConfigMessage;
 import net.Indyuce.mmocore.api.SoundEvent;
@@ -23,7 +24,6 @@ import net.Indyuce.mmocore.api.player.stats.PlayerStats;
 import net.Indyuce.mmocore.api.quest.PlayerQuests;
 import net.Indyuce.mmocore.api.quest.trigger.StatTrigger;
 import net.Indyuce.mmocore.api.quest.trigger.Trigger;
-import net.Indyuce.mmocore.api.util.Closable;
 import net.Indyuce.mmocore.api.util.MMOCoreUtils;
 import net.Indyuce.mmocore.experience.EXPSource;
 import net.Indyuce.mmocore.experience.ExperienceObject;
@@ -67,7 +67,7 @@ import java.util.*;
 import java.util.logging.Level;
 import java.util.stream.Collectors;
 
-public class PlayerData extends SynchronizedDataHolder implements OfflinePlayerData, Closable, ExperienceTableClaimer, ClassDataContainer {
+public class PlayerData extends SynchronizedDataHolder implements OfflinePlayerData, Closeable, ExperienceTableClaimer, ClassDataContainer {
 
     /**
      * Can be null, the {@link #getProfess()} method will return the
@@ -1162,8 +1162,6 @@ public class PlayerData extends SynchronizedDataHolder implements OfflinePlayerD
         boundSkills.forEach((slot, info) -> info.close());
         boundSkills.clear();
 
-        //Update skill tree.
-        setupSkillTree();
         // Update stats
         if (isOnline()) getStats().updateStats();
     }

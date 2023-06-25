@@ -3,9 +3,9 @@ package net.Indyuce.mmocore.api.quest;
 import com.google.gson.Gson;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+import io.lumine.mythic.lib.util.Closeable;
 import net.Indyuce.mmocore.MMOCore;
 import net.Indyuce.mmocore.api.player.PlayerData;
-import net.Indyuce.mmocore.api.util.Closable;
 import org.bukkit.Bukkit;
 import org.bukkit.NamespacedKey;
 import org.bukkit.boss.BarColor;
@@ -21,7 +21,7 @@ import java.util.Map.Entry;
 import java.util.Set;
 import java.util.logging.Level;
 
-public class PlayerQuests implements Closable {
+public class PlayerQuests implements Closeable {
     private final PlayerData playerData;
     private final Map<String, Long> finished = new HashMap<>();
 

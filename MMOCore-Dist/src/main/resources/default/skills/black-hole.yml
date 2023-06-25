@@ -11,6 +11,8 @@ material: BLACK_DYE
 duration:
   base: 4
   per-level: 0.5
+  #Optional: The decimal format used for this skill parameter.
+  decimal-format: '0.#'
 timer:
   base: 0
   per-level: 0

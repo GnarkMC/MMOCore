@@ -10,6 +10,8 @@ material: BOOK
 duration:
   base: 2
   per-level: 1
+  #Optional: The decimal format used for this skill parameter.
+  decimal-format: '0.#'
 timer:
   base: 0
   per-level: 0

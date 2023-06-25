@@ -123,14 +123,14 @@ public class MMOCoreDataSynchronizer extends SQLDataSynchronizer<PlayerData> {
          * These should be loaded after to make sure that the
          * MAX_MANA, MAX_STAMINA & MAX_STELLIUM stats are already loaded.
          */
-        getData().setHealth(result.getDouble("health"));
+        double health = result.getDouble("health");
         getData().setMana(result.getDouble("mana"));
         getData().setStamina(result.getDouble("stamina"));
         getData().setStellium(result.getDouble("stellium"));
-
         if (getData().isOnline()) {
-            double health = getData().getHealth();
-            health = health == 0 ? getData().getPlayer().getAttribute(Attribute.GENERIC_MAX_HEALTH).getValue() : health;
+            //If the player is not dead and the health is 0, this means that the data was
+            //missing from the data base  and it gives full health to the player.
+            health = health == 0 && !getData().getPlayer().isDead() ? getData().getPlayer().getAttribute(Attribute.GENERIC_MAX_HEALTH).getValue() : health;
             health = Math.max(Math.min(health, getData().getPlayer().getAttribute(Attribute.GENERIC_MAX_HEALTH).getValue()), 0);
             getData().getPlayer().setHealth(health);
         }

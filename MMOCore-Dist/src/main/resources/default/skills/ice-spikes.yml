@@ -11,6 +11,8 @@ material: SNOWBALL
 damage:
   base: 3.0
   per-level: 1.0
+  #Optional: The decimal format used for this skill parameter.
+  decimal-format: '0.#'
 mana:
   base: 20.0
   per-level: 2.0

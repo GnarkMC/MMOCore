@@ -13,12 +13,16 @@ import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.text.DecimalFormat;
 import java.util.*;
 
 public class RegisteredSkill {
     private final SkillHandler<?> handler;
     private final String name;
     private final Map<String, LinearValue> defaultParameters = new HashMap<>();
+
+    private final Map<String, DecimalFormat> parameterDecimalFormats = new HashMap<>();
+
     private final ItemStack icon;
     private final List<String> lore;
     private final List<String> categories;
@@ -42,9 +46,14 @@ public class RegisteredSkill {
         else
             categories.add("ACTIVE");
 
+
         // Load default modifier formulas
-        for (String param : handler.getParameters())
+        for (String param : handler.getParameters()) {
+            if (config.contains(param + ".decimal-format"))
+                parameterDecimalFormats.put(param, new DecimalFormat(config.getString(param + ".decimal-format")));
             defaultParameters.put(param, config.contains(param) ? new LinearValue(config.getConfigurationSection(param)) : LinearValue.ZERO);
+
+        }
 
         /*
          * This is so that SkillAPI skill level matches the MMOCore skill level
@@ -109,6 +118,10 @@ public class RegisteredSkill {
 
     public void addParameter(String parameter, LinearValue linear) {
         defaultParameters.put(parameter, linear);
+    }
+
+    public DecimalFormat getDecimalFormat(String parameter) {
+        return parameterDecimalFormats.getOrDefault(parameter, MythicLib.plugin.getMMOConfig().decimal);
     }
 
 

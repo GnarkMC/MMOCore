@@ -9,6 +9,8 @@ material: COAL
 damage:
   base: 5.0
   per-level: 1.5
+  #Optional: The decimal format used for this skill parameter.
+  decimal-format: '0.#'
 mana:
   base: 8.0
   per-level: 3.0

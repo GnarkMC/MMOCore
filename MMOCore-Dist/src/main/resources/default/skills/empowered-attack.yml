@@ -11,6 +11,8 @@ material: BONE_MEAL
 mana:
   base: 4.0
   per-level: 1.0
+  #Optional: The decimal format used for this skill parameter.
+  decimal-format: '0.#'
 stamina:
   base: 2.0
   per-level: 1.0

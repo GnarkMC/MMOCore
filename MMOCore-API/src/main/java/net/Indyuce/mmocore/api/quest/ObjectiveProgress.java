@@ -1,15 +1,14 @@
 package net.Indyuce.mmocore.api.quest;
 
+import io.lumine.mythic.lib.util.Closeable;
 import net.Indyuce.mmocore.MMOCore;
 import net.Indyuce.mmocore.api.player.PlayerData;
-import net.Indyuce.mmocore.api.util.Closable;
+import net.Indyuce.mmocore.api.quest.objective.Objective;
 import org.bukkit.Bukkit;
 import org.bukkit.event.HandlerList;
 import org.bukkit.event.Listener;
 
-import net.Indyuce.mmocore.api.quest.objective.Objective;
-
-public abstract class ObjectiveProgress implements Closable {
+public abstract class ObjectiveProgress implements Closeable {
 	private final Objective objective;
 	private final QuestProgress questProgress;
 
