@@ -21,17 +21,13 @@ public class TimeCondition extends Condition {
 
     @Override
     public boolean isMet(ConditionInstance entity) {
-        if (entity.getEntity() instanceof Player player) {
-            long time = player.getWorld().getTime();
+        long time = entity.getLocation().getWorld().getTime();
 
-            if (min < max) {
-                return time > min && time < max;
-            } else {
-                // Allows for wrapping times, such as min=20000 max=6000
-                return time > min || time < max;
-            }
+        if (min < max) {
+            return time > min && time < max;
+        } else {
+            // Allows for wrapping times, such as min=20000 max=6000
+            return time > min || time < max;
         }
-
-        return false;
     }
 }

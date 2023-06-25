@@ -6,36 +6,44 @@ import java.util.stream.Stream;
 import net.Indyuce.mmocore.MMOCore;
 import org.bukkit.Location;
 import org.bukkit.entity.Entity;
+import org.jetbrains.annotations.NotNull;
 
 public class ConditionInstance {
-	private final Entity entity;
-	private final Location applied;
-	private final List<String> regions;
+    private final Entity entity;
+    private final Location applied;
+    private final List<String> regions;
 
-	public ConditionInstance(Entity entity) {
-		this(entity, entity.getLocation());
-	}
+    public ConditionInstance(@NotNull Entity entity) {
+        this(entity, entity.getLocation());
+    }
 
-	public ConditionInstance(Entity entity, Location applied) {
-		this.entity = entity;
-		this.regions = MMOCore.plugin.regionHandler.getRegions(this.applied = applied);
-		
-		regions.add("__global__");
-	}
+    public ConditionInstance(@NotNull Entity entity, @NotNull Location applied) {
+        this.entity = entity;
+        this.regions = MMOCore.plugin.regionHandler.getRegions(this.applied = applied);
 
-	public boolean isInRegion(String name) {
-		return regions.contains(name);
-	}
+        regions.add("__global__");
+    }
 
-	public Location getAppliedLocation() {
-		return applied;
-	}
+    public boolean isInRegion(String name) {
+        return regions.contains(name);
+    }
 
-	public Entity getEntity() {
-		return entity;
-	}
+    @Deprecated
+    public Location getAppliedLocation() {
+        return applied;
+    }
 
-	public Stream<String> getRegionStream() {
-		return regions.stream();
-	}
+    @NotNull
+    public Location getLocation() {
+        return applied;
+    }
+
+    @NotNull
+    public Entity getEntity() {
+        return entity;
+    }
+
+    public Stream<String> getRegionStream() {
+        return regions.stream();
+    }
 }
