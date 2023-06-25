@@ -8,6 +8,8 @@ material: REDSTONE
 timer:
   base: 0
   per-level: 0
+  #Optional: The decimal format used for this skill parameter.
+  decimal-format: '0.#'
 amount:
   base: 2
   per-level: 1

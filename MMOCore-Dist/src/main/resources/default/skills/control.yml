@@ -11,6 +11,8 @@ material: MAGENTA_DYE
 duration:
   base: 2.0
   per-level: 1.0
+  #Optional: The decimal format used for this skill parameter.
+  decimal-format: '0.#'
 mana:
   base: 15.0
   per-level: 1.5
