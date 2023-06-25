@@ -96,9 +96,6 @@ public class KeyCombos implements SkillCastingListener {
             if (comboMap.isComboStart(event.getPressed())) {
                 casting = new CustomSkillCastingInstance(playerData);
                 playerData.setSkillCasting(casting);
-                if (!playerData.isCasting()){
-                    return;
-                }
                 if (beginComboSound != null) beginComboSound.playTo(player);
             }
         }
