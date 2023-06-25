@@ -36,7 +36,7 @@ public class SoundObject {
         }
 
         this.sound = sound;
-        this.key = key;
+        this.key = key.toLowerCase();
 
         volume = split.length > 1 ? Float.parseFloat(split[1]) : 1;
         pitch = split.length > 2 ? Float.parseFloat(split[2]) : 1;
@@ -54,7 +54,7 @@ public class SoundObject {
         }
 
         this.sound = sound;
-        this.key = key;
+        this.key = key.toLowerCase();
 
         volume = (float) config.getDouble("volume", 1);
         pitch = (float) config.getDouble("pitch", 1);
@@ -62,7 +62,7 @@ public class SoundObject {
 
     /**
      * @return If this object is custom a custom sound, potentially
-     *         from a resource pack
+     * from a resource pack
      */
     public boolean isCustom() {
         return sound == null;
