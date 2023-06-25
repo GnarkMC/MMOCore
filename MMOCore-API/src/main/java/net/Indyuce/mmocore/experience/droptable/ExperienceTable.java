@@ -80,16 +80,16 @@ public class ExperienceTable {
 
 
     /**
-     * Called when a player joins and all the statTriggers are all triggered back
+     * Called when a player joins and all the removable triggers get claimed back.
      *
      * @param data   PlayerData
      * @param object Either profession, skillTreeNode or class leveling up
      */
-    public void claimStatTriggers(PlayerData data, ExperienceObject object) {
+    public void claimRemovableTrigger(PlayerData data, ExperienceObject object) {
         for (ExperienceItem item : items) {
             int timesClaimed = data.getClaims(object, this, item);
             for (int i = 0; i < timesClaimed; i++)
-                item.applyStatTriggers(data);
+                item.applyRemovableTrigger(data);
 
         }
     }

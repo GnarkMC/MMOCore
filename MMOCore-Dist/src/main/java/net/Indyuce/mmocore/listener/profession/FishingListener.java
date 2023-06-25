@@ -61,7 +61,7 @@ public class FishingListener implements Listener {
         private final Player player;
         private final FishHook hook;
 
-        private final int fishStrength, experienceDropped;
+        private final int fishStrength, experienceDropped, vanillaExpDropped;
 
         private int currentPulls;
 
@@ -82,7 +82,7 @@ public class FishingListener implements Listener {
 
             this.fishStrength = (int) Math.floor(caught.rollTugs() * (1 - PlayerData.get(player).getStats().getStat("FISHING_STRENGTH") / 100));
             this.experienceDropped = caught.rollExperience();
-
+            this.vanillaExpDropped = caught.rollVanillaExp();
             fishing.add(player.getUniqueId());
             runTaskTimer(MMOCore.plugin, 0, 2);
             Bukkit.getPluginManager().registerEvents(this, MMOCore.plugin);
@@ -195,7 +195,7 @@ public class FishingListener implements Listener {
             player.getWorld().playSound(player.getLocation(), VersionSound.BLOCK_NOTE_BLOCK_HAT.toSound(), 1, 0);
             for (int j = 0; j < 8; j++)
                 location.getWorld().spawnParticle(Particle.FIREWORKS_SPARK, location, 0, 4 * (RANDOM.nextDouble() - .5), RANDOM.nextDouble() + 1, 4 * (RANDOM.nextDouble() - .5), .08);
-
+            player.giveExp(vanillaExpDropped);
             if (MMOCore.plugin.fishingManager.hasLinkedProfession())
                 playerData.getCollectionSkills().giveExperience(MMOCore.plugin.fishingManager.getLinkedProfession(), experienceDropped, EXPSource.FISHING, location, true);
         }

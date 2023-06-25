@@ -96,7 +96,7 @@ public class ExperienceItem {
      * @param professionLevel The profession level the player just reached
      * @param timesCollected  Amount of times the exp item has already been claimed by the player
      * @return If the item should be claimed right now taking into
-     *         account the randomness factor from the 'chance' parameter
+     * account the randomness factor from the 'chance' parameter
      */
     public boolean roll(int professionLevel, int timesCollected) {
 
@@ -136,8 +136,8 @@ public class ExperienceItem {
      *
      * @param playerData
      */
-    public void applyStatTriggers(PlayerData playerData) {
+    public void applyRemovableTrigger(PlayerData playerData) {
         for (Trigger trigger : triggers)
-            if (trigger instanceof StatTrigger statTrigger) statTrigger.apply(playerData);
+            if (trigger instanceof Removable) trigger.apply(playerData);
     }
 }

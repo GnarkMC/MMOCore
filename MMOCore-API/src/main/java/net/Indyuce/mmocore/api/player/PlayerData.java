@@ -9,9 +9,7 @@ import io.lumine.mythic.lib.player.cooldown.CooldownMap;
 import net.Indyuce.mmocore.MMOCore;
 import net.Indyuce.mmocore.api.ConfigMessage;
 import net.Indyuce.mmocore.api.SoundEvent;
-import net.Indyuce.mmocore.api.event.PlayerExperienceGainEvent;
-import net.Indyuce.mmocore.api.event.PlayerLevelUpEvent;
-import net.Indyuce.mmocore.api.event.PlayerResourceUpdateEvent;
+import net.Indyuce.mmocore.api.event.*;
 import net.Indyuce.mmocore.api.event.unlocking.ItemLockedEvent;
 import net.Indyuce.mmocore.api.event.unlocking.ItemUnlockedEvent;
 import net.Indyuce.mmocore.api.player.attribute.PlayerAttribute;
@@ -48,7 +46,7 @@ import net.Indyuce.mmocore.skill.binding.BoundSkillInfo;
 import net.Indyuce.mmocore.skill.binding.SkillSlot;
 import net.Indyuce.mmocore.skill.cast.SkillCastingInstance;
 import net.Indyuce.mmocore.skill.cast.SkillCastingMode;
-import net.Indyuce.mmocore.skilltree.NodeStatus;
+import net.Indyuce.mmocore.skilltree.SkillTreeStatus;
 import net.Indyuce.mmocore.skilltree.SkillTreeNode;
 import net.Indyuce.mmocore.skilltree.tree.SkillTree;
 import net.Indyuce.mmocore.waypoint.Waypoint;
@@ -112,7 +110,7 @@ public class PlayerData extends SynchronizedDataHolder implements OfflinePlayerD
     /**
      * Cached for easier access. Current status of each skill tree node.
      */
-    private final Map<SkillTreeNode, NodeStatus> nodeStates = new HashMap<>();
+    private final Map<SkillTreeNode, SkillTreeStatus> nodeStates = new HashMap<>();
     private final Map<SkillTreeNode, Integer> nodeLevels = new HashMap<>();
     private final Map<String, Integer> skillTreePoints = new HashMap<>();
 
@@ -190,7 +188,7 @@ public class PlayerData extends SynchronizedDataHolder implements OfflinePlayerD
         // Stat triggers setup
         for (SkillTree skillTree : MMOCore.plugin.skillTreeManager.getAll())
             for (SkillTreeNode node : skillTree.getNodes())
-                node.getExperienceTable().claimStatTriggers(this, node);
+                node.getExperienceTable().claimRemovableTrigger(this, node);
     }
 
     public int getPointSpent(SkillTree skillTree) {
@@ -264,9 +262,9 @@ public class PlayerData extends SynchronizedDataHolder implements OfflinePlayerD
     }
 
     public boolean canIncrementNodeLevel(SkillTreeNode node) {
-        NodeStatus nodeStatus = nodeStates.get(node);
+        SkillTreeStatus skillTreeStatus = nodeStates.get(node);
         //Check the State of the node
-        if (nodeStatus != NodeStatus.UNLOCKED && nodeStatus != NodeStatus.UNLOCKABLE) return false;
+        if (skillTreeStatus != SkillTreeStatus.UNLOCKED && skillTreeStatus != SkillTreeStatus.UNLOCKABLE) return false;
         return node.hasPermissionRequirement(this) && getNodeLevel(node) < node.getMaxLevel() && (skillTreePoints.getOrDefault(node.getTree().getId(), 0) + skillTreePoints.getOrDefault("global", 0) >= node.getSkillTreePointsConsumed());
     }
 
@@ -280,7 +278,7 @@ public class PlayerData extends SynchronizedDataHolder implements OfflinePlayerD
         // Claims the nodes experience table.
         node.getExperienceTable().claim(this, getNodeLevel(node), node);
 
-        if (nodeStates.get(node) == NodeStatus.UNLOCKABLE) setNodeState(node, NodeStatus.UNLOCKED);
+        if (nodeStates.get(node) == SkillTreeStatus.UNLOCKABLE) setNodeState(node, SkillTreeStatus.UNLOCKED);
         int pointToWithdraw = node.getSkillTreePointsConsumed();
         if (skillTreePoints.get(node.getTree().getId()) > 0) {
             int pointWithdrawn = Math.min(pointToWithdraw, skillTreePoints.get(node.getTree().getId()));
@@ -303,11 +301,11 @@ public class PlayerData extends SynchronizedDataHolder implements OfflinePlayerD
         skillTreePoints.put(treeId, skillTreePoints.get(treeId) - withdraw);
     }
 
-    public void setNodeState(SkillTreeNode node, NodeStatus nodeStatus) {
-        nodeStates.put(node, nodeStatus);
+    public void setNodeState(SkillTreeNode node, SkillTreeStatus skillTreeStatus) {
+        nodeStates.put(node, skillTreeStatus);
     }
 
-    public NodeStatus getNodeStatus(SkillTreeNode node) {
+    public SkillTreeStatus getNodeStatus(SkillTreeNode node) {
         return nodeStates.get(node);
     }
 
@@ -334,7 +332,7 @@ public class PlayerData extends SynchronizedDataHolder implements OfflinePlayerD
         skillTree.setupNodeStates(this);
     }
 
-    public Map<SkillTreeNode, NodeStatus> getNodeStates() {
+    public Map<SkillTreeNode, SkillTreeStatus> getNodeStates() {
         return new HashMap<>(nodeStates);
     }
 
@@ -1005,9 +1003,21 @@ public class PlayerData extends SynchronizedDataHolder implements OfflinePlayerD
         return skillCasting != null;
     }
 
-    public void setSkillCasting(@NotNull SkillCastingInstance skillCasting) {
+    /**
+     * @return true if the PlayerEnterCastingModeEvent successfully put the player into casting mode, otherwise if the event is cancelled, returns false.
+     * @apiNote Changed to a boolean to reflect the cancellation state of the event being fired
+     */
+    public boolean setSkillCasting(@NotNull SkillCastingInstance skillCasting) {
         Validate.isTrue(!isCasting(), "Player already in casting mode");
+        PlayerEnterCastingModeEvent event = new PlayerEnterCastingModeEvent(getPlayer());
+        Bukkit.getPluginManager().callEvent(event);
+
+        if (event.isCancelled()){
+            skillCasting.close();
+            return false;
+        }
         this.skillCasting = skillCasting;
+        return true;
     }
 
     /**
@@ -1023,11 +1033,33 @@ public class PlayerData extends SynchronizedDataHolder implements OfflinePlayerD
         return Objects.requireNonNull(skillCasting, "Player not in casting mode");
     }
 
-    public void leaveSkillCasting() {
+    /**
+     * API Method to leave casting mode and fire the PlayerExitCastingModeEvent
+     * @return true if the skill casting mode was left, or false if the event was cancelled, keeping the player in casting mode.
+     */
+    public boolean leaveSkillCasting(){
+       return this.leaveSkillCasting(false);
+    }
+
+    /**
+     * @param skipEvent Skip Firing the PlayerExitCastingModeEvent
+     * @return true if the PlayerExitCastingModeEvent is not cancelled, or if the event is skipped.
+     *
+     */
+    public boolean leaveSkillCasting(boolean skipEvent) {
         Validate.isTrue(isCasting(), "Player not in casting mode");
+        if (!skipEvent) {
+            PlayerExitCastingModeEvent event = new PlayerExitCastingModeEvent(getPlayer());
+            Bukkit.getPluginManager().callEvent(event);
+
+            if (event.isCancelled()) {
+                return false;
+            }
+        }
         skillCasting.close();
         this.skillCasting = null;
         setLastActivity(PlayerActivity.ACTION_BAR_MESSAGE, 0); // Reset action bar
+        return true;
     }
 
     public void displayActionBar(String message) {

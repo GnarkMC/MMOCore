@@ -11,55 +11,63 @@ import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.Nullable;
 
 public class FishingDropItem implements Weighted {
-	private final RandomAmount experience, tugs;
-	private final DropItem dropItem;
+    private final RandomAmount experience, tugs, vanillaExp;
+    private final DropItem dropItem;
 
-	public FishingDropItem(MMOLineConfig config) {
-		config.validateKeys("tugs", "experience");
+    public FishingDropItem(MMOLineConfig config) {
+        config.validateKeys("tugs", "experience");
 
-		tugs = new RandomAmount(config.getString("tugs"));
-		experience = new RandomAmount(config.getString("experience"));
+        tugs = new RandomAmount(config.getString("tugs"));
+        experience = new RandomAmount(config.getString("experience"));
+        vanillaExp = config.contains("vanilla-exp") ? new RandomAmount(config.getString("vanilla-experience")) : new RandomAmount(0, 0);
+        dropItem = MMOCore.plugin.loadManager.loadDropItem(config);
+    }
 
-		dropItem = MMOCore.plugin.loadManager.loadDropItem(config);
-	}
+    /**
+     * An item cannot have a negative weight. Since drop items have 0 weight
+     * by default, MMOCore takes 1 as minimum value if the item weight is
+     * negative or equal to 0
+     */
+    @Override
+    public double getWeight() {
+        return dropItem.getWeight() <= 0 ? 1 : dropItem.getWeight();
+    }
 
-	/**
-	 * An item cannot have a negative weight. Since drop items have 0 weight
-	 * by default, MMOCore takes 1 as minimum value if the item weight is
-	 * negative or equal to 0
-	 */
-	@Override
-	public double getWeight() {
-		return dropItem.getWeight() <= 0 ? 1 : dropItem.getWeight();
-	}
+    public DropItem getItem() {
+        return dropItem;
+    }
 
-	public DropItem getItem() {
-		return dropItem;
-	}
+    public RandomAmount getExperience() {
+        return experience;
+    }
 
-	public RandomAmount getExperience() {
-		return experience;
-	}
+    public RandomAmount getVanillaExp() {
+        return vanillaExp;
+    }
 
-	public RandomAmount getTugs() {
-		return tugs;
-	}
+    public RandomAmount getTugs() {
+        return tugs;
+    }
 
-	public int rollExperience() {
-		return experience.calculateInt();
-	}
+    public int rollExperience() {
+        return experience.calculateInt();
+    }
 
-	public int rollTugs() {
-		return tugs.calculateInt();
-	}
+    public int rollVanillaExp() {
+        return vanillaExp.calculateInt();
+    }
 
-	public DropItem getDropItem() {
-		return dropItem;
-	}
+    public int rollTugs() {
+        return tugs.calculateInt();
+    }
 
-	@Nullable
-	public ItemStack collect(LootBuilder builder) {
-		dropItem.collect(builder);
-		return builder.getLoot().stream().findAny().orElse(null);
-	}
+    public DropItem getDropItem() {
+        return dropItem;
+    }
+
+    @Nullable
+    public ItemStack collect(LootBuilder builder) {
+        dropItem.collect(builder);
+        return builder.getLoot().stream().findAny().orElse(null);
+    }
 }

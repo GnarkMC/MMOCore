@@ -103,10 +103,10 @@ public class PlayerProfessions {
 
         for (Profession profession : MMOCore.plugin.professionManager.getAll()) {
             if (profession.hasExperienceTable())
-                profession.getExperienceTable().claimStatTriggers(playerData, profession);
+                profession.getExperienceTable().claimRemovableTrigger(playerData, profession);
         }
         if (playerData.getProfess().hasExperienceTable())
-            playerData.getProfess().getExperienceTable().claimStatTriggers(playerData, playerData.getProfess());
+            playerData.getProfess().getExperienceTable().claimRemovableTrigger(playerData, playerData.getProfess());
 
     }
 

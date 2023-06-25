@@ -4,6 +4,7 @@ import io.lumine.mythic.lib.UtilityMethods;
 import io.lumine.mythic.lib.api.player.EquipmentSlot;
 import io.lumine.mythic.lib.player.PlayerMetadata;
 import io.lumine.mythic.lib.skill.trigger.TriggerMetadata;
+import net.Indyuce.mmocore.MMOCore;
 import net.Indyuce.mmocore.api.SoundObject;
 import net.Indyuce.mmocore.api.event.PlayerKeyPressEvent;
 import net.Indyuce.mmocore.api.player.PlayerData;
@@ -11,6 +12,7 @@ import net.Indyuce.mmocore.skill.cast.PlayerKey;
 import net.Indyuce.mmocore.skill.cast.SkillCastingInstance;
 import net.Indyuce.mmocore.skill.cast.SkillCastingListener;
 import net.Indyuce.mmocore.skill.cast.SkillCastingMode;
+import org.bukkit.GameMode;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -56,7 +58,8 @@ public class SkillScroller implements SkillCastingListener {
     public void whenPressingKey(PlayerKeyPressEvent event) {
         PlayerData playerData = event.getData();
         Player player = playerData.getPlayer();
-
+        if (player.getGameMode() == GameMode.CREATIVE && !MMOCore.plugin.configManager.canCreativeCast)
+            return;
         if (event.getPressed() == enterKey) {
 
             // Leave casting mode
@@ -77,7 +80,10 @@ public class SkillScroller implements SkillCastingListener {
             if (event.getPressed().shouldCancelEvent()) event.setCancelled(true);
 
             // Enter casting mode
-            playerData.setSkillCasting(new CustomSkillCastingInstance(playerData));
+            if (!playerData.setSkillCasting(new CustomSkillCastingInstance(playerData))) {
+                return;
+            }
+
             if (enterSound != null) enterSound.playTo(player);
         }
 
