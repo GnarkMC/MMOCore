@@ -345,8 +345,8 @@ public class SavedClassInformation implements ClassDataContainer {
         // We claim back the stats triggers for all the skill tree nodes of the new class.
         for (SkillTree skillTree : profess.getSkillTrees())
             for (SkillTreeNode node : skillTree.getNodes())
-                node.getExperienceTable().claimStatTriggers(player, node);
-        profess.getExperienceTable().claimStatTriggers(player, profess);
+                node.getExperienceTable().claimRemovableTrigger(player, node);
+        profess.getExperienceTable().claimRemovableTrigger(player, profess);
 
         // Unload current class information
         player.unloadClassInfo(profess);

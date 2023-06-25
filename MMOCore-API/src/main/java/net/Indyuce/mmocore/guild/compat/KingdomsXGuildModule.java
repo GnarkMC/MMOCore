@@ -17,7 +17,7 @@ public class KingdomsXGuildModule implements GuildModule {
 
     @Override
     public AbstractGuild getGuild(PlayerData playerData) {
-        KingdomPlayer kPlayer = Kingdoms.get().getDataHandlers().getKingdomPlayerManager().getData(playerData.getUniqueId());
+        KingdomPlayer kPlayer = KingdomPlayer.getKingdomPlayer(playerData.getPlayer());
         if (kPlayer == null)
             return null;
 
@@ -28,7 +28,7 @@ public class KingdomsXGuildModule implements GuildModule {
     @Override
     public Relationship getRelationship(Player player, Player target) {
 
-        final KingdomPlayer player1 = Kingdoms.get().getDataHandlers().getKingdomPlayerManager().getData(player.getUniqueId());
+        final KingdomPlayer player1 = KingdomPlayer.getKingdomPlayer(player);
         if (player1 == null)
             return Relationship.GUILD_NEUTRAL;
 
@@ -36,7 +36,7 @@ public class KingdomsXGuildModule implements GuildModule {
         if (kingdom1 == null)
             return Relationship.GUILD_NEUTRAL;
 
-        final KingdomPlayer player2 = Kingdoms.get().getDataHandlers().getKingdomPlayerManager().getData(target.getUniqueId());
+        final KingdomPlayer player2 = KingdomPlayer.getKingdomPlayer(target.getPlayer());
         if (player2 == null)
             return Relationship.GUILD_NEUTRAL;
 

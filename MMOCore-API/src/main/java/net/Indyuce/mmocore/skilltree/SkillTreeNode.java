@@ -9,12 +9,10 @@ import net.Indyuce.mmocore.experience.ExpCurve;
 import net.Indyuce.mmocore.experience.ExperienceObject;
 import net.Indyuce.mmocore.experience.droptable.ExperienceTable;
 import net.Indyuce.mmocore.gui.api.item.Placeholders;
-import net.Indyuce.mmocore.gui.skilltree.SkillTreeViewer;
 import net.Indyuce.mmocore.gui.skilltree.display.Icon;
 import net.Indyuce.mmocore.skilltree.tree.ParentInformation;
 import net.Indyuce.mmocore.skilltree.tree.SkillTree;
 import org.apache.commons.lang.Validate;
-import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.configuration.ConfigurationSection;
 import org.jetbrains.annotations.NotNull;
@@ -30,7 +28,7 @@ public class SkillTreeNode implements ExperienceObject {
 
     private String permissionRequired;
 
-    private final Map<NodeStatus, Icon> icons = new HashMap<>();
+    private final Map<SkillTreeStatus, Icon> icons = new HashMap<>();
 
     private IntegerCoordinates coordinates;
     /**
@@ -68,7 +66,7 @@ public class SkillTreeNode implements ExperienceObject {
         this.id = config.getName();
         this.tree = tree;
         if (config.isConfigurationSection("display")) {
-            for (NodeStatus status : NodeStatus.values()) {
+            for (SkillTreeStatus status : SkillTreeStatus.values()) {
                 String ymlStatus = MMOCoreUtils.ymlName(status.name());
                 if (!config.isConfigurationSection("display." + ymlStatus)) {
                     MMOCore.log("Could not find node display for status " + ymlStatus + " for node " + id + " in tree " + tree.getId() + ". Using default display.");
@@ -105,11 +103,11 @@ public class SkillTreeNode implements ExperienceObject {
         return tree;
     }
 
-    public boolean hasIcon(NodeStatus status) {
+    public boolean hasIcon(SkillTreeStatus status) {
         return icons.containsKey(status);
     }
 
-    public Icon getIcon(NodeStatus status) {
+    public Icon getIcon(SkillTreeStatus status) {
         return icons.get(status);
     }
 

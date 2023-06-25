@@ -52,7 +52,7 @@ public class SkillModifierTrigger extends Trigger implements Removable {
     }
 
     /**
-     * Used by skill slots to apply a skillBuff
+     * Used by skill slots to apply a skill modifier.
      * to a dynamically chosen skill handler.
      */
     public void apply(PlayerData playerData, SkillHandler<?> skill) {
