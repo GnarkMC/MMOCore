@@ -62,7 +62,6 @@ public class MMOCoreUtils {
     }
 
     /**
-     *
      * @param value an integer you want to convert
      * @return the string representing the integer but with roman letters
      */
@@ -82,23 +81,25 @@ public class MMOCoreUtils {
         roman_numerals.put("IV", 4);
         roman_numerals.put("I", 1);
         String res = "";
-        for(Map.Entry<String, Integer> entry : roman_numerals.entrySet()){
-            int matches = value/entry.getValue();
+        for (Map.Entry<String, Integer> entry : roman_numerals.entrySet()) {
+            int matches = value / entry.getValue();
             res += repeat(entry.getKey(), matches);
             value = value % entry.getValue();
         }
         return res;
     }
+
     private static String repeat(String s, int n) {
-        if(s == null) {
+        if (s == null) {
             return null;
         }
         final StringBuilder sb = new StringBuilder();
-        for(int i = 0; i < n; i++) {
+        for (int i = 0; i < n; i++) {
             sb.append(s);
         }
         return sb.toString();
     }
+
     /**
      * Displays an in game indicator using a hologram. This uses
      * LumineUtils hologramFactory to summon holograms
@@ -260,8 +261,9 @@ public class MMOCoreUtils {
      * @param damage Damage that needs to be applied
      */
     public static void decreaseDurability(Player player, EquipmentSlot slot, int damage) {
+
         ItemStack item = player.getInventory().getItem(slot);
-        if (item == null || item.getType().getMaxDurability() == 0 || !item.hasItemMeta() || !(item.getItemMeta() instanceof Damageable) || item.getItemMeta().isUnbreakable())
+        if (item == null || item.getType().getMaxDurability() == 0 || item.getItemMeta().isUnbreakable())
             return;
 
         PlayerItemDamageEvent event = new PlayerItemDamageEvent(player, item, damage);
@@ -270,11 +272,12 @@ public class MMOCoreUtils {
             return;
 
         ItemMeta meta = item.getItemMeta();
-        if (event.getDamage() + ((Damageable) meta).getDamage() >= item.getType().getMaxDurability()) {
+        final int newDamage = event.getDamage() + ((Damageable) meta).getDamage();
+        if (newDamage >= item.getType().getMaxDurability()) {
             player.playSound(player.getLocation(), Sound.ENTITY_ITEM_BREAK, 1F, 1F);
             player.getInventory().setItem(slot, null);
         } else {
-            ((Damageable) meta).setDamage(((Damageable) meta).getDamage() + event.getDamage());
+            ((Damageable) meta).setDamage(newDamage);
             item.setItemMeta(meta);
         }
     }
