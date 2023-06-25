@@ -36,7 +36,8 @@ public class SoundObject {
         }
 
         this.sound = sound;
-        this.key = key.toLowerCase();
+        this.key = key != null ? key.toLowerCase() : null;
+
 
         volume = split.length > 1 ? Float.parseFloat(split[1]) : 1;
         pitch = split.length > 2 ? Float.parseFloat(split[2]) : 1;
@@ -54,7 +55,7 @@ public class SoundObject {
         }
 
         this.sound = sound;
-        this.key = key.toLowerCase();
+        this.key = key != null ? key.toLowerCase() : null;
 
         volume = (float) config.getDouble("volume", 1);
         pitch = (float) config.getDouble("pitch", 1);
