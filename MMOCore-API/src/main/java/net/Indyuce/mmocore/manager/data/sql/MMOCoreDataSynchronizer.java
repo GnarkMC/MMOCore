@@ -128,7 +128,9 @@ public class MMOCoreDataSynchronizer extends SQLDataSynchronizer<PlayerData> {
         getData().setStamina(result.getDouble("stamina"));
         getData().setStellium(result.getDouble("stellium"));
         if (getData().isOnline()) {
-            health = health == 0 ? getData().getPlayer().getAttribute(Attribute.GENERIC_MAX_HEALTH).getValue() : health;
+            //If the player is not dead and the health is 0, this means that the data was
+            //missing from the data base  and it gives full health to the player.
+            health = health == 0 && !getData().getPlayer().isDead() ? getData().getPlayer().getAttribute(Attribute.GENERIC_MAX_HEALTH).getValue() : health;
             health = Math.max(Math.min(health, getData().getPlayer().getAttribute(Attribute.GENERIC_MAX_HEALTH).getValue()), 0);
             getData().getPlayer().setHealth(health);
         }
