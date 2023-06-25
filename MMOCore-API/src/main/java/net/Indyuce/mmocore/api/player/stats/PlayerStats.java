@@ -103,14 +103,11 @@ public class PlayerStats {
          */
         final PassiveSkillMap skillMap = data.getMMOPlayerData().getPassiveSkillMap();
 
-        if (!MMOCore.plugin.configManager.passiveSkillNeedBound) {
-            skillMap.removeModifiers("MMOCorePassiveSkill");
-            data.getProfess().getSkills()
-                    .stream()
-                    .filter((classSkill) -> classSkill.getSkill().getTrigger().isPassive() && data.hasUnlocked(classSkill) && data.hasUnlockedLevel(classSkill))
-                    .forEach(classSkill -> skillMap.addModifier(classSkill.toPassive(data)));
-
-        }
+        skillMap.removeModifiers("MMOCorePassiveSkillNotBound");
+        data.getProfess().getSkills()
+                .stream()
+                .filter((classSkill) -> !classSkill.needsBound()&&classSkill.getSkill().getTrigger().isPassive() && data.hasUnlocked(classSkill) && data.hasUnlockedLevel(classSkill))
+                .forEach(classSkill -> skillMap.addModifier(classSkill.toPassive(data)));
 
         // This updates the player's class SCRIPTS
         skillMap.removeModifiers("MMOCoreClassScript");

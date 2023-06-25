@@ -222,8 +222,11 @@ death-exp-loss:
 # Maximum number of skill slots. This means that you cannot unlock more than X skill slots.
 max-skill-slots: 8
 
+
 # When set to true, passive skills must be bound in order to take effect.
 # When set to false, unlocked skills will take effect right away.
+# This is only the default behavior for skills but can be overridden by specifying true/false to
+# the needs-bound field in the class skills section.
 passive-skill-need-bound: true
 
 # Set this to true to allow players in

@@ -1,25 +1,25 @@
 package net.Indyuce.mmocore.gui.skilltree.display;
 
-import net.Indyuce.mmocore.skilltree.NodeStatus;
+import net.Indyuce.mmocore.skilltree.SkillTreeStatus;
 
 import java.util.Objects;
 
 public class NodeDisplayInfo implements DisplayInfo{
 
-    private NodeStatus nodeStatus;
+    private SkillTreeStatus skillTreeStatus;
     private NodeType nodeType;
 
-    public NodeDisplayInfo(NodeType nodeType,NodeStatus nodeStatus) {
-        this.nodeStatus = nodeStatus;
+    public NodeDisplayInfo(NodeType nodeType, SkillTreeStatus skillTreeStatus) {
+        this.skillTreeStatus = skillTreeStatus;
         this.nodeType = nodeType;
     }
 
-    public NodeStatus getNodeState() {
-        return nodeStatus;
+    public SkillTreeStatus getNodeState() {
+        return skillTreeStatus;
     }
 
-    public NodeStatus getNodeStatus() {
-        return nodeStatus;
+    public SkillTreeStatus getNodeStatus() {
+        return skillTreeStatus;
     }
 
     public NodeType getNodeType() {
@@ -31,18 +31,18 @@ public class NodeDisplayInfo implements DisplayInfo{
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         NodeDisplayInfo that = (NodeDisplayInfo) o;
-        return nodeStatus == that.nodeStatus && nodeType == that.nodeType;
+        return skillTreeStatus == that.skillTreeStatus && nodeType == that.nodeType;
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(nodeStatus, nodeType);
+        return Objects.hash(skillTreeStatus, nodeType);
     }
 
     @Override
     public String toString() {
         return "NodeDisplayInfo{" +
-                "nodeStatus=" + nodeStatus +
+                "nodeStatus=" + skillTreeStatus +
                 ", nodeType=" + nodeType +
                 '}';
     }
