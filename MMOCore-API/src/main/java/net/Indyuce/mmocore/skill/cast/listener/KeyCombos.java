@@ -71,7 +71,7 @@ public class KeyCombos implements SkillCastingListener {
     public void whenPressingKey(PlayerKeyPressEvent event) {
         PlayerData playerData = event.getData();
         Player player = playerData.getPlayer();
-        if(player.getGameMode()== GameMode.CREATIVE&&!MMOCore.plugin.configManager.canCreativeCast)
+        if (player.getGameMode() == GameMode.CREATIVE && !MMOCore.plugin.configManager.canCreativeCast)
             return;
 
         // Start combo when there is an initializer key
@@ -82,8 +82,9 @@ public class KeyCombos implements SkillCastingListener {
                 if (event.getPressed().shouldCancelEvent()) event.setCancelled(true);
 
                 // Start combo
-                playerData.setSkillCasting(new CustomSkillCastingInstance(playerData));
-                if (beginComboSound != null) beginComboSound.playTo(player);
+                if (playerData.setSkillCasting(new CustomSkillCastingInstance(playerData)) && beginComboSound != null)
+                    beginComboSound.playTo(player);
+
             }
             return;
         }
@@ -98,8 +99,8 @@ public class KeyCombos implements SkillCastingListener {
             final @NotNull ComboMap comboMap = Objects.requireNonNullElse(playerData.getProfess().getComboMap(), this.comboMap);
             if (comboMap.isComboStart(event.getPressed())) {
                 casting = new CustomSkillCastingInstance(playerData);
-                playerData.setSkillCasting(casting);
-                if (beginComboSound != null) beginComboSound.playTo(player);
+                if (playerData.setSkillCasting(new CustomSkillCastingInstance(playerData)) && beginComboSound != null)
+                    beginComboSound.playTo(player);
             }
         }
 
