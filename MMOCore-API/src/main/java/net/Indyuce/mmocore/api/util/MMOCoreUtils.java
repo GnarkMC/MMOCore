@@ -39,8 +39,14 @@ public class MMOCoreUtils {
                 : caseOnWords(item.getType().name().replace("_", " "));
     }
 
+    /**
+     * @param current Current value of resource
+     * @param maxStat Maximum value of resource
+     * @return Clamped resource value. If the provided current value is 0,
+     *         this function will return the maximum resource value.
+     */
     public static double fixResource(double current, double maxStat) {
-        return current == 0 ? maxStat : Math.min(current, maxStat);
+        return current == 0 ? maxStat : Math.max(0, Math.min(current, maxStat));
     }
 
     public static String caseOnWords(String s) {
