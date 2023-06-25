@@ -1026,8 +1026,6 @@ public class PlayerData extends SynchronizedDataHolder implements OfflinePlayerD
         Bukkit.getPluginManager().callEvent(event);
         if (event.isCancelled()) return false;
 
-        Bukkit.broadcastMessage("Entering casting mode");
-
         this.skillCasting = SkillCastingMode.getCurrent().newInstance(this);
         return true;
     }
@@ -1057,8 +1055,6 @@ public class PlayerData extends SynchronizedDataHolder implements OfflinePlayerD
             Bukkit.getPluginManager().callEvent(event);
             if (event.isCancelled()) return false;
         }
-
-        Bukkit.broadcastMessage("Leaving casting mode");
 
         skillCasting.close();
         this.skillCasting = null;

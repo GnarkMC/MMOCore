@@ -12,7 +12,6 @@ import net.Indyuce.mmocore.api.event.PlayerKeyPressEvent;
 import net.Indyuce.mmocore.api.player.PlayerData;
 import net.Indyuce.mmocore.gui.api.item.Placeholders;
 import net.Indyuce.mmocore.skill.cast.*;
-import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.Player;
@@ -173,7 +172,6 @@ public class KeyCombos implements SkillCastingListener {
 
         @Override
         public void onTick() {
-            Bukkit.broadcastMessage("runnable combos");
             if (actionBarOptions != null) if (actionBarOptions.isSubtitle)
                 getCaster().getPlayer().sendTitle(" ", actionBarOptions.format(this), 0, 20, 0);
             else getCaster().displayActionBar(actionBarOptions.format(this));
