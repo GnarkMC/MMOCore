@@ -9,7 +9,7 @@ import net.Indyuce.mmocore.manager.profession.ExperienceSourceManager;
 import org.apache.commons.lang.Validate;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.FileConfiguration;
-import org.bukkit.event.HandlerList;
+import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.Nullable;
 import java.io.File;
@@ -25,10 +25,8 @@ public class ExperienceManager implements MMOCoreManager {
      * Experience sources from the exp-sources.yml config file where you can
      * input any exp source which can later be used along with the 'from'
      * exp source anywhere in the plugin.
-     * <p>
-     * TODO First needs to edit the exp-source current structure. This is going to break a lot of things
      *
-     * @deprecated See TODO
+     * @deprecated TODO First needs to edit the exp-source current structure. This is going to break a lot of things
      */
     @Deprecated
     private final Map<String, List<ExperienceSource<?>>> publicExpSources = new HashMap<>();
@@ -55,6 +53,7 @@ public class ExperienceManager implements MMOCoreManager {
         return expCurves.containsKey(id);
     }
 
+    @NotNull
     public ExpCurve getCurveOrThrow(String id) {
         Validate.isTrue(hasCurve(id), "Could not find exp curve with ID '" + id + "'");
         return expCurves.get(id);
@@ -70,10 +69,12 @@ public class ExperienceManager implements MMOCoreManager {
         return expTables.containsKey(id);
     }
 
+    @NotNull
     public ExperienceTable getTableOrThrow(String id) {
         return Objects.requireNonNull(expTables.get(id), "Could not find exp table with ID '" + id + "'");
     }
 
+    @NotNull
     public ExperienceTable loadExperienceTable(Object obj) {
 
         if (obj instanceof ConfigurationSection)
@@ -99,7 +100,7 @@ public class ExperienceManager implements MMOCoreManager {
             expCurves.clear();
             expTables.clear();
 
-            managers.values().forEach(HandlerList::unregisterAll);
+            managers.forEach((c, manager) -> manager.close());
             managers.clear();
         }
 
