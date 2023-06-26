@@ -73,6 +73,9 @@ public class KeyCombos implements SkillCastingListener {
         if (player.getGameMode() == GameMode.CREATIVE && !MMOCore.plugin.configManager.canCreativeCast)
             return;
 
+        // Don't start combos if no skills are bound
+        if (playerData.getBoundSkills().isEmpty()) return;
+
         // Start combo when there is an initializer key
         if (!event.getData().isCasting() && initializerKey != null) {
             if (event.getPressed() == initializerKey) {
@@ -172,7 +175,8 @@ public class KeyCombos implements SkillCastingListener {
 
         @Override
         public void onTick() {
-            if (actionBarOptions != null) if (actionBarOptions.isSubtitle)
+            if (getCaster().getBoundSkills().isEmpty()) close();
+            else if (actionBarOptions != null) if (actionBarOptions.isSubtitle)
                 getCaster().getPlayer().sendTitle(" ", actionBarOptions.format(this), 0, 20, 0);
             else getCaster().displayActionBar(actionBarOptions.format(this));
         }
