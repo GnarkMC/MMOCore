@@ -72,8 +72,8 @@ public class RPGPlaceholders extends PlaceholderExpansion {
             String id = identifier.substring(12);
             RegisteredSkill skill = Objects.requireNonNull(MMOCore.plugin.skillManager.getSkill(id), "Could not find skill with ID '" + id + "'");
             return String.valueOf(playerData.getSkillLevel(skill));
-        } else if (identifier.startsWith("skill_modifier_")||identifier.startsWith("skill_parameter_")) {
-            String[] ids= (identifier.startsWith("skill_modifier_")?identifier.substring(15):identifier.substring(16)).split(":");
+        } else if (identifier.startsWith("skill_modifier_") || identifier.startsWith("skill_parameter_")) {
+            String[] ids = (identifier.startsWith("skill_modifier_") ? identifier.substring(15) : identifier.substring(16)).split(":");
             String parameterId = ids[0];
             String skillId = ids[1];
             RegisteredSkill skill = Objects.requireNonNull(MMOCore.plugin.skillManager.getSkill(skillId), "Could not find skill with ID '" + skillId + "'");
@@ -129,9 +129,17 @@ public class RPGPlaceholders extends PlaceholderExpansion {
 
         else if (identifier.startsWith("bound_")) {
             int slot = Math.max(0, Integer.parseInt(identifier.substring(6)));
-            return playerData.hasSkillBound(slot) ? playerData.getBoundSkill(slot).getSkill().getName()
-                    : MMOCore.plugin.configManager.noSkillBoundPlaceholder;
-
+            if (playerData.hasSkillBound(slot)) {
+                ClassSkill skill = playerData.getBoundSkill(slot);
+                return (playerData.getCooldownMap().isOnCooldown(skill) ? ChatColor.RED : ChatColor.GREEN) + skill.getSkill().getName();
+            } else
+                return MMOCore.plugin.configManager.noSkillBoundPlaceholder;
+        } else if (identifier.startsWith("cooldown_bound_")) {
+            int slot = Math.max(0, Integer.parseInt(identifier.substring(15)));
+            if (playerData.hasSkillBound(slot))
+                return "" + playerData.getCooldownMap().getCooldown(playerData.getBoundSkill(slot));
+            else
+                return MMOCore.plugin.configManager.noSkillBoundPlaceholder;
         } else if (identifier.startsWith("profession_experience_"))
             return MythicLib.plugin.getMMOConfig().decimal.format(
                     playerData.getCollectionSkills().getExperience(identifier.substring(22).replace(" ", "-").replace("_", "-").toLowerCase()));
