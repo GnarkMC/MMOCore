@@ -212,6 +212,12 @@ shift-click-player-profile-check: false
 # whenever a player earns main class exp
 display-main-class-exp-holograms: true
 
+#This is the GUI opened with /skilltrees. It enables to switch from 1 skill tree to another.
+enable-global-skill-tree-gui: true
+
+#This is the GUI opened with /skilltrees <skilltree_id>. It only displays this specific skill tree without allowing changes.
+enable-specific-skill-tree-gui: true
+
 # Requires a SERVER reload when changed.
 death-exp-loss:
   enabled: false
@@ -221,7 +227,6 @@ death-exp-loss:
 
 # Maximum number of skill slots. This means that you cannot unlock more than X skill slots.
 max-skill-slots: 8
-
 
 # When set to true, passive skills must be bound in order to take effect.
 # When set to false, unlocked skills will take effect right away.

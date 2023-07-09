@@ -30,6 +30,8 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.persistence.PersistentDataContainer;
 import org.bukkit.persistence.PersistentDataType;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -38,8 +40,21 @@ public class SkillTreeViewer extends EditableInventory {
     protected final Map<DisplayInfo, Icon> icons = new HashMap<>();
     protected final Map<SkillTreeStatus, String> statusNames = new HashMap<>();
 
+    @Nullable
+    /**
+     * A null skillTree means the global skill tree view is opened.
+     * Else this GUI represents a specific skill tree.
+     */
+    private final SkillTree skillTree;
+
     public SkillTreeViewer() {
         super("skill-tree");
+        this.skillTree = null;
+    }
+
+    public SkillTreeViewer(SkillTree skillTree, boolean isDefault) {
+        super("specific-skill-tree-" + (isDefault ? "default" : UtilityMethods.ymlName(skillTree.getId())));
+        this.skillTree = skillTree;
     }
 
     @Override
@@ -113,7 +128,7 @@ public class SkillTreeViewer extends EditableInventory {
 
 
     public SkillTreeInventory newInventory(PlayerData playerData) {
-        return new SkillTreeInventory(playerData, this);
+        return new SkillTreeInventory(playerData, this, skillTree);
     }
 
 
@@ -309,20 +324,24 @@ public class SkillTreeViewer extends EditableInventory {
     public class SkillTreeInventory extends GeneratedInventory {
         private int x, y;
         //width and height correspond to the the size of the 'board' representing the skill tree
-        private int minSlot, middleSlot, maxSlot;
+        private int minSlot, maxSlot;
         private final int width, height;
         private int treeListPage;
         private final int maxTreeListPage;
         private final List<SkillTree> skillTrees;
+        @NotNull
         private SkillTree skillTree;
         private final List<Integer> slots;
 
-        public SkillTreeInventory(PlayerData playerData, EditableInventory editable) {
+        public SkillTreeInventory(PlayerData playerData, EditableInventory editable, SkillTree skillTree) {
             super(playerData, editable);
 
             skillTrees = playerData.getProfess().getSkillTrees();
-            skillTree = skillTrees.get(0);
-            maxTreeListPage = (skillTrees.size() - 1) / editable.getByFunction("skill-tree").getSlots().size();
+            this.skillTree = skillTree == null ? skillTrees.get(0) : skillTree;
+            if (skillTree == null)
+                maxTreeListPage = (skillTrees.size() - 1) / editable.getByFunction("skill-tree").getSlots().size();
+            else
+                maxTreeListPage = 0;
             //We get the width and height of the GUI(corresponding to the slots given)
             slots = editable.getByFunction("skill-tree-node").getSlots();
             minSlot = 64;
@@ -335,7 +354,6 @@ public class SkillTreeViewer extends EditableInventory {
             }
             width = (maxSlot - minSlot) % 9;
             height = (maxSlot - minSlot) / 9;
-            middleSlot = minSlot + width / 2 + 9 * (height / 2);
             x -= width / 2;
             y -= height / 2;
         }

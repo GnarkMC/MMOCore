@@ -28,7 +28,7 @@ public class ConfigManager {
     public final CommandVerbose commandVerbose = new CommandVerbose();
 
     public boolean overrideVanillaExp, canCreativeCast, passiveSkillNeedBound, cobbleGeneratorXP, saveDefaultClassInfo, splitMainExp, splitProfessionExp, disableQuestBossBar,
-            pvpModeEnabled, pvpModeInvulnerabilityCanDamage, forceClassSelection;
+            pvpModeEnabled, pvpModeInvulnerabilityCanDamage, forceClassSelection,enableGlobalSkillTreeGUI,enableSpecificSkillTreeGUI;
     public String partyChatPrefix, noSkillBoundPlaceholder;
     public ChatColor staminaFull, staminaHalf, staminaEmpty;
     public long combatLogTimer, lootChestExpireTime, lootChestPlayerCooldown, globalSkillCooldown;
@@ -120,7 +120,8 @@ public class ConfigManager {
             } catch (Exception exception) {
                 MMOCore.plugin.getLogger().log(Level.WARNING, "Could not find damage cause called '" + key + "'");
             }
-
+        enableGlobalSkillTreeGUI = MMOCore.plugin.getConfig().getBoolean("enable-global-skill-tree-gui");
+        enableSpecificSkillTreeGUI = MMOCore.plugin.getConfig().getBoolean("enable-specific-skill-tree-gui");
         lootChestExpireTime = Math.max(MMOCore.plugin.getConfig().getInt("loot-chests.chest-expire-time"), 1) * 20;
         lootChestPlayerCooldown = (long) MMOCore.plugin.getConfig().getDouble("player-cooldown") * 1000L;
         globalSkillCooldown = MMOCore.plugin.getConfig().getLong("global-skill-cooldown") * 50;
