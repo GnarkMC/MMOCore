@@ -8,18 +8,17 @@ import org.bukkit.block.Biome;
 import io.lumine.mythic.lib.api.MMOLineConfig;
 
 public class BiomeCondition extends Condition {
-	private final List<String> names;
+    private final List<String> names;
 
-	public BiomeCondition(MMOLineConfig config) {
-		super(config);
+    public BiomeCondition(MMOLineConfig config) {
+        super(config);
 
-		config.validate("name");
-		names = Arrays.asList(config.getString("name").toUpperCase().split(","));
-	}
+        config.validate("name");
+        names = Arrays.asList(config.getString("name").toUpperCase().split(","));
+    }
 
-	@Override
-	public boolean isMet(ConditionInstance entity) {
-		Biome currentBiome = entity.getEntity().getLocation().getBlock().getBiome();
-		return names.contains(currentBiome.name());
-	}
+    @Override
+    public boolean isMet(ConditionInstance instance) {
+        return names.contains(instance.getLocation().getBlock().getBiome().name());
+    }
 }

@@ -16,7 +16,6 @@ import org.bukkit.GameMode;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
-import org.bukkit.event.Listener;
 import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.Nullable;
@@ -74,6 +73,9 @@ public class KeyCombos implements SkillCastingListener {
         if (player.getGameMode() == GameMode.CREATIVE && !MMOCore.plugin.configManager.canCreativeCast)
             return;
 
+        // Don't start combos if no skills are bound
+        if (playerData.getBoundSkills().isEmpty()) return;
+
         // Start combo when there is an initializer key
         if (!event.getData().isCasting() && initializerKey != null) {
             if (event.getPressed() == initializerKey) {
@@ -82,7 +84,7 @@ public class KeyCombos implements SkillCastingListener {
                 if (event.getPressed().shouldCancelEvent()) event.setCancelled(true);
 
                 // Start combo
-                if (playerData.setSkillCasting(new CustomSkillCastingInstance(playerData)) && beginComboSound != null)
+                if (playerData.setSkillCasting() && beginComboSound != null)
                     beginComboSound.playTo(player);
 
             }
@@ -97,10 +99,9 @@ public class KeyCombos implements SkillCastingListener {
             // Start combo when there is NO initializer key
         else {
             final @NotNull ComboMap comboMap = Objects.requireNonNullElse(playerData.getProfess().getComboMap(), this.comboMap);
-            if (comboMap.isComboStart(event.getPressed())) {
-                casting = new CustomSkillCastingInstance(playerData);
-                if (playerData.setSkillCasting(new CustomSkillCastingInstance(playerData)) && beginComboSound != null)
-                    beginComboSound.playTo(player);
+            if (comboMap.isComboStart(event.getPressed()) && playerData.setSkillCasting()) {
+                casting = (CustomSkillCastingInstance) playerData.getSkillCasting();
+                if (beginComboSound != null) beginComboSound.playTo(player);
             }
         }
 
@@ -174,7 +175,8 @@ public class KeyCombos implements SkillCastingListener {
 
         @Override
         public void onTick() {
-            if (actionBarOptions != null) if (actionBarOptions.isSubtitle)
+            if (getCaster().getBoundSkills().isEmpty()) close();
+            else if (actionBarOptions != null) if (actionBarOptions.isSubtitle)
                 getCaster().getPlayer().sendTitle(" ", actionBarOptions.format(this), 0, 20, 0);
             else getCaster().displayActionBar(actionBarOptions.format(this));
         }

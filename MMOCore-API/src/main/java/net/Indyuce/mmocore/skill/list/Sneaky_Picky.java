@@ -45,6 +45,6 @@ public class Sneaky_Picky extends SkillHandler<SimpleSkillResult> implements Lis
         if (skill == null)
             return;
 
-        skill.getTriggeredSkill().cast(new TriggerMetadata(event.getAttacker(), event.getAttack(), event.getEntity()));
+        skill.getTriggeredSkill().cast(new TriggerMetadata(event));
     }
 }

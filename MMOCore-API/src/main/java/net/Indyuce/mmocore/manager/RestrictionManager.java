@@ -115,8 +115,9 @@ public class RestrictionManager implements MMOCoreManager {
                 String parentFormat = formatId(config.getString("parent"));
                 parent = Objects.requireNonNull(map.get(parentFormat), "Could not find parent with ID '" + parentFormat + "'");
             }
-            for (String key : config.getStringList("can-mine"))
-                mineable.add(MMOCore.plugin.loadManager.loadBlockType(new MMOLineConfig(key)).generateKey());
+            if (config.contains("can-mine"))
+                for (String key : config.getStringList("can-mine"))
+                    mineable.add(MMOCore.plugin.loadManager.loadBlockType(new MMOLineConfig(key)).generateKey());
         }
 
         /**

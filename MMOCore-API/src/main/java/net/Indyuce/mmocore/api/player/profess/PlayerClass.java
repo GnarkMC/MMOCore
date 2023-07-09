@@ -222,7 +222,7 @@ public class PlayerClass extends PostLoadObject implements ExperienceObject {
             for (String key : config.getStringList("main-exp-sources"))
                 try {
                     MMOCore.plugin.experience.registerSource(MMOCore.plugin.loadManager.loadExperienceSource(new MMOLineConfig(key), this));
-                } catch (IllegalArgumentException exception) {
+                } catch (RuntimeException exception) {
                     MMOCore.plugin.getLogger().log(Level.WARNING, "Could not load exp source '" + key + "' from class '"
                             + id + "': " + exception.getMessage());
                 }

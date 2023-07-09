@@ -18,15 +18,13 @@ public class WeatherCondition extends Condition {
 
     @Override
     public boolean isMet(ConditionInstance entity) {
-        if (entity.getEntity() instanceof Player player) {
-            boolean isClear = player.getWorld().isClearWeather();
-            boolean hasStorm = player.getWorld().hasStorm();
+        boolean isClear = entity.getLocation().getWorld().isClearWeather();
+        boolean hasStorm = entity.getLocation().getWorld().hasStorm();
 
-            if (condition.equalsIgnoreCase("clear")) {
-                return isClear;
-            } else if (condition.equalsIgnoreCase("stormy")) {
-                return hasStorm;
-            }
+        if (condition.equalsIgnoreCase("clear")) {
+            return isClear;
+        } else if (condition.equalsIgnoreCase("stormy")) {
+            return hasStorm;
         }
 
         return false;

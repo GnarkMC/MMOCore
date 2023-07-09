@@ -10,6 +10,9 @@ import net.Indyuce.mmocore.loot.fishing.FishingDropItem;
 import org.apache.commons.lang.Validate;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.Entity;
+import org.bukkit.entity.FishHook;
+import org.bukkit.entity.Player;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
 import java.util.logging.Level;
@@ -36,8 +39,9 @@ public class FishingManager extends SpecificProfessionManager {
 		MMOCore.plugin.statManager.registerProfession("CRITICAL_FISHING_FAILURE_CHANCE", getLinkedProfession());
 	}
 
-	public FishingDropTable calculateDropTable(Entity entity) {
-		ConditionInstance conditionEntity = new ConditionInstance(entity);
+	@NotNull
+	public FishingDropTable calculateDropTable(@NotNull Player player, @NotNull FishHook hook) {
+		ConditionInstance conditionEntity = new ConditionInstance(player, hook.getLocation());
 
 		for (FishingDropTable table : tables)
 			if (table.areConditionsMet(conditionEntity))

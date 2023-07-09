@@ -45,7 +45,7 @@ public class FishingListener implements Listener {
              * Checks for drop tables. If no drop table, just plain vanilla
              * fishing OTHERWISE initialize fishing, register other listener.
              */
-            FishingDropTable table = MMOCore.plugin.fishingManager.calculateDropTable(player);
+            FishingDropTable table = MMOCore.plugin.fishingManager.calculateDropTable(player, hook);
             if (table == null)
                 return;
 

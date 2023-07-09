@@ -134,7 +134,7 @@ public class YAMLPlayerDataHandler extends YAMLSynchronizedDataHandler<PlayerDat
         data.setStamina(config.contains("stamina") ? config.getDouble("stamina") : data.getStats().getStat("MAX_STAMINA"));
         data.setStellium(config.contains("stellium") ? config.getDouble("stellium") : data.getStats().getStat("MAX_STELLIUM"));
 
-        if (data.isOnline())
+        if (data.isOnline() && !data.getPlayer().isDead())
             data.getPlayer().setHealth(MMOCoreUtils.fixResource(config.getDouble("health"), data.getPlayer().getAttribute(Attribute.GENERIC_MAX_HEALTH).getValue()));
     }
 

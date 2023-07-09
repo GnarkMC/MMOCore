@@ -24,6 +24,9 @@ permissions:
   mmocore.currency:
     description: Access to /deposit and /withdraw
     default: op
+  mmocore.bypass-waypoint-wait:
+    description: Bypass waypoint waiting time
+    default: op
   mmocore.class-select:
     description: Access to /class
     default: op

@@ -60,6 +60,7 @@ public class SkillScroller implements SkillCastingListener {
         Player player = playerData.getPlayer();
         if (player.getGameMode() == GameMode.CREATIVE && !MMOCore.plugin.configManager.canCreativeCast)
             return;
+
         if (event.getPressed() == enterKey) {
 
             // Leave casting mode
@@ -80,7 +81,7 @@ public class SkillScroller implements SkillCastingListener {
             if (event.getPressed().shouldCancelEvent()) event.setCancelled(true);
 
             // Enter casting mode
-            if (!playerData.setSkillCasting(new CustomSkillCastingInstance(playerData))) {
+            if (!playerData.setSkillCasting()) {
                 return;
             }
 

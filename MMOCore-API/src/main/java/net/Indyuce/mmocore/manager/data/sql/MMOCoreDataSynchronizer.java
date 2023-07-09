@@ -78,15 +78,12 @@ public class MMOCoreDataSynchronizer extends SQLDataSynchronizer<PlayerData> {
         getData().setUnlockedItems(unlockedItems);
         if (!isEmpty(result.getString("guild"))) {
             final Guild guild = MMOCore.plugin.dataProvider.getGuildManager().getGuild(result.getString("guild"));
-            if (guild != null)
-                getData().setGuild(guild.hasMember(getData().getUniqueId()) ? guild : null);
+            if (guild != null) getData().setGuild(guild.hasMember(getData().getUniqueId()) ? guild : null);
         }
-        if (!isEmpty(result.getString("attributes")))
-            getData().getAttributes().load(result.getString("attributes"));
+        if (!isEmpty(result.getString("attributes"))) getData().getAttributes().load(result.getString("attributes"));
         if (!isEmpty(result.getString("professions")))
             getData().getCollectionSkills().load(result.getString("professions"));
-        if (!isEmpty(result.getString("quests")))
-            getData().getQuestData().load(result.getString("quests"));
+        if (!isEmpty(result.getString("quests"))) getData().getQuestData().load(result.getString("quests"));
         getData().getQuestData().updateBossBar();
         if (!isEmpty(result.getString("waypoints")))
             getData().getWaypoints().addAll(MMOCoreUtils.jsonArrayToList(result.getString("waypoints")));
@@ -101,8 +98,7 @@ public class MMOCoreDataSynchronizer extends SQLDataSynchronizer<PlayerData> {
             JsonObject object = MythicLib.plugin.getGson().fromJson(result.getString("bound_skills"), JsonObject.class);
             for (Map.Entry<String, JsonElement> entry : object.entrySet()) {
                 ClassSkill skill = getData().getProfess().getSkill(entry.getValue().getAsString());
-                if (skill != null)
-                    getData().bindSkill(Integer.parseInt(entry.getKey()), skill);
+                if (skill != null) getData().bindSkill(Integer.parseInt(entry.getKey()), skill);
 
             }
         }
@@ -123,15 +119,17 @@ public class MMOCoreDataSynchronizer extends SQLDataSynchronizer<PlayerData> {
          * These should be loaded after to make sure that the
          * MAX_MANA, MAX_STAMINA & MAX_STELLIUM stats are already loaded.
          */
-        double health = result.getDouble("health");
         getData().setMana(result.getDouble("mana"));
         getData().setStamina(result.getDouble("stamina"));
         getData().setStellium(result.getDouble("stellium"));
-        if (getData().isOnline()) {
-            //If the player is not dead and the health is 0, this means that the data was
-            //missing from the data base  and it gives full health to the player.
-            health = health == 0 && !getData().getPlayer().isDead() ? getData().getPlayer().getAttribute(Attribute.GENERIC_MAX_HEALTH).getValue() : health;
-            health = Math.max(Math.min(health, getData().getPlayer().getAttribute(Attribute.GENERIC_MAX_HEALTH).getValue()), 0);
+        if (getData().isOnline() && !getData().getPlayer().isDead()) {
+
+            /*
+             * If the player is not dead and the health is 0, this means that the data was
+             * missing from the data base and it gives full health to the player. If the
+             * player is dead however, it must not account for that subtle edge case.
+             */
+            final double health = MMOCoreUtils.fixResource(result.getDouble("health"), getData().getPlayer().getAttribute(Attribute.GENERIC_MAX_HEALTH).getValue());
             getData().getPlayer().setHealth(health);
         }
 
