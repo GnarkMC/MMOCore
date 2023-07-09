@@ -151,7 +151,11 @@ public class ClassSkill implements CooldownObject, Unlockable {
         Placeholders placeholders = new Placeholders();
         parameters.keySet()
                 .forEach(param -> {
-                    placeholders.register(param, skill.getDecimalFormat(param).format(data.getMMOPlayerData().getSkillModifierMap().getInstance(skill.getHandler(), param).getTotal(parameters.get(param).calculate(x))));
+                    placeholders.register(param, skill.getDecimalFormat(param).format(data
+                            .getMMOPlayerData()
+                            .getSkillModifierMap()
+                            .getInstance(skill.getHandler(), param)
+                            .getTotal(parameters.get(param).calculate(x))));
                 });
         placeholders.register("mana_name", data.getProfess().getManaDisplay().getName());
         placeholders.register("mana_color", data.getProfess().getManaDisplay().getFull().toString());
