@@ -50,7 +50,7 @@ public class InventoryManager {
             }
             for (String id : loader.ids) {
                 String formattedId = UtilityMethods.ymlName(id);
-                final ConfigFile configFile = new ConfigFile("gui/" + loader.name, loader.name + "-" + formattedId);
+                final ConfigFile configFile = new ConfigFile("/gui/" + loader.name, loader.name + "-" + formattedId);
                 final EditableInventory GUI = loader.provider.apply(id, !configFile.exists());
                 loader.inventories.put(formattedId, GUI);
                 GUI.reload(new ConfigFile("/gui/" + loader.name, GUI.getId()).getConfig());

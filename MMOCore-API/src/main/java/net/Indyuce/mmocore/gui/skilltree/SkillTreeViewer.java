@@ -52,9 +52,9 @@ public class SkillTreeViewer extends EditableInventory {
         this.defaultSkillTree = null;
     }
 
-    public SkillTreeViewer(SkillTree defaultSkillTree, boolean isDefault) {
-        super("specific-skill-tree-" + (isDefault ? "default" : UtilityMethods.ymlName(defaultSkillTree.getId())));
-        this.defaultSkillTree = defaultSkillTree;
+    public SkillTreeViewer(SkillTree initialSkillTree, boolean isDefault) {
+        super("specific-skill-tree-" + (isDefault ? "default" : UtilityMethods.ymlName(initialSkillTree.getId())));
+        this.defaultSkillTree = initialSkillTree;
     }
 
     @Override
