@@ -53,7 +53,6 @@ public class InventoryManager {
                 final ConfigFile configFile = new ConfigFile("gui/" + loader.name, loader.name + "-" + formattedId);
                 final EditableInventory GUI = loader.provider.apply(id, !configFile.exists());
                 loader.inventories.put(formattedId, GUI);
-                MMOCore.log("/gui/" + loader.name + "/" + GUI.getId());
                 GUI.reload(new ConfigFile("/gui/" + loader.name, GUI.getId()).getConfig());
             }
         }
