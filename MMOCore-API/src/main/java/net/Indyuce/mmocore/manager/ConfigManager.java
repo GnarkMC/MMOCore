@@ -28,13 +28,13 @@ public class ConfigManager {
     public final CommandVerbose commandVerbose = new CommandVerbose();
 
     public boolean overrideVanillaExp, canCreativeCast, passiveSkillNeedBound, cobbleGeneratorXP, saveDefaultClassInfo, splitMainExp, splitProfessionExp, disableQuestBossBar,
-            pvpModeEnabled, pvpModeInvulnerabilityCanDamage, forceClassSelection,enableGlobalSkillTreeGUI,enableSpecificSkillTreeGUI;
+            pvpModeEnabled, pvpModeInvulnerabilityCanDamage, forceClassSelection, enableGlobalSkillTreeGUI, enableSpecificSkillTreeGUI;
     public String partyChatPrefix, noSkillBoundPlaceholder;
     public ChatColor staminaFull, staminaHalf, staminaEmpty;
     public long combatLogTimer, lootChestExpireTime, lootChestPlayerCooldown, globalSkillCooldown;
     public double lootChestsChanceWeight, dropItemsChanceWeight, fishingDropsChanceWeight, partyMaxExpSplitRange, pvpModeToggleOnCooldown, pvpModeToggleOffCooldown, pvpModeCombatCooldown,
             pvpModeCombatTimeout, pvpModeInvulnerabilityTimeRegionChange, pvpModeInvulnerabilityTimeCommand, pvpModeRegionEnterCooldown, pvpModeRegionLeaveCooldown;
-    public int maxPartyLevelDifference, maxSkillSlots, minCombatLevel, maxCombatLevelDifference, skillTreeScrollStepX, skillTreeScrollStepY;
+    public int maxPartyLevelDifference, maxPartyPlayers, maxSkillSlots, minCombatLevel, maxCombatLevelDifference, skillTreeScrollStepX, skillTreeScrollStepY;
     public final List<EntityDamageEvent.DamageCause> combatLogDamageCauses = new ArrayList<>();
 
     private final FileConfiguration messages;
@@ -110,7 +110,7 @@ public class ConfigManager {
 
         messages = new ConfigFile("messages").getConfig();
         partyChatPrefix = MMOCore.plugin.getConfig().getString("party.chat-prefix");
-
+        maxPartyPlayers = Math.max(2, MMOCore.plugin.getConfig().getInt("party.max-players", 8));
         // Combat log
         combatLogTimer = MMOCore.plugin.getConfig().getInt("combat-log.timer") * 1000L;
         combatLogDamageCauses.clear();
@@ -149,8 +149,8 @@ public class ConfigManager {
         pvpModeInvulnerabilityCanDamage = config.getBoolean("pvp_mode.invulnerability.can_damage");
         minCombatLevel = config.getInt("pvp_mode.min_level");
         maxCombatLevelDifference = config.getInt("pvp_mode.max_level_difference");
-        skillTreeScrollStepX = config.getInt("skill-tree-scroll-step-x",1);
-        skillTreeScrollStepY = config.getInt("skill-tree-scroll-step-y",1);
+        skillTreeScrollStepX = config.getInt("skill-tree-scroll-step-x", 1);
+        skillTreeScrollStepY = config.getInt("skill-tree-scroll-step-y", 1);
         // Resources
         staminaFull = getColorOrDefault("stamina-whole", ChatColor.GREEN);
         staminaHalf = getColorOrDefault("stamina-half", ChatColor.DARK_GREEN);

@@ -25,7 +25,7 @@ public class PartyInvite extends Request {
 
     @Override
     public void whenAccepted() {
-        if (party.getMembers().size() >= Math.max(2, MMOCore.plugin.getConfig().getInt("party.max-players", 8))) {
+        if (party.getMembers().size() >= MMOCore.plugin.configManager.maxPartyPlayers) {
             MMOCore.plugin.configManager.getSimpleMessage("party-is-full").send(getTarget().getPlayer());
             return;
         }

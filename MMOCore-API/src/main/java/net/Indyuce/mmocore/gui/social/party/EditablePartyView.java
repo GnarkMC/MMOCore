@@ -122,18 +122,15 @@ public class EditablePartyView extends EditableInventory {
     }
 
     public class PartyViewInventory extends GeneratedInventory {
-        private final int max;
 
         public PartyViewInventory(PlayerData playerData, EditableInventory editable) {
             super(playerData, editable);
-
-            max = editable.getByFunction("member").getSlots().size();
         }
 
         @Override
         public String calculateName() {
             Party party = (Party) getPlayerData().getParty();
-            return getName().replace("{max}", "" + max).replace("{players}", "" + party.getMembers().size());
+            return getName().replace("{max}", "" + MMOCore.plugin.configManager.maxPartyPlayers).replace("{players}", "" + party.getMembers().size());
         }
 
         @Override
@@ -149,7 +146,7 @@ public class EditablePartyView extends EditableInventory {
 
             if (item.getFunction().equals("invite")) {
 
-                if (party.getMembers().size() >= max) {
+                if (party.getMembers().size() >= MMOCore.plugin.configManager.maxPartyPlayers) {
                     MMOCore.plugin.configManager.getSimpleMessage("party-is-full").send(player);
                     player.playSound(player.getLocation(), Sound.ENTITY_VILLAGER_NO, 1, 1);
                     return;
