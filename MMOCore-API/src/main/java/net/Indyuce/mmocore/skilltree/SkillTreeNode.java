@@ -10,6 +10,7 @@ import net.Indyuce.mmocore.experience.ExperienceObject;
 import net.Indyuce.mmocore.experience.droptable.ExperienceTable;
 import net.Indyuce.mmocore.gui.api.item.Placeholders;
 import net.Indyuce.mmocore.gui.skilltree.display.Icon;
+import net.Indyuce.mmocore.gui.skilltree.display.NodeType;
 import net.Indyuce.mmocore.skilltree.tree.ParentInformation;
 import net.Indyuce.mmocore.skilltree.tree.SkillTree;
 import org.apache.commons.lang.Validate;
@@ -227,6 +228,15 @@ public class SkillTreeNode implements ExperienceObject {
     public boolean hasExperienceTable() {
         return experienceTable != null;
     }
+
+    public NodeType getNodeType() {
+        boolean hasUpPathOrNode = tree.isPathOrNode(new IntegerCoordinates(coordinates.getX(), coordinates.getY() - 1));
+        boolean hasDownPathOrNode = tree.isPathOrNode(new IntegerCoordinates(coordinates.getX(), coordinates.getY() + 1));
+        boolean hasRightPathOrNode = tree.isPathOrNode(new IntegerCoordinates(coordinates.getX() + 1, coordinates.getY()));
+        boolean hasLeftPathOrNode = tree.isPathOrNode(new IntegerCoordinates(coordinates.getX() - 1, coordinates.getY()));
+        return NodeType.getNodeType(hasUpPathOrNode, hasRightPathOrNode, hasDownPathOrNode, hasLeftPathOrNode);
+    }
+
 
     @Override
     public boolean equals(Object o) {

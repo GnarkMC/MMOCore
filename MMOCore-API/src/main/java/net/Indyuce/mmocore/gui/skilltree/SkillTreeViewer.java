@@ -45,16 +45,16 @@ public class SkillTreeViewer extends EditableInventory {
      * A null skillTree means the global skill tree view is opened.
      * Else this GUI represents a specific skill tree.
      */
-    private final SkillTree skillTree;
+    private final SkillTree defaultSkillTree;
 
     public SkillTreeViewer() {
         super("skill-tree");
-        this.skillTree = null;
+        this.defaultSkillTree = null;
     }
 
-    public SkillTreeViewer(SkillTree skillTree, boolean isDefault) {
-        super("specific-skill-tree-" + (isDefault ? "default" : UtilityMethods.ymlName(skillTree.getId())));
-        this.skillTree = skillTree;
+    public SkillTreeViewer(SkillTree defaultSkillTree, boolean isDefault) {
+        super("specific-skill-tree-" + (isDefault ? "default" : UtilityMethods.ymlName(defaultSkillTree.getId())));
+        this.defaultSkillTree = defaultSkillTree;
     }
 
     @Override
@@ -128,7 +128,7 @@ public class SkillTreeViewer extends EditableInventory {
 
 
     public SkillTreeInventory newInventory(PlayerData playerData) {
-        return new SkillTreeInventory(playerData, this, skillTree);
+        return new SkillTreeInventory(playerData, this, defaultSkillTree);
     }
 
 
@@ -242,7 +242,7 @@ public class SkillTreeViewer extends EditableInventory {
         @Override
         public ItemStack display(SkillTreeInventory inv, int n) {
             IntegerCoordinates coordinates = inv.getCoordinates(n);
-            if (inv.getSkillTree().isNode(coordinates) || inv.getSkillTree().isPath(coordinates)) {
+            if (inv.getSkillTree().isPathOrNode(coordinates)) {
                 Icon icon = inv.getIcon(coordinates);
                 ItemStack item = super.display(inv, n, icon.getMaterial(), icon.getCustomModelData());
                 ItemMeta meta = item.getItemMeta();
@@ -299,7 +299,8 @@ public class SkillTreeViewer extends EditableInventory {
         public Placeholders getPlaceholders(SkillTreeInventory inv, int n) {
             Placeholders holders = new Placeholders();
             holders.register("skill-tree", inv.getSkillTree().getName());
-            if (inv.getSkillTree().isNode(inv.getCoordinates(n))) {
+            boolean isNode = inv.getSkillTree().isNode(inv.getCoordinates(n));
+            if (isNode) {
                 SkillTreeNode node = inv.getNode(n);
                 holders.register("current-level", inv.getPlayerData().getNodeLevel(node));
                 SkillTreeStatus status = inv.getPlayerData().getNodeStatus(node);
@@ -308,13 +309,15 @@ public class SkillTreeViewer extends EditableInventory {
                 holders.register("max-children", node.getMaxChildren());
                 holders.register("size", node.getSize());
                 holders.register("point-consumed", node.getSkillTreePointsConsumed());
+                holders.register("display-type", node.getNodeType());
+            } else {
+                holders.register("display-type", inv.skillTree.getPath(inv.getCoordinates(n)).getPathType());
             }
             int maxPointSpent = inv.getSkillTree().getMaxPointSpent();
             holders.register("max-point-spent", maxPointSpent == Integer.MAX_VALUE ? "∞" : maxPointSpent);
             holders.register("point-spent", inv.getPlayerData().getPointSpent(inv.getSkillTree()));
             holders.register("skill-tree-points", inv.getPlayerData().getSkillTreePoint(inv.getSkillTree().getId()));
             holders.register("global-points", inv.getPlayerData().getSkillTreePoint("global"));
-            holders.register("display-type", inv.getDisplayType(inv.getCoordinates(n)));
 
             return holders;
         }
@@ -375,22 +378,10 @@ public class SkillTreeViewer extends EditableInventory {
         }
 
 
-        public DisplayType getDisplayType(IntegerCoordinates coordinates) {
-            Validate.isTrue(skillTree.isNode(coordinates), "The coordinates must be a node");
-            boolean hasUpPathOrNode = skillTree.isPathOrNode(new IntegerCoordinates(coordinates.getX(), coordinates.getY() - 1));
-            boolean hasDownPathOrNode = skillTree.isPathOrNode(new IntegerCoordinates(coordinates.getX(), coordinates.getY() + 1));
-            boolean hasRightPathOrNode = skillTree.isPathOrNode(new IntegerCoordinates(coordinates.getX() + 1, coordinates.getY()));
-            boolean hasLeftPathOrNode = skillTree.isPathOrNode(new IntegerCoordinates(coordinates.getX() - 1, coordinates.getY()));
-            if (skillTree.isNode(coordinates))
-                return NodeType.getNodeType(hasUpPathOrNode, hasRightPathOrNode, hasDownPathOrNode, hasLeftPathOrNode);
-            return PathType.getPathType(hasUpPathOrNode, hasRightPathOrNode, hasDownPathOrNode, hasLeftPathOrNode);
-        }
-
         public Icon getIcon(IntegerCoordinates coordinates) {
-            DisplayType displayType = getDisplayType(coordinates);
             if (skillTree.isNode(coordinates)) {
-                NodeType nodeType = (NodeType) displayType;
                 SkillTreeNode node = skillTree.getNode(coordinates);
+                NodeType nodeType = node.getNodeType();
                 SkillTreeStatus skillTreeStatus = playerData.getNodeStatus(node);
                 //If the node has its own display, it will be shown.
                 if (node.hasIcon(skillTreeStatus))
@@ -404,14 +395,15 @@ public class SkillTreeViewer extends EditableInventory {
                 Validate.notNull(icon, "The node " + node.getFullId() + " has no icon for the type " + nodeType + " and the status " + skillTreeStatus);
                 return icon;
             } else {
-                PathType pathType = (PathType) displayType;
                 SkillTreePath path = skillTree.getPath(coordinates);
-                DisplayInfo displayInfo = new PathDisplayInfo(pathType, path.getStatus(playerData));
+                PathType pathType = path.getPathType();
+                PathStatus pathStatus = path.getStatus(playerData);
+                DisplayInfo displayInfo = new PathDisplayInfo(pathType, pathStatus);
                 //Takes the display defined in the skill tree config if it exists.
                 if (skillTree.hasIcon(displayInfo))
                     return skillTree.getIcon(displayInfo);
                 Icon icon = icons.get(displayInfo);
-                Validate.notNull(icon, "There is no icon for the path type " + pathType + " and the status " + path.getStatus(playerData));
+                Validate.notNull(icon, "There is no icon for the path type " + pathType + " and the status " + pathStatus);
                 return icon;
             }
         }
