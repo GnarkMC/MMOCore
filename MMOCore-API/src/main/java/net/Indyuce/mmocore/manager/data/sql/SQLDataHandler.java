@@ -18,7 +18,7 @@ import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
-public class SQLDataHandler extends SQLSynchronizedDataHandler<PlayerData, OfflinePlayerData, MMOCoreDataSynchronizer> {
+public class SQLDataHandler extends SQLSynchronizedDataHandler<PlayerData, OfflinePlayerData> {
     public SQLDataHandler(SQLDataSource dataSource) {
         super(dataSource);
     }
