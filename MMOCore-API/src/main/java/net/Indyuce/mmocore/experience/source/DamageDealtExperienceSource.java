@@ -1,5 +1,6 @@
 package net.Indyuce.mmocore.experience.source;
 
+import io.lumine.mythic.lib.UtilityMethods;
 import io.lumine.mythic.lib.api.MMOLineConfig;
 import io.lumine.mythic.lib.api.event.PlayerAttackEvent;
 import io.lumine.mythic.lib.damage.DamagePacket;
@@ -10,7 +11,6 @@ import net.Indyuce.mmocore.experience.source.type.SpecificExperienceSource;
 import net.Indyuce.mmocore.manager.profession.ExperienceSourceManager;
 import org.apache.commons.lang.Validate;
 import org.bukkit.event.EventHandler;
-import org.bukkit.event.EventPriority;
 
 import java.util.Arrays;
 import java.util.Objects;
@@ -31,13 +31,12 @@ public class DamageDealtExperienceSource extends SpecificExperienceSource<Damage
         if (!config.contains("type"))
             type = null;
         else {
-            String str = config.getString("type").toUpperCase().replace("-", "_");
+            String str = UtilityMethods.enumName(config.getString("type"));
             //Checks if the damage type correspond to a value of the damage type enum
             Validate.isTrue(Arrays.stream(DamageType.values()).map(Objects::toString).collect(Collectors.toList()).contains(str),
                     "Type value not allowed. Type value allowed: magic, physical, weapon, skill, projectile," +
                             " unarmed, on-hit, minion, dot.");
             type = DamageType.valueOf(str);
-
         }
     }
 

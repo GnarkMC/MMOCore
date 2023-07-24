@@ -53,6 +53,7 @@ public class PlayerListener implements Listener {
      */
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
     public void updateCombat(EntityDamageEvent event) {
+        if (UtilityMethods.isFakeEvent(event)) return;
         if (UtilityMethods.isRealPlayer(event.getEntity()) && MMOCore.plugin.configManager.combatLogDamageCauses.contains(event.getCause()))
             PlayerData.get(event.getEntity().getUniqueId()).getCombat().update();
     }
