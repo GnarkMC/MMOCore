@@ -1,5 +1,6 @@
 package net.Indyuce.mmocore.experience.source;
 
+import io.lumine.mythic.lib.UtilityMethods;
 import io.lumine.mythic.lib.api.MMOLineConfig;
 import net.Indyuce.mmocore.MMOCore;
 import net.Indyuce.mmocore.api.player.PlayerData;
@@ -51,9 +52,9 @@ public class RepairItemExperienceSource extends ExperienceSource<ItemStack> {
                 return;
 
             // Check if there's exp associated to it
-            final ItemStack item = event.getCurrentItem();
-            if (!MMOCore.plugin.smithingManager.hasExperience(item.getType()))
-                return;
+            final @Nullable ItemStack item = event.getCurrentItem();
+            if (UtilityMethods.isAir(item)) return;
+            if (!MMOCore.plugin.smithingManager.hasExperience(item.getType())) return;
 
             final PlayerData data = PlayerData.get((Player) event.getWhoClicked());
             for (RepairItemExperienceSource source : getSources())
