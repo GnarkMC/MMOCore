@@ -9,8 +9,6 @@ import net.Indyuce.mmocore.listener.profession.FishingListener;
 import net.Indyuce.mmocore.listener.profession.PlayerCollectStats;
 import org.bukkit.Bukkit;
 
-import java.util.logging.Level;
-
 public class MMOCoreBukkit {
 
     /**
