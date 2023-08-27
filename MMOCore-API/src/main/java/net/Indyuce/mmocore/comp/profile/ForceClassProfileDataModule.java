@@ -6,11 +6,13 @@ import fr.phoenixdevt.profiles.event.ProfileCreateEvent;
 import fr.phoenixdevt.profiles.event.ProfileRemoveEvent;
 import fr.phoenixdevt.profiles.event.ProfileSelectEvent;
 import fr.phoenixdevt.profiles.event.ProfileUnloadEvent;
-import fr.phoenixdevt.profiles.placeholder.PlaceholderRequest;
+import io.lumine.mythic.lib.MythicLib;
 import io.lumine.mythic.lib.api.event.SynchronizedDataLoadEvent;
+import io.lumine.mythic.lib.comp.profile.ProfileMode;
 import net.Indyuce.mmocore.MMOCore;
 import net.Indyuce.mmocore.api.player.PlayerData;
 import net.Indyuce.mmocore.manager.InventoryManager;
+import org.apache.commons.lang.Validate;
 import org.bukkit.Bukkit;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -28,18 +30,8 @@ public class ForceClassProfileDataModule implements ProfileDataModule, Listener 
     }
 
     @Override
-    public boolean hasPlaceholders() {
-        return false;
-    }
-
-    @Override
     public String getIdentifier() {
         return "mmocore_force_class";
-    }
-
-    @Override
-    public void processPlaceholderRequest(PlaceholderRequest placeholderRequest) {
-        throw new RuntimeException("Not supported");
     }
 
     /**
@@ -47,6 +39,13 @@ public class ForceClassProfileDataModule implements ProfileDataModule, Listener 
      */
     @EventHandler
     public void onProfileCreate(ProfileCreateEvent event) {
+
+        // Proxy-based profiles
+        if (MythicLib.plugin.getProfileMode() == ProfileMode.PROXY) {
+            event.validate(this);
+            return;
+        }
+
         final PlayerData playerData = PlayerData.get(event.getPlayerData().getUniqueId());
         InventoryManager.CLASS_SELECT.newInventory(playerData, () -> event.validate(this)).open();
     }
@@ -58,6 +57,16 @@ public class ForceClassProfileDataModule implements ProfileDataModule, Listener 
     public void onDataLoad(SynchronizedDataLoadEvent event) {
         if (event.getManager().getOwningPlugin().equals(MMOCore.plugin)) {
             final PlayerData playerData = (PlayerData) event.getHolder();
+
+            // Proxy-based profiles
+            if (!event.hasProfileEvent()) {
+                Validate.isTrue(MythicLib.plugin.getProfileMode() == ProfileMode.PROXY, "Listened to a data load event with no profile event attached but proxy-based profiles are disabled");
+                if (playerData.getProfess().equals(MMOCore.plugin.classManager.getDefaultClass()))
+                    InventoryManager.CLASS_SELECT.newInventory(playerData, () -> {
+                    }).open();
+                return;
+            }
+
             final ProfileSelectEvent event1 = (ProfileSelectEvent) event.getProfileEvent();
 
             // Validate if necessary
