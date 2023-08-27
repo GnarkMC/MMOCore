@@ -258,7 +258,7 @@ public class MMOCore extends JavaPlugin {
          * that after registering all the professses otherwise the player datas can't
          * recognize what profess the player has and professes will be lost
          */
-        playerDataManager.initialize(EventPriority.NORMAL, EventPriority.NORMAL);
+        playerDataManager.initialize(EventPriority.LOW, EventPriority.NORMAL);
 
         // load guild data after loading player data
         dataProvider.getGuildManager().load();
