@@ -85,7 +85,7 @@ public class Ambers extends SkillHandler<SimpleSkillResult> implements Listener 
                 // data.getSkillData().ambers++;
 
                 // Give mana back
-                PlayerData playerData = PlayerData.get(data.getUniqueId());
+                PlayerData playerData = PlayerData.get(data);
                 double missingMana = data.getStatMap().getStat("MAX_MANA") - playerData.getMana();
                 playerData.giveMana(missingMana * percent, PlayerResourceUpdateEvent.UpdateReason.SKILL_REGENERATION);
 

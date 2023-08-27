@@ -155,7 +155,7 @@ public class KeyCombos implements SkillCastingListener {
     @EventHandler
     public void ignoreOtherSkills(PlayerCastSkillEvent event) {
         TriggerType triggerType = event.getCast().getTrigger();
-        if (IGNORED_WHEN_CASTING.contains(triggerType) && PlayerData.get(event.getData().getUniqueId()).isCasting())
+        if (IGNORED_WHEN_CASTING.contains(triggerType) && PlayerData.get(event.getData()).isCasting())
             event.setCancelled(true);
     }
 

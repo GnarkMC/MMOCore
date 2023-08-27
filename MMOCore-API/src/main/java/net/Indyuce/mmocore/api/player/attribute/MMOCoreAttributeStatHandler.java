@@ -30,7 +30,7 @@ public class MMOCoreAttributeStatHandler extends StatHandler {
     @Override
     public void runUpdate(StatInstance instance) {
         try {
-            final PlayerData playerData = MMOCore.plugin.dataProvider.getDataManager().get(instance.getMap().getPlayerData().getUniqueId());
+            final PlayerData playerData = PlayerData.get(instance.getMap().getPlayerData());
             playerData.getAttributes().getInstance(attr).updateStats();
         } catch (NullPointerException exception) {
             // Player data is not loaded yet so there's nothing to update.

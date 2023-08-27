@@ -107,13 +107,13 @@ public class AttributeModifier extends PlayerModifier {
 
     @Override
     public void register(MMOPlayerData mmoPlayerData) {
-        PlayerData playerData = PlayerData.get(mmoPlayerData.getUniqueId());
+        PlayerData playerData = PlayerData.get(mmoPlayerData);
         playerData.getAttributes().getInstance(attribute).addModifier(this);
     }
 
     @Override
     public void unregister(MMOPlayerData mmoPlayerData) {
-        PlayerData playerData = PlayerData.get(mmoPlayerData.getUniqueId());
+        PlayerData playerData = PlayerData.get(mmoPlayerData);
         playerData.getAttributes().getInstance(attribute).removeModifier(getKey());
     }
 

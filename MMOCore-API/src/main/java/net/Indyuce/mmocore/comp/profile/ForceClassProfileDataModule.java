@@ -46,7 +46,7 @@ public class ForceClassProfileDataModule implements ProfileDataModule, Listener 
             return;
         }
 
-        final PlayerData playerData = PlayerData.get(event.getPlayerData().getUniqueId());
+        final PlayerData playerData = PlayerData.get(event.getPlayerData().getPlayer());
         InventoryManager.CLASS_SELECT.newInventory(playerData, () -> event.validate(this)).open();
     }
 

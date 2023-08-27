@@ -91,7 +91,7 @@ public class McMMOPartyModule implements PartyModule, Listener {
             List<PlayerData> list = new ArrayList<>();
 
             for (Player online : party.getOnlineMembers())
-                list.add(PlayerData.get(online.getUniqueId()));
+                list.add(PlayerData.get(online));
 
             return list;
         }

@@ -42,7 +42,7 @@ public class DungeonPartiesPartyModule implements PartyModule, Listener {
 
             for (AvalonPlayer member : party.getPlayers())
                 try {
-                    list.add(PlayerData.get(member.getPlayer().getUniqueId()));
+                    list.add(PlayerData.get(member.getPlayer()));
                 } catch (Exception ignored) {
                 }
 

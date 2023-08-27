@@ -92,7 +92,8 @@ public class SQLDataHandler extends SQLSynchronizedDataHandler<PlayerData, Offli
 
     @Override
     public void saveData(PlayerData data, boolean autosave) {
-        UtilityMethods.debug(MMOCore.plugin, "SQL", "Saving data for: '" + data.getProfileId() + "'...");
+        final UUID effectiveId = data.getEffectiveId();
+        UtilityMethods.debug(MMOCore.plugin, "SQL", "Saving data for: '" + effectiveId + "'...");
 
         final PlayerDataTableUpdater updater = new PlayerDataTableUpdater(getDataSource(), data);
         updater.addData("class_points", data.getClassPoints());
@@ -128,7 +129,7 @@ public class SQLDataHandler extends SQLSynchronizedDataHandler<PlayerData, Offli
 
         updater.executeRequest(autosave);
 
-        UtilityMethods.debug(MMOCore.plugin, "SQL", "Saved data for: " + data.getProfileId());
+        UtilityMethods.debug(MMOCore.plugin, "SQL", "Saved data for: " + effectiveId);
         UtilityMethods.debug(MMOCore.plugin, "SQL", String.format("{ class: %s, level: %d }", data.getProfess().getId(), data.getLevel()));
     }
 

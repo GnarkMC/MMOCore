@@ -12,10 +12,7 @@ import org.jetbrains.annotations.Nullable;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.logging.Level;
 
 /**
@@ -25,16 +22,18 @@ import java.util.logging.Level;
 public class PlayerDataTableUpdater {
     private final PlayerData playerData;
     private final SQLDataSource provider;
+    private final UUID effectiveId;
     private final Map<String, String> requestMap = new HashMap<>();
 
     public PlayerDataTableUpdater(SQLDataSource provider, PlayerData playerData) {
         this.playerData = playerData;
         this.provider = provider;
+        this.effectiveId = playerData.getEffectiveId();
     }
 
     public void executeRequest(boolean autosave) {
         final String request = "INSERT INTO mmocore_playerdata(uuid, " + formatCollection(requestMap.keySet(), false)
-                + ") VALUES('" + playerData.getProfileId() + "'," + formatCollection(requestMap.values(), true) + ")" +
+                + ") VALUES('" + effectiveId + "'," + formatCollection(requestMap.values(), true) + ")" +
                 " ON DUPLICATE KEY UPDATE " + formatMap() + ";";
 
         try {
@@ -44,21 +43,21 @@ public class PlayerDataTableUpdater {
                 try {
                     statement.executeUpdate();
                 } catch (SQLException exception) {
-                    MMOCore.log(Level.WARNING, "Could not save player data of " + playerData.getProfileId() + ", saving through YAML instead");
+                    MMOCore.log(Level.WARNING, "Could not save player data of " + effectiveId + ", saving through YAML instead");
                     new YAMLPlayerDataHandler(MMOCore.plugin).saveData(playerData, autosave);
                     exception.printStackTrace();
                 } finally {
                     statement.close();
                 }
             } catch (SQLException exception) {
-                MMOCore.log(Level.WARNING, "Could not save player data of " + playerData.getProfileId() + ", saving through YAML instead");
+                MMOCore.log(Level.WARNING, "Could not save player data of " + effectiveId + ", saving through YAML instead");
                 new YAMLPlayerDataHandler(MMOCore.plugin).saveData(playerData, autosave);
                 exception.printStackTrace();
             } finally {
                 connection.close();
             }
         } catch (SQLException exception) {
-            MMOCore.log(Level.WARNING, "Could not save player data of " + playerData.getProfileId() + ", saving through YAML instead");
+            MMOCore.log(Level.WARNING, "Could not save player data of " + effectiveId + ", saving through YAML instead");
             new YAMLPlayerDataHandler(MMOCore.plugin).saveData(playerData, autosave);
             exception.printStackTrace();
         }

@@ -11,7 +11,7 @@ public class PlayerEnterCastingModeEvent extends PlayerDataEvent implements Canc
     private boolean cancelled = false;
 
     public PlayerEnterCastingModeEvent(@NotNull Player who) {
-        super(PlayerData.get(who.getUniqueId()));
+        super(PlayerData.get(who));
     }
 
     @Override

@@ -10,6 +10,7 @@ import net.Indyuce.mmocore.api.player.profess.resource.PlayerResource;
 import net.Indyuce.mmocore.gui.api.InventoryClickContext;
 import net.Indyuce.mmocore.gui.api.PluginInventory;
 import org.bukkit.Bukkit;
+import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
@@ -55,7 +56,7 @@ public class PlayerListener implements Listener {
     public void updateCombat(EntityDamageEvent event) {
         if (UtilityMethods.isFakeEvent(event)) return;
         if (UtilityMethods.isRealPlayer(event.getEntity()) && MMOCore.plugin.configManager.combatLogDamageCauses.contains(event.getCause()))
-            PlayerData.get(event.getEntity().getUniqueId()).getCombat().update();
+            PlayerData.get((Player) event.getEntity()).getCombat().update();
     }
 
     /**

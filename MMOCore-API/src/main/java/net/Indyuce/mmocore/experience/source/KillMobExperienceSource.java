@@ -53,7 +53,7 @@ public class KillMobExperienceSource extends SpecificExperienceSource<Entity> {
 
             @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
             public void registerLastAttacker(PlayerAttackEvent event) {
-                registry.getRegistry().put(event.getEntity().getUniqueId(), event.getAttacker().getData().getUniqueId());
+                registry.getRegistry().put(event.getEntity().getUniqueId(), event.getAttacker().getPlayer().getUniqueId());
             }
 
             @EventHandler(priority = EventPriority.MONITOR)

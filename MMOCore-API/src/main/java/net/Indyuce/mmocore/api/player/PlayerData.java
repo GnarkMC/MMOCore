@@ -1252,11 +1252,15 @@ public class PlayerData extends SynchronizedDataHolder implements OfflinePlayerD
         return getMMOPlayerData().hashCode();
     }
 
-    public static PlayerData get(OfflinePlayer player) {
+    public static PlayerData get(@NotNull MMOPlayerData playerData) {
+        return get(playerData.getPlayer());
+    }
+
+    public static PlayerData get(@NotNull OfflinePlayer player) {
         return get(player.getUniqueId());
     }
 
-    public static PlayerData get(UUID uuid) {
+    public static PlayerData get(@NotNull UUID uuid) {
         return MMOCore.plugin.dataProvider.getDataManager().get(uuid);
     }
 

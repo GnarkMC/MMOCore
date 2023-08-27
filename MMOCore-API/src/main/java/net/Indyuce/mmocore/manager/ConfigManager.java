@@ -240,7 +240,7 @@ public class ConfigManager {
             String msg = hasPlaceholders ? MMOCore.plugin.placeholderParser.parse(player, message) : message;
 
             if (!msg.isEmpty()) {
-                if (actionbar) PlayerData.get(player.getUniqueId()).displayActionBar(msg);
+                if (actionbar) PlayerData.get(player).displayActionBar(msg);
                 else player.sendMessage(msg);
             }
             return !msg.isEmpty();

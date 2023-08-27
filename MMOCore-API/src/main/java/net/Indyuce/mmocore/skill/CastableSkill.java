@@ -44,7 +44,7 @@ public class CastableSkill extends Skill {
 
     @Override
     public boolean getResult(SkillMetadata skillMeta) {
-        PlayerData playerData = PlayerData.get(skillMeta.getCaster().getData().getUniqueId());
+        PlayerData playerData = PlayerData.get(skillMeta.getCaster().getData());
         boolean loud = !getTrigger().isSilent();
 
         // Skill is not usable yet
@@ -88,7 +88,7 @@ public class CastableSkill extends Skill {
 
     @Override
     public void whenCast(SkillMetadata skillMeta) {
-        PlayerData casterData = PlayerData.get(skillMeta.getCaster().getData().getUniqueId());
+        PlayerData casterData = PlayerData.get(skillMeta.getCaster().getData());
 
         // Apply cooldown, mana and stamina costs
         if (!casterData.noCooldown) {

@@ -12,7 +12,7 @@ public class PlayerExitCastingModeEvent extends PlayerDataEvent implements Cance
     private boolean cancelled = false;
 
     public PlayerExitCastingModeEvent(@NotNull Player who) {
-        super(PlayerData.get(who.getUniqueId()));
+        super(PlayerData.get(who));
     }
 
 

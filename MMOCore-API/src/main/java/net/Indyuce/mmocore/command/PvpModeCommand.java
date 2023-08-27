@@ -30,7 +30,7 @@ public class PvpModeCommand extends RegisteredCommand {
             return false;
         }
 
-        final PlayerData playerData = PlayerData.get(((Player) sender).getUniqueId());
+        final PlayerData playerData = PlayerData.get((Player) sender);
 
         // Command cooldown
         if (playerData.getCooldownMap().isOnCooldown(COOLDOWN_KEY)) {

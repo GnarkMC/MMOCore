@@ -44,7 +44,7 @@ public class OBTeamPartyModule implements PartyModule, Listener {
 
             for (TeamMember member : team.getMembersAndOwner())
                 try {
-                    list.add(PlayerData.get(member.getOfflinePlayer().getUniqueId()));
+                    list.add(PlayerData.get(member.getOfflinePlayer()));
                 } catch (Exception ignored) {
                 }
 

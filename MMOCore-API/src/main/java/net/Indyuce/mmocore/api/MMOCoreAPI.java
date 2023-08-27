@@ -25,7 +25,7 @@ public class MMOCoreAPI {
     }
 
     public PlayerData getPlayerData(OfflinePlayer player) {
-        return PlayerData.get(player.getUniqueId());
+        return PlayerData.get(player);
     }
 
     public boolean isInSameParty(Player player1, Player player2) {
