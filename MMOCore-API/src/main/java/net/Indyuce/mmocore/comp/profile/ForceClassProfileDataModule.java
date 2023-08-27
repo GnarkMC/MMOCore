@@ -1,12 +1,12 @@
 package net.Indyuce.mmocore.comp.profile;
 
-import fr.phoenixdevt.profile.ProfileDataModule;
-import fr.phoenixdevt.profile.ProfileProvider;
-import fr.phoenixdevt.profile.event.ProfileCreateEvent;
-import fr.phoenixdevt.profile.event.ProfileRemoveEvent;
-import fr.phoenixdevt.profile.event.ProfileSelectEvent;
-import fr.phoenixdevt.profile.event.ProfileUnloadEvent;
-import fr.phoenixdevt.profile.placeholder.PlaceholderRequest;
+import fr.phoenixdevt.profiles.ProfileDataModule;
+import fr.phoenixdevt.profiles.ProfileProvider;
+import fr.phoenixdevt.profiles.event.ProfileCreateEvent;
+import fr.phoenixdevt.profiles.event.ProfileRemoveEvent;
+import fr.phoenixdevt.profiles.event.ProfileSelectEvent;
+import fr.phoenixdevt.profiles.event.ProfileUnloadEvent;
+import fr.phoenixdevt.profiles.placeholder.PlaceholderRequest;
 import io.lumine.mythic.lib.api.event.SynchronizedDataLoadEvent;
 import net.Indyuce.mmocore.MMOCore;
 import net.Indyuce.mmocore.api.player.PlayerData;
