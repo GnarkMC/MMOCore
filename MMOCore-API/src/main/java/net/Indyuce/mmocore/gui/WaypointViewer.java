@@ -1,18 +1,17 @@
 package net.Indyuce.mmocore.gui;
 
 import net.Indyuce.mmocore.MMOCore;
-import net.Indyuce.mmocore.api.player.PlayerData;
-import net.Indyuce.mmocore.gui.api.InventoryClickContext;
-import net.Indyuce.mmocore.gui.api.item.InventoryItem;
-import net.Indyuce.mmocore.gui.api.item.SimplePlaceholderItem;
 import net.Indyuce.mmocore.api.player.PlayerActivity;
+import net.Indyuce.mmocore.api.player.PlayerData;
 import net.Indyuce.mmocore.gui.api.EditableInventory;
 import net.Indyuce.mmocore.gui.api.GeneratedInventory;
+import net.Indyuce.mmocore.gui.api.InventoryClickContext;
+import net.Indyuce.mmocore.gui.api.item.InventoryItem;
 import net.Indyuce.mmocore.gui.api.item.Placeholders;
+import net.Indyuce.mmocore.gui.api.item.SimplePlaceholderItem;
 import net.Indyuce.mmocore.waypoint.Waypoint;
 import net.Indyuce.mmocore.waypoint.WaypointPath;
 import org.apache.commons.lang.Validate;
-import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
 import org.bukkit.configuration.ConfigurationSection;
@@ -142,16 +141,14 @@ public class WaypointViewer extends EditableInventory {
             // If a player can teleport to another waypoint given his location
             Waypoint waypoint = inv.waypoints.get(inv.page * inv.getEditable().getByFunction("waypoint").getSlots().size() + n);
             ItemMeta meta = disp.getItemMeta();
-
-            // Add waypoint lore if not empty
-            if (!waypoint.getLore().isEmpty()) {
-                List<String> lore = meta.getLore();
-                Placeholders placeholders = new Placeholders();
-                for (String str : waypoint.getLore())
-                    lore.add(0, ChatColor.GRAY + placeholders.apply(inv.getPlayer(), str));
-                meta.setLore(lore);
-            }
-
+            List<String> lore = new ArrayList<>();
+            meta.getLore().forEach(string -> {
+                if (string.contains("{lore}"))
+                    lore.addAll(waypoint.getLore());
+                else
+                    lore.add(string);
+            });
+            meta.setLore(lore);
             PersistentDataContainer container = meta.getPersistentDataContainer();
             container.set(new NamespacedKey(MMOCore.plugin, "waypointId"), PersistentDataType.STRING, waypoint.getId());
             disp.setItemMeta(meta);
@@ -164,6 +161,7 @@ public class WaypointViewer extends EditableInventory {
 
             Waypoint waypoint = inv.waypoints.get(inv.page * inv.getByFunction("waypoint").getSlots().size() + n);
             holders.register("name", waypoint.getName());
+
             if (!onlyName) {
                 holders.register("current_cost", inv.paths.get(waypoint).getCost());
                 holders.register("normal_cost", decimal.format(inv.paths.containsKey(waypoint) ? inv.paths.get(waypoint).getCost() : Double.POSITIVE_INFINITY));
