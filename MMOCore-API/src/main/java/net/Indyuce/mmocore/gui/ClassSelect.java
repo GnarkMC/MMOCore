@@ -57,7 +57,7 @@ public class ClassSelect extends EditableInventory {
         private final PlayerClass playerClass;
 
         public ClassItem(ConfigurationSection config) {
-            super(Material.BARRIER, config);
+            super(config.contains("item") ? Material.valueOf(UtilityMethods.enumName(config.getString("item"))) : Material.BARRIER, config);
 
             Validate.isTrue(config.getString("function").length() > 6, "Couldn't find the class associated to: " + config.getString("function"));
             String classId = UtilityMethods.enumName(config.getString("function").substring(6));
