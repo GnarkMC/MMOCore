@@ -66,7 +66,7 @@ public class CastableSkill extends Skill {
 
         // Mana cost
         if (playerData.getMana() < getParameter("mana")) {
-            if (loud) new ConfigMessage("casting.no-mana").addPlaceholders(
+            if (loud) MMOCore.plugin.configManager.getSimpleMessage("casting.no-mana",
                     "mana-required", MythicLib.plugin.getMMOConfig().decimal.format((getParameter("mana") - playerData.getMana())),
                     "mana", playerData.getProfess().getManaDisplay().getName()).send(playerData.getPlayer());
             return false;
