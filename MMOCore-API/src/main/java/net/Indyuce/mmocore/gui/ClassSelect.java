@@ -72,7 +72,7 @@ public class ClassSelect extends EditableInventory {
 
         @Override
         public ItemStack display(ProfessSelectionInventory inv, int n) {
-            ItemStack item = playerClass.getIcon();
+            ItemStack item = n == 0 ? playerClass.getIcon() : super.display(inv, n);
             ItemMeta meta = item.getItemMeta();
             if (hideFlags())
                 meta.addItemFlags(ItemFlag.values());
