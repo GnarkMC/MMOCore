@@ -25,10 +25,7 @@ import net.Indyuce.mmocore.api.quest.PlayerQuests;
 import net.Indyuce.mmocore.api.quest.trigger.StatTrigger;
 import net.Indyuce.mmocore.api.quest.trigger.Trigger;
 import net.Indyuce.mmocore.api.util.MMOCoreUtils;
-import net.Indyuce.mmocore.experience.EXPSource;
-import net.Indyuce.mmocore.experience.ExperienceObject;
-import net.Indyuce.mmocore.experience.ExperienceTableClaimer;
-import net.Indyuce.mmocore.experience.PlayerProfessions;
+import net.Indyuce.mmocore.experience.*;
 import net.Indyuce.mmocore.experience.droptable.ExperienceItem;
 import net.Indyuce.mmocore.experience.droptable.ExperienceTable;
 import net.Indyuce.mmocore.guild.provided.Guild;
@@ -153,9 +150,6 @@ public class PlayerData extends SynchronizedDataHolder implements OfflinePlayerD
         } catch (NullPointerException exception) {
             MMOCore.log(Level.SEVERE, "[Userdata] Could not find class " + getProfess().getId() + " while refreshing player data.");
         }
-        //We remove all the stats and buffs associated to triggers.
-        getMMOPlayerData().getStatMap().getInstances().forEach(statInstance -> statInstance.removeIf(key -> key.startsWith(Trigger.TRIGGER_PREFIX)));
-        getMMOPlayerData().getSkillModifierMap().getInstances().forEach(skillModifierInstance -> skillModifierInstance.removeIf(key -> key.startsWith(Trigger.TRIGGER_PREFIX)));
         final Iterator<Map.Entry<Integer, BoundSkillInfo>> ite = new HashMap(boundSkills).entrySet().iterator();
         while (ite.hasNext())
             try {
@@ -177,6 +171,23 @@ public class PlayerData extends SynchronizedDataHolder implements OfflinePlayerD
                 if (!nodeLevels.containsKey(node)) nodeLevels.put(node, 0);
 
         setupSkillTree();
+        setupRemovableTrigger();
+    }
+
+    public void setupRemovableTrigger() {
+        //We remove all the stats and buffs associated to triggers.
+        getMMOPlayerData().getStatMap().getInstances().forEach(statInstance -> statInstance.removeIf(key -> key.startsWith(Trigger.TRIGGER_PREFIX)));
+        getMMOPlayerData().getSkillModifierMap().getInstances().forEach(skillModifierInstance -> skillModifierInstance.removeIf(key -> key.startsWith(Trigger.TRIGGER_PREFIX)));
+
+        if (profess.hasExperienceTable())
+            profess.getExperienceTable().claimRemovableTrigger(this, profess);
+        for (Profession profession : MMOCore.plugin.professionManager.getAll())
+            if (profession.hasExperienceTable())
+                profession.getExperienceTable().claimRemovableTrigger(this, profession);
+        // Stat triggers setup
+        for (SkillTree skillTree : MMOCore.plugin.skillTreeManager.getAll())
+            for (SkillTreeNode node : skillTree.getNodes())
+                node.getExperienceTable().claimRemovableTrigger(this, node);
     }
 
     public void setupSkillTree() {
@@ -184,11 +195,6 @@ public class PlayerData extends SynchronizedDataHolder implements OfflinePlayerD
         // Node states setup
         for (SkillTree skillTree : getProfess().getSkillTrees())
             skillTree.setupNodeStates(this);
-
-        // Stat triggers setup
-        for (SkillTree skillTree : MMOCore.plugin.skillTreeManager.getAll())
-            for (SkillTreeNode node : skillTree.getNodes())
-                node.getExperienceTable().claimRemovableTrigger(this, node);
     }
 
     public int getPointSpent(SkillTree skillTree) {
@@ -351,7 +357,7 @@ public class PlayerData extends SynchronizedDataHolder implements OfflinePlayerD
 
     /**
      * @return If the item is unlocked by the player
-     *         This is used for skills that can be locked & unlocked.
+     * This is used for skills that can be locked & unlocked.
      */
     public boolean hasUnlocked(Unlockable unlockable) {
         return unlockable.isUnlockedByDefault() || unlockedItems.contains(unlockable.getUnlockNamespacedKey());
@@ -1221,7 +1227,7 @@ public class PlayerData extends SynchronizedDataHolder implements OfflinePlayerD
      * checks if they could potentially upgrade to one of these
      *
      * @return If the player can change its current class to
-     *         a subclass
+     * a subclass
      */
     @Deprecated
     public boolean canChooseSubclass() {

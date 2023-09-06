@@ -107,7 +107,7 @@ public class SavedClassInformation implements ClassDataContainer {
             for (Entry<String, JsonElement> entry : json.getAsJsonObject("bound-skills").entrySet())
                 boundSkills.put(Integer.parseInt(entry.getKey()), entry.getValue().getAsString());
         if (json.has("unlocked-items"))
-            for ( JsonElement unlockedItem : json.get("unlocked-items").getAsJsonArray())
+            for (JsonElement unlockedItem : json.get("unlocked-items").getAsJsonArray())
                 unlockedItems.add(unlockedItem.getAsString());
     }
 
@@ -342,11 +342,6 @@ public class SavedClassInformation implements ClassDataContainer {
         // Add the values to the times claimed table and claims the corresponding stat triggers.
         nodeTimesClaimed.forEach((str, val) -> player.setClaims(str, val));
 
-        // We claim back the stats triggers for all the skill tree nodes of the new class.
-        for (SkillTree skillTree : profess.getSkillTrees())
-            for (SkillTreeNode node : skillTree.getNodes())
-                node.getExperienceTable().claimRemovableTrigger(player, node);
-        profess.getExperienceTable().claimRemovableTrigger(player, profess);
 
         // Unload current class information
         player.unloadClassInfo(profess);
@@ -356,7 +351,7 @@ public class SavedClassInformation implements ClassDataContainer {
         player.setMana(mana);
         player.setStellium(stellium);
         player.setStamina(stamina);
-
+        player.setupRemovableTrigger();
         // Updates level on exp bar
         player.refreshVanillaExp();
     }

@@ -300,7 +300,7 @@ public class PlayerClass extends PostLoadObject implements ExperienceObject {
 
     @Override
     public String getKey() {
-        return "class." + getId();
+        return "class_" + getId();
     }
 
     @NotNull

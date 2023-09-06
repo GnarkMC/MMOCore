@@ -122,6 +122,7 @@ public class MMOCoreDataSynchronizer extends SQLDataSynchronizer<PlayerData> {
         getData().setMana(result.getDouble("mana"));
         getData().setStamina(result.getDouble("stamina"));
         getData().setStellium(result.getDouble("stellium"));
+        getData().setupRemovableTrigger();
         if (getData().isOnline() && !getData().getPlayer().isDead()) {
 
             /*

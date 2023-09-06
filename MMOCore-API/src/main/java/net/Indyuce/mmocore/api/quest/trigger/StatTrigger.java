@@ -33,8 +33,10 @@ public class StatTrigger extends Trigger implements Removable {
         StatModifier prevModifier = player.getMMOPlayerData().getStatMap().getInstance(stat).getModifier(modifierKey);
         if (prevModifier == null)
             statModifier.register(player.getMMOPlayerData());
-        else
+        else {
+            prevModifier.unregister(player.getMMOPlayerData());
             prevModifier.add(amount).register(player.getMMOPlayerData());
+        }
     }
 
     @Override

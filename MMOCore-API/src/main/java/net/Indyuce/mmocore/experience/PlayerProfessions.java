@@ -100,14 +100,6 @@ public class PlayerProfessions {
         if (obj.has("timesClaimed"))
             for (Entry<String, JsonElement> entry : obj.getAsJsonObject("timesClaimed").entrySet())
                 playerData.getItemClaims().put("profession." + entry.getKey(), entry.getValue().getAsInt());
-
-        for (Profession profession : MMOCore.plugin.professionManager.getAll()) {
-            if (profession.hasExperienceTable())
-                profession.getExperienceTable().claimRemovableTrigger(playerData, profession);
-        }
-        if (playerData.getProfess().hasExperienceTable())
-            playerData.getProfess().getExperienceTable().claimRemovableTrigger(playerData, playerData.getProfess());
-
     }
 
     public PlayerData getPlayerData() {

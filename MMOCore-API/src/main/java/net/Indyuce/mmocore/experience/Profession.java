@@ -93,7 +93,7 @@ public class Profession extends PostLoadObject implements ExperienceObject {
 
     @Override
     public String getKey() {
-        return "profession." + getId();
+        return "profession_" + getId();
     }
 
     @Override
