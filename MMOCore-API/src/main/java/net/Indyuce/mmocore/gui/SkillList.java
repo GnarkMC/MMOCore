@@ -172,12 +172,17 @@ public class SkillList extends EditableInventory {
 
     public class SlotItem extends InventoryItem<SkillViewerInventory> {
         private final String none;
-        private final int emptyCMD;
+        @Nullable
+        private final Material filledItem;
+        private final int filledCMD;
 
         public SlotItem(ConfigurationSection config) {
             super(config);
             none = MythicLib.plugin.parseColors(config.getString("no-skill"));
-            emptyCMD = config.getInt("empty-custom-model-data", getModelData());
+
+            filledItem = config.contains("filled-item") ? Material
+                    .valueOf(config.getString("filled-item").toUpperCase().replace("-", "_").replace(" ", "_")) : null;
+            filledCMD = config.getInt("filled-custom-model-data", getModelData());
         }
 
         @Override
@@ -187,12 +192,20 @@ public class SkillList extends EditableInventory {
                 return new ItemStack(Material.AIR);
 
             final @Nullable ClassSkill boundSkill = inv.getPlayerData().getBoundSkill(n + 1);
-            final ItemStack item = super.display(inv, n);
+            ItemStack item;
+            if (boundSkill == null)
+                item = super.display(inv, n);
+            else if (filledItem == null)
+                item = boundSkill.getSkill().getIcon();
+            else {
+                item = new ItemStack(filledItem);
+                if (MythicLib.plugin.getVersion().isStrictlyHigher(1, 13)) {
+                    ItemMeta meta = item.getItemMeta();
+                    meta.setCustomModelData(filledCMD);
+                    item.setItemMeta(meta);
+                }
+            }
             Placeholders holders = getPlaceholders(inv, n);
-
-            // Same material as skill
-            if (boundSkill != null)
-                item.setType(boundSkill.getSkill().getIcon().getType());
 
             final ItemMeta meta = item.getItemMeta();
             meta.setDisplayName(MMOCore.plugin.placeholderParser.parse(inv.getPlayerData().getPlayer(), skillSlot.getName()));
@@ -217,9 +230,6 @@ public class SkillList extends EditableInventory {
             for (int j = 0; j < lore.size(); j++)
                 lore.set(j, ChatColor.GRAY + holders.apply(inv.getPlayer(), lore.get(j)));
             meta.setLore(lore);
-            // Same CMD as skill icon
-            if (boundSkill != null && boundSkill.getSkill().getIcon().hasItemMeta() && boundSkill.getSkill().getIcon().getItemMeta().hasCustomModelData())
-                meta.setCustomModelData(boundSkill.getSkill().getIcon().getItemMeta().getCustomModelData());
 
             item.setItemMeta(meta);
             return item;

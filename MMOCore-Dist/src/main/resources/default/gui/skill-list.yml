@@ -7,7 +7,7 @@ slots: 54
 
 items:
   skill:
-    slots: [ 10,11,12,19,20,21,28,29,30,37,38,39]
+    slots: [ 10,11,12,19,20,21,28,29,30,37,38,39 ]
 
     function: skill
     name: '&a{skill} &6[{level}]'
@@ -34,7 +34,7 @@ items:
     lore: { }
 
   reallocate:
-    slots: [45]
+    slots: [ 45 ]
     function: reallocation
     item: CAULDRON
     name: '&aReallocate Skill Points'
@@ -53,6 +53,11 @@ items:
 
     name: '&aSkill Slot {slot}'
     no-skill: '&cNone'
+
+    #If this is filled, the item shown in the GUI when a slot is filled will be the item specified here.
+    #Else it will be the display item of the bound skill.
+    #filled-item:
+    #filled-custom-model-data:
     lore:
       - '&7Current Skill: &6{skill}'
       - ''
