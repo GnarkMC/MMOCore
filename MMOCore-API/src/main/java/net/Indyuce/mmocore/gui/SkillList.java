@@ -108,15 +108,40 @@ public class SkillList extends EditableInventory {
         public ItemStack display(SkillViewerInventory inv, int n) {
             if (inv.selected == null)
                 return new ItemStack(Material.AIR);
-            return new ItemStack(inv.selected.getSkill().getIcon());
+            Placeholders holders = getPlaceholders(inv, n);
+            ItemStack item = new ItemStack(inv.selected.getSkill().getIcon());
+            ItemMeta meta = item.getItemMeta();
+            int skillLevel = inv.getPlayerData().getSkillLevel(inv.selected.getSkill());
+            List<String> lore = new ArrayList<>();
+            boolean unlocked = inv.selected.getUnlockLevel() <= inv.getPlayerData().getLevel();
+            for (String str : getLore()) {
+                if ((str.startsWith("{unlocked}") && !unlocked) || (str.startsWith("{locked}") && unlocked) || (str.startsWith("{max_level}") && (!inv.selected.hasMaxLevel() || inv.selected.getMaxLevel() > inv.getPlayerData().getSkillLevel(inv.selected.getSkill()))))
+                    continue;
+                if (str.contains("{lore}"))
+                    for (String loreLine : inv.selected.calculateLore(inv.getPlayerData()))
+                        lore.add(ChatColor.GRAY + loreLine);
+                else
+                    lore.add(holders.apply(inv.getPlayer(), str));
+            }
+
+            meta.setDisplayName(MMOCore.plugin.placeholderParser.parse(inv.getPlayer(), getName().replace("{skill}", inv.selected.getSkill().getName())
+                    .replace("{roman}", MMOCoreUtils.intToRoman(skillLevel)).replace("{level}", "" + skillLevel)));
+            meta.addItemFlags(ItemFlag.values());
+            meta.setLore(lore);
+            item.setItemMeta(meta);
+            return item;
         }
 
         @Override
         public Placeholders getPlaceholders(SkillViewerInventory inv, int n) {
             Placeholders holders = new Placeholders();
             holders.register("selected", inv.selected.getSkill().getName());
+            holders.register("skill", inv.selected.getSkill().getName());
+            holders.register("unlock", "" + inv.selected.getUnlockLevel());
+            holders.register("level", "" + inv.getPlayerData().getSkillLevel(inv.selected.getSkill()));
             return holders;
         }
+
     }
 
     public class LevelItem extends InventoryItem<SkillViewerInventory> {
@@ -149,11 +174,11 @@ public class SkillList extends EditableInventory {
                 lore.add(index + j, skillLore.get(j));
 
             for (int j = 0; j < lore.size(); j++)
-                lore.set(j, ChatColor.GRAY + MythicLib.plugin.parseColors(lore.get(j)));
+                lore.set(j, ChatColor.GRAY + MMOCore.plugin.placeholderParser.parse(inv.getPlayer(), lore.get(j)));
 
             ItemStack item = new ItemStack(getMaterial());
             ItemMeta meta = item.getItemMeta();
-            meta.setDisplayName(MythicLib.plugin.parseColors(getName().replace("{skill}", skill.getSkill().getName())
+            meta.setDisplayName(MMOCore.plugin.placeholderParser.parse(inv.getPlayer(), getName().replace("{skill}", skill.getSkill().getName())
                     .replace("{roman}", MMOCoreUtils.intToRoman(skillLevel)).replace("{level}", "" + skillLevel)));
             meta.addItemFlags(ItemFlag.values());
             meta.setLore(lore);

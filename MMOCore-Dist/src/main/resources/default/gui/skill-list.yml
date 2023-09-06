@@ -97,3 +97,11 @@ items:
       - '&7Costs 1 skill point.'
       - ''
       - '&eCurrent Skill Points: {skill_points}'
+#This will display the selected item in the skill UI.
+#  selected:
+#    slots: []
+#    function: selected
+#    name: '&a{skill} &6[{level}]'
+#    lore:
+#      - ''
+#      - '{lore}'
