@@ -175,7 +175,7 @@ public class KeyCombos implements SkillCastingListener {
 
         @Override
         public void onTick() {
-            if (getCaster().getBoundSkills().isEmpty()) close();
+            if (getCaster().getBoundSkills().isEmpty()) getCaster().leaveSkillCasting();
             else if (actionBarOptions != null) if (actionBarOptions.isSubtitle)
                 getCaster().getPlayer().sendTitle(" ", actionBarOptions.format(this), 0, 20, 0);
             else getCaster().displayActionBar(actionBarOptions.format(this));
