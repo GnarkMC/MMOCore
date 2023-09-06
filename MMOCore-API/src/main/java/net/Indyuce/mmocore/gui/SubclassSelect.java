@@ -50,7 +50,7 @@ public class SubclassSelect extends EditableInventory {
         private final PlayerClass playerClass;
 
         public ClassItem(ConfigurationSection config) {
-            super(Material.BARRIER, config);
+            super(config.contains("item") ? Material.valueOf(UtilityMethods.enumName(config.getString("item"))) : Material.BARRIER, config);
             Validate.isTrue(config.getString("function").length() > 10, "Couldn't find the class associated to: " + config.getString("function"));
             String classId = UtilityMethods.enumName(config.getString("function").substring(10));
             this.playerClass = Objects.requireNonNull(MMOCore.plugin.classManager.get(classId), classId + " does not correspond to any classId.");
@@ -64,7 +64,7 @@ public class SubclassSelect extends EditableInventory {
 
         @Override
         public ItemStack display(SubclassSelectionInventory inv, int n) {
-            ItemStack item = playerClass.getIcon();
+            ItemStack item = n == 0 ? playerClass.getIcon() : super.display(inv, n);
             ItemMeta meta = item.getItemMeta();
             if (hideFlags())
                 meta.addItemFlags(ItemFlag.values());
