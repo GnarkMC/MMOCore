@@ -1166,7 +1166,7 @@ public class PlayerData extends SynchronizedDataHolder implements OfflinePlayerD
         // Clear bound skills
         boundSkills.forEach((slot, info) -> info.close());
         boundSkills.clear();
-
+        setupRemovableTrigger();
         // Update stats
         if (isOnline()) getStats().updateStats();
     }
