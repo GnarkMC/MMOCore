@@ -526,7 +526,7 @@ public class SkillList extends EditableInventory {
                     return;
                 }
 
-                if (context.getClickType().isShiftClick()) {
+               /* if (context.getClickType().isShiftClick()) {
                     if (playerData.getSkillPoints() < shiftCost) {
                         MMOCore.plugin.configManager.getSimpleMessage("not-enough-skill-points-shift", "shift_points", "" + shiftCost).send(player);
                         player.playSound(player.getLocation(), Sound.ENTITY_VILLAGER_NO, 1, 2);
@@ -538,7 +538,7 @@ public class SkillList extends EditableInventory {
                 } else {
                     playerData.giveSkillPoints(-1);
                     playerData.setSkillLevel(selected.getSkill(), playerData.getSkillLevel(selected.getSkill()) + 1);
-                }
+                }*/
 
                 MMOCore.plugin.configManager.getSimpleMessage("upgrade-skill", "skill", selected.getSkill().getName(), "level",
                         "" + playerData.getSkillLevel(selected.getSkill())).send(player);
