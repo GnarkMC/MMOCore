@@ -8,6 +8,7 @@ import net.Indyuce.mmocore.command.PvpModeCommand;
 import org.apache.commons.lang.Validate;
 import org.bukkit.Bukkit;
 import org.bukkit.scheduler.BukkitTask;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 public class CombatHandler implements Closeable {
@@ -30,7 +31,7 @@ public class CombatHandler implements Closeable {
 
         // Simply refreshing
         if (isInCombat()) {
-            Bukkit.getScheduler().cancelTask(task.getTaskId());
+            task.cancel();
             task = newTask();
 
             // Entering combat
@@ -42,6 +43,7 @@ public class CombatHandler implements Closeable {
         }
     }
 
+    @NotNull
     private BukkitTask newTask() {
         return Bukkit.getScheduler().runTaskLater(MMOCore.plugin, () -> quit(false), MMOCore.plugin.configManager.combatLogTimer / 50);
     }
@@ -102,8 +104,7 @@ public class CombatHandler implements Closeable {
      */
     private void quit(boolean cancelTask) {
         Validate.isTrue(isInCombat(), "Player not in combat");
-        if (cancelTask)
-            Bukkit.getScheduler().cancelTask(task.getTaskId());
+        if (cancelTask) task.cancel();
         task = null;
 
         if (player.isOnline()) {
@@ -114,8 +115,7 @@ public class CombatHandler implements Closeable {
 
     @Override
     public void close() {
-        if (isInCombat())
-            quit(true);
+        if (isInCombat()) quit(true);
 
         // Necessary steps when entering a town.
         lastHit = 0;
