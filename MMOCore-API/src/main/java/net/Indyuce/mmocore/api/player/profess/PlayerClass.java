@@ -1,7 +1,5 @@
 package net.Indyuce.mmocore.api.player.profess;
 
-import com.mojang.authlib.GameProfile;
-import com.mojang.authlib.properties.Property;
 import io.lumine.mythic.lib.MythicLib;
 import io.lumine.mythic.lib.UtilityMethods;
 import io.lumine.mythic.lib.api.MMOLineConfig;
@@ -21,18 +19,18 @@ import net.Indyuce.mmocore.api.player.profess.event.EventTrigger;
 import net.Indyuce.mmocore.api.player.profess.resource.ManaDisplayOptions;
 import net.Indyuce.mmocore.api.player.profess.resource.PlayerResource;
 import net.Indyuce.mmocore.api.player.profess.resource.ResourceRegeneration;
-import net.Indyuce.mmocore.skill.binding.SkillSlot;
 import net.Indyuce.mmocore.api.util.MMOCoreUtils;
 import net.Indyuce.mmocore.api.util.math.formula.LinearValue;
 import net.Indyuce.mmocore.experience.EXPSource;
 import net.Indyuce.mmocore.experience.ExpCurve;
+import net.Indyuce.mmocore.experience.ExperienceObject;
 import net.Indyuce.mmocore.experience.droptable.ExperienceTable;
 import net.Indyuce.mmocore.loot.chest.particle.CastingParticle;
 import net.Indyuce.mmocore.player.stats.StatInfo;
 import net.Indyuce.mmocore.skill.ClassSkill;
 import net.Indyuce.mmocore.skill.RegisteredSkill;
+import net.Indyuce.mmocore.skill.binding.SkillSlot;
 import net.Indyuce.mmocore.skill.cast.ComboMap;
-import net.Indyuce.mmocore.experience.ExperienceObject;
 import net.Indyuce.mmocore.skilltree.tree.SkillTree;
 import net.md_5.bungee.api.ChatColor;
 import org.bukkit.Location;
@@ -45,7 +43,6 @@ import org.bukkit.inventory.meta.ItemMeta;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.lang.reflect.Field;
 import java.util.*;
 import java.util.logging.Level;
 
@@ -90,19 +87,11 @@ public class PlayerClass extends PostLoadObject implements ExperienceObject {
         name = MythicLib.plugin.parseColors(config.getString("display.name", "INVALID DISPLAY NAME"));
         icon = MMOCoreUtils.readIcon(config.getString("display.item", "BARRIER"));
 
-        if (config.contains("display.texture") && icon.getType() == VersionMaterial.PLAYER_HEAD.toMaterial())
-            try {
-                ItemMeta meta = icon.getItemMeta();
-                Field profileField = meta.getClass().getDeclaredField("profile");
-                profileField.setAccessible(true);
-                GameProfile gp = new GameProfile(UUID.randomUUID(), null);
-                gp.getProperties().put("textures", new Property("textures", config.getString("display.texture")));
-                profileField.set(meta, gp);
-                icon.setItemMeta(meta);
-            } catch (IllegalArgumentException | IllegalAccessException | NoSuchFieldException
-                     | SecurityException exception) {
-                throw new IllegalArgumentException("Could not apply playerhead texture: " + exception.getMessage());
-            }
+        if (config.contains("display.texture") && icon.getType() == VersionMaterial.PLAYER_HEAD.toMaterial()) {
+            ItemMeta meta = icon.getItemMeta();
+            UtilityMethods.setTextureValue(meta, config.getString("display.texture"));
+            icon.setItemMeta(meta);
+        }
 
         for (String string : config.getStringList("display.lore"))
             description.add(ChatColor.GRAY + MythicLib.plugin.parseColors(string));
@@ -375,9 +364,9 @@ public class PlayerClass extends PostLoadObject implements ExperienceObject {
 
     /**
      * @return A list of passive skills which correspond to class
-     * scripts wrapped in a format recognized by MythicLib.
-     * Class scripts are handled just like
-     * passive skills
+     *         scripts wrapped in a format recognized by MythicLib.
+     *         Class scripts are handled just like
+     *         passive skills
      */
     @NotNull
     public List<PassiveSkill> getScripts() {

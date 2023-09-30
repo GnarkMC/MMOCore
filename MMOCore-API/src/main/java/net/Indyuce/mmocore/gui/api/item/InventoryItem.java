@@ -1,14 +1,11 @@
 package net.Indyuce.mmocore.gui.api.item;
 
-import com.mojang.authlib.GameProfile;
-import com.mojang.authlib.properties.Property;
-import net.Indyuce.mmocore.MMOCore;
+import io.lumine.mythic.lib.UtilityMethods;
 import net.Indyuce.mmocore.gui.api.GeneratedInventory;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.configuration.ConfigurationSection;
-import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
@@ -17,11 +14,8 @@ import org.bukkit.inventory.meta.SkullMeta;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.UUID;
-import java.util.logging.Level;
 
 public abstract class InventoryItem<T extends GeneratedInventory> {
     private final String id, function;
@@ -153,7 +147,8 @@ public abstract class InventoryItem<T extends GeneratedInventory> {
         final ItemStack item = new ItemStack(material);
         final ItemMeta meta = item.getItemMeta();
         meta.setCustomModelData(modelData);
-        if (texture != null && meta instanceof SkullMeta) applyTexture(texture, (SkullMeta) meta);
+        if (texture != null && meta instanceof SkullMeta)
+            UtilityMethods.setTextureValue(meta, texture);
 
         if (hasName()) meta.setDisplayName(placeholders.apply(effectivePlayer, getName()));
 
@@ -180,19 +175,6 @@ public abstract class InventoryItem<T extends GeneratedInventory> {
     @NotNull
     public OfflinePlayer getEffectivePlayer(T inv, int n) {
         return inv.getPlayer();
-    }
-
-    private void applyTexture(String value, SkullMeta meta) {
-        try {
-            GameProfile profile = new GameProfile(UUID.randomUUID(), null);
-            profile.getProperties().put("textures", new Property("textures", value));
-
-            Field profileField = meta.getClass().getDeclaredField("profile");
-            profileField.setAccessible(true);
-            profileField.set(meta, profile);
-        } catch (NoSuchFieldException | IllegalArgumentException | IllegalAccessException exception) {
-            MMOCore.log(Level.WARNING, "Could not apply item texture value of " + getId());
-        }
     }
 
     public Placeholders getPlaceholders(T inv) {

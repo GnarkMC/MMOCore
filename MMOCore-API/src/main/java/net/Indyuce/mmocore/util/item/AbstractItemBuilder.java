@@ -1,8 +1,7 @@
 package net.Indyuce.mmocore.util.item;
 
-import com.mojang.authlib.GameProfile;
-import com.mojang.authlib.properties.Property;
 import io.lumine.mythic.lib.MythicLib;
+import io.lumine.mythic.lib.UtilityMethods;
 import io.lumine.mythic.lib.api.item.ItemTag;
 import io.lumine.mythic.lib.api.item.NBTItem;
 import io.lumine.mythic.lib.version.VersionMaterial;
@@ -13,7 +12,6 @@ import org.bukkit.inventory.meta.Damageable;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.jetbrains.annotations.NotNull;
 
-import java.lang.reflect.Field;
 import java.util.*;
 import java.util.logging.Level;
 
@@ -45,12 +43,8 @@ public abstract class AbstractItemBuilder {
 
         if (item.getType() == VersionMaterial.PLAYER_HEAD.toMaterial() && configItem.getTexture() != null)
             try {
-                Field profileField = meta.getClass().getDeclaredField("profile");
-                profileField.setAccessible(true);
-                GameProfile profile = new GameProfile(UUID.randomUUID(), null);
-                profile.getProperties().put("textures", new Property("textures", configItem.getTexture()));
-                profileField.set(meta, profile);
-            } catch (NoSuchFieldException | IllegalArgumentException | IllegalAccessException exception) {
+                UtilityMethods.setTextureValue(meta, configItem.getTexture());
+            } catch (IllegalArgumentException exception) {
                 MMOCore.log(Level.WARNING, "Could not load texture of config item called '" + configItem.getId() + "'");
             }
 
