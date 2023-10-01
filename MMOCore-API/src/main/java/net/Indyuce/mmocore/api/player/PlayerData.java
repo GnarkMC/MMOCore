@@ -357,7 +357,7 @@ public class PlayerData extends SynchronizedDataHolder implements OfflinePlayerD
 
     /**
      * @return If the item is unlocked by the player
-     * This is used for skills that can be locked & unlocked.
+     *         This is used for skills that can be locked & unlocked.
      */
     public boolean hasUnlocked(Unlockable unlockable) {
         return unlockable.isUnlockedByDefault() || unlockedItems.contains(unlockable.getUnlockNamespacedKey());
@@ -429,7 +429,7 @@ public class PlayerData extends SynchronizedDataHolder implements OfflinePlayerD
         boundSkills.forEach((slot, info) -> info.close());
 
         // Stop skill casting
-        if (isCasting()) leaveSkillCasting();
+        if (isCasting()) leaveSkillCasting(true);
     }
 
     public List<UUID> getFriends() {
@@ -1012,23 +1012,16 @@ public class PlayerData extends SynchronizedDataHolder implements OfflinePlayerD
 
     @Deprecated
     public boolean setSkillCasting(@NotNull SkillCastingInstance skillCasting) {
-        Validate.isTrue(!isCasting(), "Player already in casting mode");
-        PlayerEnterCastingModeEvent event = new PlayerEnterCastingModeEvent(getPlayer());
-        Bukkit.getPluginManager().callEvent(event);
-        if (event.isCancelled()) return false;
-
-        skillCasting.close();
-        setSkillCasting();
-        return true;
+        return setSkillCasting();
     }
 
     /**
-     * @return true if the PlayerEnterCastingModeEvent successfully put the player into casting mode, otherwise if the event is cancelled, returns false.
-     * @apiNote Changed to a boolean to reflect the cancellation state of the event being fired
+     * @return If the PlayerEnterCastingModeEvent successfully put the player
+     *         into casting mode, otherwise if the event is cancelled, returns false.
      */
     public boolean setSkillCasting() {
         Validate.isTrue(!isCasting(), "Player already in casting mode");
-        PlayerEnterCastingModeEvent event = new PlayerEnterCastingModeEvent(getPlayer());
+        PlayerEnterCastingModeEvent event = new PlayerEnterCastingModeEvent(this);
         Bukkit.getPluginManager().callEvent(event);
         if (event.isCancelled()) return false;
 
@@ -1042,22 +1035,23 @@ public class PlayerData extends SynchronizedDataHolder implements OfflinePlayerD
     }
 
     /**
-     * API Method to leave casting mode and fire the PlayerExitCastingModeEvent
-     *
-     * @return true if the skill casting mode was left, or false if the event was cancelled, keeping the player in casting mode.
+     * @return If player successfully left skill casting i.e the Bukkit
+     *         event has not been cancelled
      */
     public boolean leaveSkillCasting() {
         return leaveSkillCasting(false);
     }
 
     /**
-     * @param skipEvent Skip Firing the PlayerExitCastingModeEvent
-     * @return true if the PlayerExitCastingModeEvent is not cancelled, or if the event is skipped.
+     * @param skipEvent Skip firing the exit event
+     * @return If player successfully left skill casting i.e the Bukkit
+     *         event has not been cancelled
      */
     public boolean leaveSkillCasting(boolean skipEvent) {
         Validate.isTrue(isCasting(), "Player not in casting mode");
+
         if (!skipEvent) {
-            PlayerExitCastingModeEvent event = new PlayerExitCastingModeEvent(getPlayer());
+            PlayerExitCastingModeEvent event = new PlayerExitCastingModeEvent(this);
             Bukkit.getPluginManager().callEvent(event);
             if (event.isCancelled()) return false;
         }
@@ -1227,7 +1221,7 @@ public class PlayerData extends SynchronizedDataHolder implements OfflinePlayerD
      * checks if they could potentially upgrade to one of these
      *
      * @return If the player can change its current class to
-     * a subclass
+     *         a subclass
      */
     @Deprecated
     public boolean canChooseSubclass() {

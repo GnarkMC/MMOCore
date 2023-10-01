@@ -7,11 +7,17 @@ import org.bukkit.event.HandlerList;
 import org.jetbrains.annotations.NotNull;
 
 public class PlayerEnterCastingModeEvent extends PlayerDataEvent implements Cancellable {
-    private static final HandlerList handlerList = new HandlerList();
     private boolean cancelled = false;
 
+    private static final HandlerList HANDLERS = new HandlerList();
+
+    @Deprecated
     public PlayerEnterCastingModeEvent(@NotNull Player who) {
         super(PlayerData.get(who));
+    }
+
+    public PlayerEnterCastingModeEvent(@NotNull PlayerData playerData) {
+        super(playerData);
     }
 
     @Override
@@ -30,7 +36,7 @@ public class PlayerEnterCastingModeEvent extends PlayerDataEvent implements Canc
         return getHandlerList();
     }
 
-    public static HandlerList getHandlerList(){
-        return handlerList;
+    public static HandlerList getHandlerList() {
+        return HANDLERS;
     }
 }

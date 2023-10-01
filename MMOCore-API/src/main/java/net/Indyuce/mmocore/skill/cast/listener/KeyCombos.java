@@ -118,7 +118,7 @@ public class KeyCombos implements SkillCastingListener {
         // Hash current combo and check
         if (casting.combos.getCombos().containsKey(casting.current)) {
             final int spellSlot = casting.combos.getCombos().get(casting.current);
-            playerData.leaveSkillCasting();
+            playerData.leaveSkillCasting(true);
 
             // Cast spell
             if (playerData.hasSkillBound(spellSlot)) {
@@ -130,7 +130,7 @@ public class KeyCombos implements SkillCastingListener {
 
         // Check if current combo is too large
         if (casting.current.countKeys() >= casting.combos.getLongest()) {
-            playerData.leaveSkillCasting();
+            playerData.leaveSkillCasting(true);
             if (failComboSound != null) failComboSound.playTo(player);
         }
     }
@@ -175,7 +175,7 @@ public class KeyCombos implements SkillCastingListener {
 
         @Override
         public void onTick() {
-            if (getCaster().getBoundSkills().isEmpty()) getCaster().leaveSkillCasting();
+            if (getCaster().getBoundSkills().isEmpty()) getCaster().leaveSkillCasting(true);
             else if (actionBarOptions != null) if (actionBarOptions.isSubtitle)
                 getCaster().getPlayer().sendTitle(" ", actionBarOptions.format(this), 0, 20, 0);
             else getCaster().displayActionBar(actionBarOptions.format(this));

@@ -8,13 +8,18 @@ import org.bukkit.event.HandlerList;
 import org.jetbrains.annotations.NotNull;
 
 public class PlayerExitCastingModeEvent extends PlayerDataEvent implements Cancellable {
-    private static final HandlerList handlerList = new HandlerList();
     private boolean cancelled = false;
 
+    private static final HandlerList HANDLERS = new HandlerList();
+
+    @Deprecated
     public PlayerExitCastingModeEvent(@NotNull Player who) {
         super(PlayerData.get(who));
     }
 
+    public PlayerExitCastingModeEvent(@NotNull PlayerData who) {
+        super(who);
+    }
 
     @Override
     public boolean isCancelled() {
@@ -29,10 +34,10 @@ public class PlayerExitCastingModeEvent extends PlayerDataEvent implements Cance
     @NotNull
     @Override
     public HandlerList getHandlers() {
-        return handlerList;
+        return HANDLERS;
     }
 
     public static HandlerList getHandlerList() {
-        return handlerList;
+        return HANDLERS;
     }
 }

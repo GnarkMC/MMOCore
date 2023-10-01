@@ -4,7 +4,7 @@ import net.Indyuce.mmocore.api.player.PlayerData;
 import org.bukkit.event.HandlerList;
 
 /**
- * @deprecated Use {@link AsyncPlayerDataLoadEvent} instead
+ * @deprecated Use {@link io.lumine.mythic.lib.api.event.SynchronizedDataLoadEvent} instead
  */
 @Deprecated
 public class PlayerDataLoadEvent extends PlayerDataEvent {

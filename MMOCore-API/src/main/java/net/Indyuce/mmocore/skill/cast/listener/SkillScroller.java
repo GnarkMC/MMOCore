@@ -69,7 +69,8 @@ public class SkillScroller implements SkillCastingListener {
                 // Cancel event if necessary
                 if (event.getPressed().shouldCancelEvent()) event.setCancelled(true);
 
-                playerData.leaveSkillCasting();
+                if (!playerData.leaveSkillCasting()) return;
+
                 if (leaveSound != null) leaveSound.playTo(player);
                 return;
             }
@@ -81,9 +82,7 @@ public class SkillScroller implements SkillCastingListener {
             if (event.getPressed().shouldCancelEvent()) event.setCancelled(true);
 
             // Enter casting mode
-            if (!playerData.setSkillCasting()) {
-                return;
-            }
+            if (!playerData.setSkillCasting()) return;
 
             if (enterSound != null) enterSound.playTo(player);
         }
@@ -105,7 +104,7 @@ public class SkillScroller implements SkillCastingListener {
         if (!playerData.isCasting()) return;
 
         if (playerData.getBoundSkills().isEmpty()) {
-            playerData.leaveSkillCasting();
+            playerData.leaveSkillCasting(true);
             return;
         }
 

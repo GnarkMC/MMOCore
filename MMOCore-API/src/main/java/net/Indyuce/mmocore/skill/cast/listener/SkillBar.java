@@ -112,15 +112,10 @@ public class SkillBar implements SkillCastingListener {
             final Player player = event.getPlayer();
             if (disableSneak && player.isSneaking()) return;
 
-            MMOCore.plugin.soundManager.getSound(SoundEvent.SPELL_CAST_END).playTo(player);
-
-            new BukkitRunnable() {
-                @Override
-                public void run() {
-                    MMOCore.plugin.configManager.getSimpleMessage("casting.no-longer").send(getCaster().getPlayer());
-                }
-            }.runTask(MMOCore.plugin);
-            getCaster().leaveSkillCasting();
+            if (getCaster().leaveSkillCasting()) {
+                MMOCore.plugin.soundManager.getSound(SoundEvent.SPELL_CAST_END).playTo(player);
+                MMOCore.plugin.configManager.getSimpleMessage("casting.no-longer").send(getCaster().getPlayer());
+            }
         }
 
         private String getFormat(PlayerData data) {
