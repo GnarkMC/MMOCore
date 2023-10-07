@@ -50,6 +50,7 @@ items:
 
     function: 'skill-tree-node'
     slots: [ 0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,41,42,43,44 ]
+    name: '&a{name}'
     #The lore that will be displayed after the lore of the node.
     #The {node-lore} placeholder will be replaced by the lore specified in the skill tree node config.
     #All the placeholders you see here can also be used in the node lore.
@@ -61,22 +62,21 @@ items:
       - '&7Max Children: &6{max-children}'
       - '&7Points required: &6{point-consumed}'
       - '&7Size: &6{size}'
-      - '--------------------'
+      - ''
       - '&7⧆ &6Requirements: '
       - '&fStrong Parents: '
       - '{strong-parents}'
       - ''
       - '&fSoft Parents: '
       - '{soft-parents}'
-      - '--------------------'
-      - '{node-lore}'
-      - '--------------------'
-      - '&e◆Max points for {skill-tree}&e: &6{max-point-spent}'
-      - '&e◆Points spent for {skill-tree}&e:&6 {point-spent}'
-      - '&e◆Current {skill-tree} &epoints: &6{skill-tree-points}'
-      - '&e◆Current &6global&e points: &6{global-points}'
-    path-lore:
       - ''
+      - '{node-lore}'
+      - ''
+      - '&e◆ Max points for {skill-tree}&e: &6{max-point-spent}'
+      - '&e◆ Points spent for {skill-tree}&e:&6 {point-spent}'
+      - '&e◆ Current {skill-tree} &epoints: &6{skill-tree-points}'
+      - '&e◆ Current &6global&e points: &6{global-points}'
+    path-lore: []
 
 #This is the name that will be displayed for each status.
 status-names:

@@ -112,7 +112,6 @@ public abstract class InventoryItem<T extends GeneratedInventory> {
                 inv.setItem(slot, display);
         } else for (int j = 0; j < slots.size(); j++)
             inv.setItem(slots.get(j), display(generated, j));
-
     }
 
     public boolean hasDifferentDisplay() {

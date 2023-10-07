@@ -85,8 +85,8 @@ public class SkillTreeNode implements ExperienceObject {
             for (String key : config.getConfigurationSection("lores").getKeys(false))
                 try {
                     lores.put(Integer.parseInt(key), config.getStringList("lores." + key));
-                } catch (NumberFormatException e) {
-                    throw new RuntimeException("You must only specifiy integers in lores.");
+                } catch (NumberFormatException exception) {
+                    throw new RuntimeException("You shall only specify integers in the 'lores' config section");
                 }
 
         Validate.isTrue(config.contains("experience-table"), "You must specify an exp table");
@@ -232,7 +232,6 @@ public class SkillTreeNode implements ExperienceObject {
         return NodeType.getNodeType(hasUpPathOrNode, hasRightPathOrNode, hasDownPathOrNode, hasLeftPathOrNode);
     }
 
-
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -261,6 +260,7 @@ public class SkillTreeNode implements ExperienceObject {
         List<String> parsedLore = new ArrayList<>();
         if (!lores.containsKey(playerData.getNodeLevel(this)))
             return parsedLore;
+
         List<String> lore = lores.get(playerData.getNodeLevel(this));
         lore.forEach(string -> parsedLore.add(
                 MythicLib.plugin.parseColors(holders.apply(playerData.getPlayer(), string))));

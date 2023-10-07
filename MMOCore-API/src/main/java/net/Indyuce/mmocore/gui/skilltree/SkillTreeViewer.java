@@ -263,7 +263,8 @@ public class SkillTreeViewer extends EditableInventory {
                             lore.add(holders.apply(inv.getPlayer(), str));
                     });
                     meta.setLore(lore);
-                    meta.setDisplayName(node.getName());
+                    final String name = meta.getDisplayName();
+                    meta.setDisplayName(name == null || name.isEmpty() ? node.getName() : name);
                 }
                 //If it is path we remove the display name and the lore.
                 else {
