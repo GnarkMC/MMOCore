@@ -256,16 +256,19 @@ public class SkillTreeNode implements ExperienceObject {
     }
 
     public List<String> getLore(PlayerData playerData) {
-        Placeholders holders = getPlaceholders(playerData);
-        List<String> parsedLore = new ArrayList<>();
-        if (!lores.containsKey(playerData.getNodeLevel(this)))
-            return parsedLore;
+        final int nodeLevel = playerData.getNodeLevel(this);
+        final List<String> parsedLore = new ArrayList<>();
 
-        List<String> lore = lores.get(playerData.getNodeLevel(this));
-        lore.forEach(string -> parsedLore.add(
-                MythicLib.plugin.parseColors(holders.apply(playerData.getPlayer(), string))));
+        for (int i = nodeLevel; i >= 0; i--) {
+            final List<String> found = lores.get(i);
+            if (found == null) continue;
+
+            final Placeholders holders = getPlaceholders(playerData);
+            found.forEach(string -> parsedLore.add(MythicLib.plugin.parseColors(holders.apply(playerData.getPlayer(), string))));
+            break;
+        }
+
         return parsedLore;
-
     }
 
     @Override
