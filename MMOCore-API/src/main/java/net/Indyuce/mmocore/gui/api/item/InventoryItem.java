@@ -125,7 +125,7 @@ public abstract class InventoryItem<T extends GeneratedInventory> {
 
     @NotNull
     public ItemStack display(T inv) {
-        return display(inv, modelData);
+        return display(inv, 0);
     }
 
     @NotNull

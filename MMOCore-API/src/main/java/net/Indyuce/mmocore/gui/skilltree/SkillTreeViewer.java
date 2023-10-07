@@ -307,7 +307,6 @@ public class SkillTreeViewer extends EditableInventory {
                 holders.register("current-state", statusNames.getOrDefault(status, status.name()));
                 holders.register("max-level", node.getMaxLevel());
                 holders.register("max-children", node.getMaxChildren());
-                holders.register("size", node.getSize());
                 holders.register("point-consumed", node.getSkillTreePointsConsumed());
                 holders.register("display-type", node.getNodeType());
             } else {

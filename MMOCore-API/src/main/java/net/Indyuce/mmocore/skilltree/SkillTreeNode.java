@@ -46,7 +46,7 @@ public class SkillTreeNode implements ExperienceObject {
     private final ExperienceTable experienceTable;
 
     // The max level the skill tree node can have and the max amount of children it can have.
-    private final int maxLevel, maxChildren, size;
+    private final int maxLevel, maxChildren;
     private final List<SkillTreeNode> children = new ArrayList<>();
 
     /**
@@ -77,7 +77,6 @@ public class SkillTreeNode implements ExperienceObject {
             }
         }
         name = Objects.requireNonNull(config.getString("name"), "Could not find node name");
-        size = Objects.requireNonNull(config.getInt("size"));
         isRoot = config.getBoolean("is-root", false);
         skillTreePointsConsumed = config.getInt("point-consumed", 1);
         permissionRequired = config.getString("permission-required");
@@ -180,10 +179,6 @@ public class SkillTreeNode implements ExperienceObject {
         return children;
     }
 
-    public int getSize() {
-        return size;
-    }
-
     /**
      * @return The node identifier relative to its skill tree, like "extra_strength"
      */
@@ -255,7 +250,6 @@ public class SkillTreeNode implements ExperienceObject {
         Placeholders holders = new Placeholders();
         holders.register("name", getName());
         holders.register("node-state", playerData.getNodeStatus(this));
-        holders.register("size", getSize());
         holders.register("level", playerData.getNodeLevel(this));
         holders.register("max-level", getMaxLevel());
         holders.register("max-children", getMaxChildren());
