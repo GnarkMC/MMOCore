@@ -305,7 +305,8 @@ public class SavedClassInformation implements ClassDataContainer {
          * Resets information which much be reset after everything is saved.
          */
         player.mapSkillLevels().forEach((skill, level) -> player.resetSkillLevel(skill));
-        player.getAttributes().getInstances().forEach(ins -> ins.setBase(0));
+        for (PlayerAttribute attribute : MMOCore.plugin.attributeManager.getAll())
+            player.getAttributes().getInstance(attribute).setBase(0);
         player.clearSkillTreePoints();
         player.clearNodeLevels();
         player.clearNodeStates();
@@ -345,7 +346,6 @@ public class SavedClassInformation implements ClassDataContainer {
 
         // Add the values to the times claimed table and claims the corresponding stat triggers.
         nodeTimesClaimed.forEach((str, val) -> player.setClaims(str, val));
-
 
         // Unload current class information
         player.unloadClassInfo(profess);

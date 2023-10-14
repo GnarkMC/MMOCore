@@ -81,6 +81,8 @@ public class MMOCoreDataSynchronizer extends SQLDataSynchronizer<PlayerData> {
             if (guild != null) getData().setGuild(guild.hasMember(getData().getUniqueId()) ? guild : null);
         }
         if (!isEmpty(result.getString("attributes"))) getData().getAttributes().load(result.getString("attributes"));
+        if (getData().isOnline())
+            MMOCore.plugin.attributeManager.getAll().forEach(attribute -> getData().getAttributes().getInstance(attribute).updateStats());
         if (!isEmpty(result.getString("professions")))
             getData().getCollectionSkills().load(result.getString("professions"));
         if (!isEmpty(result.getString("quests"))) getData().getQuestData().load(result.getString("quests"));
