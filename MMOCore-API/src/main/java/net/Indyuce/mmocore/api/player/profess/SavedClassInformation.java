@@ -5,6 +5,7 @@ import io.lumine.mythic.lib.gson.JsonObject;
 import net.Indyuce.mmocore.MMOCore;
 import net.Indyuce.mmocore.api.player.PlayerData;
 import net.Indyuce.mmocore.api.player.attribute.PlayerAttribute;
+import net.Indyuce.mmocore.api.player.attribute.PlayerAttributes;
 import net.Indyuce.mmocore.api.util.MMOCoreUtils;
 import net.Indyuce.mmocore.player.ClassDataContainer;
 import net.Indyuce.mmocore.skill.RegisteredSkill;
@@ -327,7 +328,10 @@ public class SavedClassInformation implements ClassDataContainer {
             player.bindSkill(slot, profess.getSkill(boundSkills.get(slot)));
 
         skillLevels.forEach(player::setSkillLevel);
-        attributeLevels.forEach((id, pts) -> player.getAttributes().setBaseAttribute(id, pts));
+        attributeLevels.forEach((id, pts) -> {
+            final PlayerAttributes.AttributeInstance ins = player.getAttributes().getInstance(id);
+            if (ins != null) ins.setBase(pts);
+        });
 
         // Careful, the global points must not be forgotten.
         player.setSkillTreePoints("global", skillTreePoints.getOrDefault("global", 0));

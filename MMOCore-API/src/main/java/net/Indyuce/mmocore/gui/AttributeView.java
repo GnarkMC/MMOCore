@@ -109,7 +109,7 @@ public class AttributeView extends EditableInventory {
 				playerData.getAttributes().getInstances().forEach(ins -> ins.setBase(0));
 				playerData.giveAttributePoints(spent);
 				playerData.giveAttributeReallocationPoints(-1);
-				MMOCore.plugin.configManager.getSimpleMessage("attribute-points-reallocated", "points", "" + playerData.getAttributePoints()).send(player);
+				MMOCore.plugin.configManager.getSimpleMessage("attribute-points-reallocated", "points", String.valueOf(playerData.getAttributePoints())).send(player);
 				MMOCore.plugin.soundManager.getSound(SoundEvent.RESET_ATTRIBUTES).playTo(getPlayer());
 				open();
 			}

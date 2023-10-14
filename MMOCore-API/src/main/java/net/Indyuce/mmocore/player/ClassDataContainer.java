@@ -8,8 +8,6 @@ import java.util.Set;
 /**
  * All the class-specific information i.e information being saved
  * in {@link SavedClassInformation} when a player changes its current class.
- *
- * TODO move {@link SavedClassInformation} method to ClassDataContainer
  */
 public interface ClassDataContainer {
 
