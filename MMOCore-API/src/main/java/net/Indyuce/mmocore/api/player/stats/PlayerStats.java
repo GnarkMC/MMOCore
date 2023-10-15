@@ -12,11 +12,6 @@ import net.Indyuce.mmocore.MMOCore;
 import net.Indyuce.mmocore.api.player.PlayerData;
 import net.Indyuce.mmocore.experience.Profession;
 import net.Indyuce.mmocore.player.stats.StatInfo;
-import net.Indyuce.mmocore.skill.ClassSkill;
-
-import java.util.Comparator;
-import java.util.List;
-import java.util.stream.Collectors;
 
 public class PlayerStats {
     private final PlayerData data;
@@ -78,6 +73,8 @@ public class PlayerStats {
      * see {@link PlayerData#reload()} for more info
      */
     public synchronized void updateStats() {
+
+        // Update player stats
         for (String stat : MMOCore.plugin.statManager.getRegistered()) {
             final StatInstance instance = getMap().getInstance(stat);
             final StatInstance.ModifierPacket packet = instance.newPacket();
@@ -94,22 +91,17 @@ public class PlayerStats {
             packet.runUpdate();
         }
 
-        /*
-         * This is here because it requires updates for the same reasons
-         * as statistics (when the player level changes, when his class
-         * changes, when he logs on..)
-         *
-         * This updates the player's PASSIVE skills
-         */
+        // Updates the player's unbindable passive skills.
         final PassiveSkillMap skillMap = data.getMMOPlayerData().getPassiveSkillMap();
-
         skillMap.removeModifiers("MMOCorePassiveSkillNotBound");
-        data.getProfess().getSkills()
-                .stream()
-                .filter((classSkill) -> !classSkill.needsBound()&&classSkill.getSkill().getTrigger().isPassive() && data.hasUnlocked(classSkill) && data.hasUnlockedLevel(classSkill))
+        data.getProfess().getSkills().stream()
+                .filter((classSkill) -> !classSkill.needsBound() && classSkill.getSkill().getTrigger().isPassive() && data.hasUnlocked(classSkill) && data.hasUnlockedLevel(classSkill))
                 .forEach(classSkill -> skillMap.addModifier(classSkill.toPassive(data)));
 
-        // This updates the player's class SCRIPTS
+        /*
+         * Updates the player's class scripts, which act just
+         * like non-bindable passive skills.
+         */
         skillMap.removeModifiers("MMOCoreClassScript");
         for (PassiveSkill script : data.getProfess().getScripts())
             skillMap.addModifier(script);

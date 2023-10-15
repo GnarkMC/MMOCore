@@ -7,12 +7,9 @@ import net.Indyuce.mmocore.api.player.PlayerData;
 import net.Indyuce.mmocore.api.quest.trigger.api.Removable;
 import org.apache.commons.lang.Validate;
 
-import java.util.UUID;
-
 public class StatTrigger extends Trigger implements Removable {
-    private final StatModifier statModifier;
+    private final StatModifier modifier;
     private final String stat;
-    private final String modifierKey = TRIGGER_PREFIX + "." + UUID.randomUUID();
     private final double amount;
 
     public StatTrigger(MMOLineConfig config) {
@@ -25,14 +22,14 @@ public class StatTrigger extends Trigger implements Removable {
         Validate.isTrue(type.equals("FLAT") || type.equals("RELATIVE"));
         stat = config.getString("stat");
         amount = config.getDouble("amount");
-        statModifier = new StatModifier(modifierKey, stat, amount, ModifierType.valueOf(type));
+        modifier = new StatModifier(Trigger.STAT_MODIFIER_KEY, stat, amount, ModifierType.valueOf(type));
     }
 
     @Override
     public void apply(PlayerData player) {
-        StatModifier prevModifier = player.getMMOPlayerData().getStatMap().getInstance(stat).getModifier(modifierKey);
+        StatModifier prevModifier = player.getMMOPlayerData().getStatMap().getInstance(stat).getModifier(modifier.getUniqueId());
         if (prevModifier == null)
-            statModifier.register(player.getMMOPlayerData());
+            modifier.register(player.getMMOPlayerData());
         else {
             prevModifier.unregister(player.getMMOPlayerData());
             prevModifier.add(amount).register(player.getMMOPlayerData());
@@ -41,6 +38,6 @@ public class StatTrigger extends Trigger implements Removable {
 
     @Override
     public void remove(PlayerData playerData) {
-        playerData.getMMOPlayerData().getStatMap().getInstance(stat).remove(modifierKey);
+        modifier.unregister(playerData.getMMOPlayerData());
     }
 }

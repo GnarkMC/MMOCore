@@ -42,15 +42,26 @@ skill-slots:
     1:
         name: "&aSkill Slot I"
         unlocked-by-default: true
+        lore:
+            - ''
+            - '&a-50% Cooldown &7for Active Skills'
+            - '&a+30% Damage &7for Active Skills'
+        formula: "<ACTIVE>"
+        skill-buffs:
+            - 'skill_buff{modifier="cooldown";amount=-50;type="RELATIVE"}'
+            - 'skill_buff{modifier="damage";amount=30;type="RELATIVE"}'
     2:
         name: "&aSkill Slot II"
         unlocked-by-default: true
+        lore: []
     3:
         name: "&aSkill Slot III"
         unlocked-by-default: true
+        lore: []
     4:
         name: "&aSkill Slot IV"
         unlocked-by-default: true
+        lore: []
 
 # This is the default mana display options, however it is not mandatory
 # to have it in your class config file. Other classes do not have this
@@ -81,13 +92,13 @@ resource:
     
         # Scales with max mana.
         type: MAX
-        
+
         # Regen from 3 to 10% of max mana every second
         value:
             base: 3
             per-level: .1
             max: 10
-        
+
         # Only regen when out of combat.
         off-combat: true
 
@@ -116,7 +127,7 @@ skills:
     FIRE_STORM:
         level: 1
         max-level: 30
-        
+
         # Specific skill modifiers based on class.
         # Arcane mage's fire storm may deal more damage
         # than an apprentice mage's fire storm.

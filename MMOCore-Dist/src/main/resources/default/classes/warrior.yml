@@ -40,15 +40,19 @@ skill-slots:
     1:
         name: "Skill Slot I"
         unlocked-by-default: true
+        lore: []
     2:
         name: "Skill Slot II"
         unlocked-by-default: true
+        lore: []
     3:
         name: "Skill Slot III"
         unlocked-by-default: true
+        lore: []
     4:
         name: "Skill Slot IV"
         unlocked-by-default: true
+        lore: []
 
 skill-trees:
     - 'general'

@@ -12,11 +12,9 @@ import net.Indyuce.mmocore.skill.RegisteredSkill;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.UUID;
 
 public class SkillModifierTrigger extends Trigger implements Removable {
     private final SkillModifier mod;
-    private final String buffKey = TRIGGER_PREFIX + "." + UUID.randomUUID();
     private final double amount;
 
     public SkillModifierTrigger(MMOLineConfig config) {
@@ -34,7 +32,7 @@ public class SkillModifierTrigger extends Trigger implements Removable {
             if (skill.matchesFormula(formula))
                 targetSkills.add(skill.getHandler());
 
-        mod = new SkillModifier(buffKey, skillModifier, targetSkills, amount, type);
+        mod = new SkillModifier(Trigger.STAT_MODIFIER_KEY, skillModifier, targetSkills, amount, type);
     }
 
     public List<SkillHandler<?>> getTargetSkills() {
