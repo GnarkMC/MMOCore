@@ -8,7 +8,9 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.enchantment.EnchantItemEvent;
+import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.event.player.PlayerExpChangeEvent;
+import org.bukkit.event.player.PlayerRespawnEvent;
 
 public class VanillaExperienceOverride implements Listener {
 
@@ -16,8 +18,18 @@ public class VanillaExperienceOverride implements Listener {
      * When picking up exp orbs or any action like that
      */
     @EventHandler(priority = EventPriority.HIGHEST)
-    public void a(PlayerExpChangeEvent event) {
+    public void cancelChange(PlayerExpChangeEvent event) {
         event.setAmount(0);
+    }
+
+    @EventHandler(priority = EventPriority.HIGHEST)
+    public void cancelDrop(PlayerDeathEvent event) {
+        event.setDroppedExp(0);
+    }
+
+    @EventHandler(priority = EventPriority.HIGHEST)
+    public void cancelChange(PlayerRespawnEvent event) {
+        Bukkit.getScheduler().runTask(MMOCore.plugin, () -> PlayerData.get(event.getPlayer()).refreshVanillaExp());
     }
 
     /**
@@ -28,7 +40,7 @@ public class VanillaExperienceOverride implements Listener {
      * {@link EnchantItemEvent#setExpLevelCost(int)} does NOT work
      */
     @EventHandler
-    public void b(EnchantItemEvent event) {
+    public void cancelChange(EnchantItemEvent event) {
         Player player = event.getEnchanter();
         Bukkit.getScheduler().runTask(MMOCore.plugin, () -> player.setLevel(PlayerData.get(player).getLevel()));
     }
