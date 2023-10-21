@@ -16,13 +16,12 @@ import org.bukkit.GameMode;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
-import org.bukkit.event.Listener;
 import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.Nullable;
 import java.util.*;
 
-public class KeyCombos extends SkillCastingHandler implements Listener {
+public class KeyCombos extends SkillCastingHandler {
     private final ComboMap comboMap;
 
     /**
@@ -152,8 +151,7 @@ public class KeyCombos extends SkillCastingHandler implements Listener {
 
         @Override
         public void onTick() {
-            if (getCaster().getBoundSkills().isEmpty()) getCaster().leaveSkillCasting(true);
-            else if (actionBarOptions != null) if (actionBarOptions.isSubtitle)
+            if (actionBarOptions != null) if (actionBarOptions.isSubtitle)
                 getCaster().getPlayer().sendTitle(" ", actionBarOptions.format(this), 0, 20, 0);
             else getCaster().displayActionBar(actionBarOptions.format(this));
         }

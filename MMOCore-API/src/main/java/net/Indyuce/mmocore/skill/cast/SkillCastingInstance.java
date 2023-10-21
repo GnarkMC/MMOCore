@@ -49,7 +49,7 @@ public abstract class SkillCastingInstance extends BukkitRunnable implements Lis
 
     @Override
     public void run() {
-        if (!caster.isOnline() || caster.getPlayer().isDead()) {
+        if (!caster.isOnline() || caster.getPlayer().isDead() || caster.getBoundSkills().isEmpty()) {
             caster.leaveSkillCasting(true);
             return;
         }

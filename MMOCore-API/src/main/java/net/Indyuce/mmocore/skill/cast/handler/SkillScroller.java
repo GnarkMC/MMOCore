@@ -1,5 +1,6 @@
 package net.Indyuce.mmocore.skill.cast.handler;
 
+import io.lumine.mythic.lib.MythicLib;
 import io.lumine.mythic.lib.UtilityMethods;
 import io.lumine.mythic.lib.api.player.EquipmentSlot;
 import io.lumine.mythic.lib.player.PlayerMetadata;
@@ -8,6 +9,7 @@ import net.Indyuce.mmocore.MMOCore;
 import net.Indyuce.mmocore.api.SoundObject;
 import net.Indyuce.mmocore.api.event.PlayerKeyPressEvent;
 import net.Indyuce.mmocore.api.player.PlayerData;
+import net.Indyuce.mmocore.skill.ClassSkill;
 import net.Indyuce.mmocore.skill.cast.PlayerKey;
 import net.Indyuce.mmocore.skill.cast.SkillCastingHandler;
 import net.Indyuce.mmocore.skill.cast.SkillCastingInstance;
@@ -32,6 +34,8 @@ public class SkillScroller extends SkillCastingHandler {
     @Nullable
     private final SoundObject enterSound, changeSound, leaveSound;
 
+    private final String actionBarFormat;
+
     public SkillScroller(@NotNull ConfigurationSection config) {
         super(config);
 
@@ -39,6 +43,8 @@ public class SkillScroller extends SkillCastingHandler {
         enterSound = config.contains("sound.enter") ? new SoundObject(config.getConfigurationSection("sound.enter")) : null;
         changeSound = config.contains("sound.change") ? new SoundObject(config.getConfigurationSection("sound.change")) : null;
         leaveSound = config.contains("sound.leave") ? new SoundObject(config.getConfigurationSection("sound.leave")) : null;
+
+        actionBarFormat = config.getString("action-bar-format", "CLICK TO CAST: {selected}");
 
         // Find keybinds
         enterKey = PlayerKey.valueOf(UtilityMethods.enumName(Objects.requireNonNull(config.getString("enter-key"), "Could not find enter key")));
@@ -95,42 +101,8 @@ public class SkillScroller extends SkillCastingHandler {
 
             CustomSkillCastingInstance casting = (CustomSkillCastingInstance) playerData.getSkillCasting();
             PlayerMetadata caster = playerData.getMMOPlayerData().getStatMap().cache(EquipmentSlot.MAIN_HAND);
-            playerData.getBoundSkill(casting.index).toCastable(playerData).cast(new TriggerMetadata(caster, null, null));
+            casting.getSelected().toCastable(playerData).cast(new TriggerMetadata(caster, null, null));
         }
-    }
-
-    @EventHandler
-    public void onScroll(PlayerItemHeldEvent event) {
-        PlayerData playerData = PlayerData.get(event.getPlayer());
-        if (!playerData.isCasting()) return;
-
-        if (playerData.getBoundSkills().isEmpty()) {
-            playerData.leaveSkillCasting(true);
-            return;
-        }
-
-        event.setCancelled(true);
-
-        final int previous = event.getPreviousSlot(), current = event.getNewSlot();
-        final int dist1 = 9 + current - previous, dist2 = current - previous, dist3 = current - previous - 9;
-        final int change = Math.abs(dist1) < Math.abs(dist2) ? (Math.abs(dist1) < Math.abs(dist3) ? dist1 : dist3) : (Math.abs(dist3) < Math.abs(dist2) ? dist3 : dist2);
-
-        // Scroll trough items
-        final CustomSkillCastingInstance casting = (CustomSkillCastingInstance) playerData.getSkillCasting();
-        casting.index = mod(casting.index + change, playerData.getBoundSkills().size());
-        casting.onTick();
-        casting.refreshTimeOut();
-
-        if (changeSound != null) changeSound.playTo(event.getPlayer());
-    }
-
-    private int mod(int x, int n) {
-
-        while (x < 0) x += n;
-
-        while (x >= n) x -= n;
-
-        return x;
     }
 
     public class CustomSkillCastingInstance extends SkillCastingInstance {
@@ -142,7 +114,44 @@ public class SkillScroller extends SkillCastingHandler {
 
         @Override
         public void onTick() {
-            getCaster().displayActionBar("CLICK: " + getCaster().getBoundSkill(index).getSkill().getName());
+            final String skillName = getSelected().getSkill().getName();
+            final String actionBarFormat = MythicLib.plugin.getPlaceholderParser().parse(getCaster().getPlayer(), SkillScroller.this.actionBarFormat.replace("{selected}", skillName));
+            getCaster().displayActionBar(actionBarFormat);
         }
+
+        public ClassSkill getSelected() {
+            return getCaster().getBoundSkill(index + 1);
+        }
+
+        @EventHandler
+        public void onScroll(PlayerItemHeldEvent event) {
+            if (!event.getPlayer().equals(getCaster().getPlayer())) return;
+
+            PlayerData playerData = PlayerData.get(event.getPlayer());
+            if (playerData.getBoundSkills().isEmpty()) {
+                playerData.leaveSkillCasting(true);
+                return;
+            }
+
+            event.setCancelled(true);
+
+            final int previous = event.getPreviousSlot(), current = event.getNewSlot();
+            final int dist1 = 9 + current - previous, dist2 = current - previous, dist3 = current - previous - 9;
+            final int change = Math.abs(dist1) < Math.abs(dist2) ? (Math.abs(dist1) < Math.abs(dist3) ? dist1 : dist3) : (Math.abs(dist3) < Math.abs(dist2) ? dist3 : dist2);
+
+            // Scroll trough items
+            final CustomSkillCastingInstance casting = (CustomSkillCastingInstance) playerData.getSkillCasting();
+            casting.index = mod(casting.index + change, playerData.getBoundSkills().size());
+            casting.onTick();
+            casting.refreshTimeOut();
+
+            if (changeSound != null) changeSound.playTo(event.getPlayer());
+        }
+    }
+
+    private int mod(int x, int n) {
+        while (x < 0) x += n;
+        while (x >= n) x -= n;
+        return x;
     }
 }
