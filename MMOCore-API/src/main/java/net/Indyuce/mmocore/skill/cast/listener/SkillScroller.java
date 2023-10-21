@@ -9,8 +9,8 @@ import net.Indyuce.mmocore.api.SoundObject;
 import net.Indyuce.mmocore.api.event.PlayerKeyPressEvent;
 import net.Indyuce.mmocore.api.player.PlayerData;
 import net.Indyuce.mmocore.skill.cast.PlayerKey;
+import net.Indyuce.mmocore.skill.cast.SkillCastingHandler;
 import net.Indyuce.mmocore.skill.cast.SkillCastingInstance;
-import net.Indyuce.mmocore.skill.cast.SkillCastingListener;
 import net.Indyuce.mmocore.skill.cast.SkillCastingMode;
 import org.bukkit.GameMode;
 import org.bukkit.configuration.ConfigurationSection;
@@ -22,7 +22,7 @@ import org.jetbrains.annotations.NotNull;
 import javax.annotation.Nullable;
 import java.util.Objects;
 
-public class SkillScroller implements SkillCastingListener {
+public class SkillScroller extends SkillCastingHandler {
 
     /**
      * Key players need to press to start casting
@@ -32,7 +32,8 @@ public class SkillScroller implements SkillCastingListener {
     @Nullable
     private final SoundObject enterSound, changeSound, leaveSound;
 
-    public SkillScroller(ConfigurationSection config) {
+    public SkillScroller(@NotNull ConfigurationSection config) {
+        super(config);
 
         // Load sounds
         enterSound = config.contains("sound.enter") ? new SoundObject(config.getConfigurationSection("sound.enter")) : null;
@@ -110,14 +111,15 @@ public class SkillScroller implements SkillCastingListener {
 
         event.setCancelled(true);
 
-        int previous = event.getPreviousSlot(), current = event.getNewSlot();
-        int dist1 = 9 + current - previous, dist2 = current - previous, dist3 = current - previous - 9;
-        int change = Math.abs(dist1) < Math.abs(dist2) ? (Math.abs(dist1) < Math.abs(dist3) ? dist1 : dist3) : (Math.abs(dist3) < Math.abs(dist2) ? dist3 : dist2);
+        final int previous = event.getPreviousSlot(), current = event.getNewSlot();
+        final int dist1 = 9 + current - previous, dist2 = current - previous, dist3 = current - previous - 9;
+        final int change = Math.abs(dist1) < Math.abs(dist2) ? (Math.abs(dist1) < Math.abs(dist3) ? dist1 : dist3) : (Math.abs(dist3) < Math.abs(dist2) ? dist3 : dist2);
 
         // Scroll trough items
-        CustomSkillCastingInstance casting = (CustomSkillCastingInstance) playerData.getSkillCasting();
+        final CustomSkillCastingInstance casting = (CustomSkillCastingInstance) playerData.getSkillCasting();
         casting.index = mod(casting.index + change, playerData.getBoundSkills().size());
         casting.onTick();
+        casting.refreshTimeOut();
 
         if (changeSound != null) changeSound.playTo(event.getPlayer());
     }
@@ -135,7 +137,7 @@ public class SkillScroller implements SkillCastingListener {
         private int index = 0;
 
         CustomSkillCastingInstance(PlayerData caster) {
-            super(caster, 10);
+            super(SkillScroller.this, caster);
         }
 
         @Override

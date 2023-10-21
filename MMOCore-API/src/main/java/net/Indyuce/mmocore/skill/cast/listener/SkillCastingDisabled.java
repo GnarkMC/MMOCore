@@ -1,12 +1,16 @@
 package net.Indyuce.mmocore.skill.cast.listener;
 
 import net.Indyuce.mmocore.api.player.PlayerData;
+import net.Indyuce.mmocore.skill.cast.SkillCastingHandler;
 import net.Indyuce.mmocore.skill.cast.SkillCastingInstance;
-import net.Indyuce.mmocore.skill.cast.SkillCastingListener;
 import net.Indyuce.mmocore.skill.cast.SkillCastingMode;
+import org.bukkit.configuration.ConfigurationSection;
 import org.jetbrains.annotations.NotNull;
 
-public class SkillCastingDisabled implements SkillCastingListener {
+public class SkillCastingDisabled extends SkillCastingHandler {
+    public SkillCastingDisabled(@NotNull ConfigurationSection config) {
+        super(config);
+    }
 
     @Override
     public SkillCastingInstance newInstance(@NotNull PlayerData player) {

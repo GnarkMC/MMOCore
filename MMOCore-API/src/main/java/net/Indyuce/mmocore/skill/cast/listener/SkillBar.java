@@ -9,25 +9,23 @@ import net.Indyuce.mmocore.api.SoundEvent;
 import net.Indyuce.mmocore.api.event.PlayerKeyPressEvent;
 import net.Indyuce.mmocore.api.player.PlayerData;
 import net.Indyuce.mmocore.skill.ClassSkill;
-import net.Indyuce.mmocore.skill.cast.PlayerKey;
-import net.Indyuce.mmocore.skill.cast.SkillCastingInstance;
-import net.Indyuce.mmocore.skill.cast.SkillCastingListener;
-import net.Indyuce.mmocore.skill.cast.SkillCastingMode;
+import net.Indyuce.mmocore.skill.cast.*;
 import org.bukkit.GameMode;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.player.PlayerItemHeldEvent;
-import org.bukkit.scheduler.BukkitRunnable;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Objects;
 
-public class SkillBar implements SkillCastingListener {
+public class SkillBar extends SkillCastingHandler {
     private final PlayerKey mainKey;
     private final boolean disableSneak;
 
-    public SkillBar(ConfigurationSection config) {
+    public SkillBar(@NotNull ConfigurationSection config) {
+        super(config);
+
         mainKey = PlayerKey.valueOf(UtilityMethods.enumName(Objects.requireNonNull(config.getString("open"), "Could not find open key")));
         disableSneak = config.getBoolean("disable-sneak");
     }
@@ -70,7 +68,7 @@ public class SkillBar implements SkillCastingListener {
         private int j;
 
         CustomSkillCastingInstance(PlayerData playerData) {
-            super(playerData, 1);
+            super(SkillBar.this, playerData);
         }
 
         @EventHandler
@@ -89,7 +87,8 @@ public class SkillBar implements SkillCastingListener {
             if (event.getPreviousSlot() == event.getNewSlot()) return;
 
             event.setCancelled(true);
-            int slot = event.getNewSlot() + 1 + (event.getNewSlot() >= player.getInventory().getHeldItemSlot() ? -1 : 0);
+            refreshTimeOut();
+            final int slot = event.getNewSlot() + 1 + (event.getNewSlot() >= player.getInventory().getHeldItemSlot() ? -1 : 0);
 
             /*
              * The event is called again soon after the first since when
@@ -153,7 +152,7 @@ public class SkillBar implements SkillCastingListener {
 
         @Override
         public void onTick() {
-            if (j++ % 20 == 0) getCaster().displayActionBar(getFormat(getCaster()));
+            if (j++ % 2 == 0) getCaster().displayActionBar(getFormat(getCaster()));
         }
     }
 }

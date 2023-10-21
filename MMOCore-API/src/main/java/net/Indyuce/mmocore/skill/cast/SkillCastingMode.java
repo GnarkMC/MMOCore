@@ -1,8 +1,8 @@
 package net.Indyuce.mmocore.skill.cast;
 
 import net.Indyuce.mmocore.MMOCore;
-import net.Indyuce.mmocore.skill.cast.listener.SkillBar;
 import net.Indyuce.mmocore.skill.cast.listener.KeyCombos;
+import net.Indyuce.mmocore.skill.cast.listener.SkillBar;
 import net.Indyuce.mmocore.skill.cast.listener.SkillCastingDisabled;
 import net.Indyuce.mmocore.skill.cast.listener.SkillScroller;
 import org.apache.commons.lang.Validate;
@@ -42,7 +42,7 @@ public enum SkillCastingMode {
     /**
      * Entirely disables skill casting.
      */
-    NONE(config -> new SkillCastingDisabled());
+    NONE(config -> new SkillCastingDisabled(config));
 
     /**
      * Not implemented yet.
@@ -63,11 +63,11 @@ public enum SkillCastingMode {
 
     ;
 
-    private final Function<ConfigurationSection, SkillCastingListener> listenerLoader;
+    private final Function<ConfigurationSection, SkillCastingHandler> listenerLoader;
 
-    private static SkillCastingListener current;
+    private static SkillCastingHandler current;
 
-    SkillCastingMode(Function<ConfigurationSection, SkillCastingListener> listenerLoader) {
+    SkillCastingMode(Function<ConfigurationSection, SkillCastingHandler> listenerLoader) {
         this.listenerLoader = listenerLoader;
     }
 
@@ -81,7 +81,7 @@ public enum SkillCastingMode {
     }
 
     @NotNull
-    public static SkillCastingListener getCurrent() {
+    public static SkillCastingHandler getCurrent() {
         return Objects.requireNonNull(current, "Skill casting mode hasn't been initialized yet");
     }
 }

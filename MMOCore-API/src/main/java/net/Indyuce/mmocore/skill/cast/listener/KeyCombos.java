@@ -21,8 +21,7 @@ import org.jetbrains.annotations.NotNull;
 import javax.annotation.Nullable;
 import java.util.*;
 
-public class KeyCombos implements SkillCastingListener {
-
+public class KeyCombos extends SkillCastingHandler {
     private final ComboMap comboMap;
 
     /**
@@ -43,7 +42,9 @@ public class KeyCombos implements SkillCastingListener {
     @Nullable
     private final SoundObject beginComboSound, comboClickSound, failComboSound;
 
-    public KeyCombos(ConfigurationSection config) {
+    public KeyCombos(@NotNull ConfigurationSection config) {
+        super(config);
+
         comboMap = new ComboMap(config.getConfigurationSection("combos"));
         actionBarOptions = config.contains("action-bar") ? new ActionBarOptions(config.getConfigurationSection("action-bar")) : null;
 
@@ -108,6 +109,7 @@ public class KeyCombos implements SkillCastingListener {
         if (casting == null) return;
 
         // Adding pressed key
+        casting.refreshTimeOut();
         casting.current.registerKey(event.getPressed());
         casting.onTick();
         if (comboClickSound != null) comboClickSound.playTo(player);
@@ -135,30 +137,6 @@ public class KeyCombos implements SkillCastingListener {
         }
     }
 
-    private static final Set<TriggerType> IGNORED_WHEN_CASTING = new HashSet<>();
-
-    static {
-        IGNORED_WHEN_CASTING.add(TriggerType.RIGHT_CLICK);
-        IGNORED_WHEN_CASTING.add(TriggerType.LEFT_CLICK);
-        IGNORED_WHEN_CASTING.add(TriggerType.SHIFT_RIGHT_CLICK);
-        IGNORED_WHEN_CASTING.add(TriggerType.SHIFT_LEFT_CLICK);
-        IGNORED_WHEN_CASTING.add(TriggerType.SNEAK);
-    }
-
-    /**
-     * This makes sure NO skills are cast when in casting mode so that
-     * item abilities from MMOItems don't interfere with that.
-     * <p>
-     * Any trigger type that has a PlayerKey associated to it will
-     * be ignored if the player is currently in casting mode.
-     */
-    @EventHandler
-    public void ignoreOtherSkills(PlayerCastSkillEvent event) {
-        TriggerType triggerType = event.getCast().getTrigger();
-        if (IGNORED_WHEN_CASTING.contains(triggerType) && PlayerData.get(event.getData()).isCasting())
-            event.setCancelled(true);
-    }
-
     /**
      * Loads the player current combos & the combos applicable to the player
      * (combos defined in its class or the default combos of the config.yml)
@@ -168,7 +146,7 @@ public class KeyCombos implements SkillCastingListener {
         private final ComboMap combos;
 
         CustomSkillCastingInstance(PlayerData caster) {
-            super(caster, 10);
+            super(KeyCombos.this, caster);
 
             combos = Objects.requireNonNullElse(caster.getProfess().getComboMap(), comboMap);
         }
@@ -179,6 +157,26 @@ public class KeyCombos implements SkillCastingListener {
             else if (actionBarOptions != null) if (actionBarOptions.isSubtitle)
                 getCaster().getPlayer().sendTitle(" ", actionBarOptions.format(this), 0, 20, 0);
             else getCaster().displayActionBar(actionBarOptions.format(this));
+        }
+
+        private static final List<TriggerType> IGNORED_WHEN_CASTING = Arrays.asList(
+                TriggerType.RIGHT_CLICK,
+                TriggerType.LEFT_CLICK,
+                TriggerType.SHIFT_RIGHT_CLICK,
+                TriggerType.SHIFT_LEFT_CLICK,
+                TriggerType.SNEAK);
+
+        /**
+         * This makes sure NO skills are cast when in casting mode so that
+         * item abilities from MMOItems don't interfere with that.
+         * <p>
+         * Any trigger type that has a PlayerKey associated to it will
+         * be ignored if the player is currently in casting mode.
+         */
+        @EventHandler
+        public void ignoreOtherSkills(PlayerCastSkillEvent event) {
+            if (!event.getPlayer().equals(getCaster().getPlayer())) return;
+            if (IGNORED_WHEN_CASTING.contains(event.getCast().getTrigger())) event.setCancelled(true);
         }
     }
 
