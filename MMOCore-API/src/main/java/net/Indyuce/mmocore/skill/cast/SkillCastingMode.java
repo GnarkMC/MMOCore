@@ -1,10 +1,10 @@
 package net.Indyuce.mmocore.skill.cast;
 
 import net.Indyuce.mmocore.MMOCore;
-import net.Indyuce.mmocore.skill.cast.listener.KeyCombos;
-import net.Indyuce.mmocore.skill.cast.listener.SkillBar;
-import net.Indyuce.mmocore.skill.cast.listener.SkillCastingDisabled;
-import net.Indyuce.mmocore.skill.cast.listener.SkillScroller;
+import net.Indyuce.mmocore.skill.cast.handler.KeyCombos;
+import net.Indyuce.mmocore.skill.cast.handler.SkillBar;
+import net.Indyuce.mmocore.skill.cast.handler.SkillCastingDisabled;
+import net.Indyuce.mmocore.skill.cast.handler.SkillScroller;
 import org.apache.commons.lang.Validate;
 import org.bukkit.Bukkit;
 import org.bukkit.configuration.ConfigurationSection;
@@ -74,9 +74,6 @@ public enum SkillCastingMode {
     public void setCurrent(@NotNull ConfigurationSection config) {
         Validate.isTrue(current == null, "Skill casting mode already initialized");
         current = listenerLoader.apply(config);
-        if (this == NONE) return;
-
-        // Register listener
         Bukkit.getPluginManager().registerEvents(current, MMOCore.plugin);
     }
 

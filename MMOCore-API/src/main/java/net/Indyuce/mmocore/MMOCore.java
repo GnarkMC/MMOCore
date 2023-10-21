@@ -240,9 +240,8 @@ public class MMOCore extends JavaPlugin {
 
         // Skill casting
         try {
-            SkillCastingMode mode = SkillCastingMode.valueOf(UtilityMethods.enumName(getConfig().getString("skill-casting.mode")));
+            final SkillCastingMode mode = SkillCastingMode.valueOf(UtilityMethods.enumName(getConfig().getString("skill-casting.mode")));
             mode.setCurrent(getConfig().getConfigurationSection("skill-casting"));
-
         } catch (RuntimeException exception) {
             getLogger().log(Level.WARNING, "Could not load skill casting: " + exception.getMessage());
         }

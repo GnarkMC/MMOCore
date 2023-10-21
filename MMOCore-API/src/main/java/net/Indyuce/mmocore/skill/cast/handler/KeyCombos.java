@@ -1,4 +1,4 @@
-package net.Indyuce.mmocore.skill.cast.listener;
+package net.Indyuce.mmocore.skill.cast.handler;
 
 import io.lumine.mythic.lib.UtilityMethods;
 import io.lumine.mythic.lib.api.event.skill.PlayerCastSkillEvent;
@@ -16,12 +16,13 @@ import org.bukkit.GameMode;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
+import org.bukkit.event.Listener;
 import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.Nullable;
 import java.util.*;
 
-public class KeyCombos extends SkillCastingHandler {
+public class KeyCombos extends SkillCastingHandler implements Listener {
     private final ComboMap comboMap;
 
     /**
@@ -71,8 +72,7 @@ public class KeyCombos extends SkillCastingHandler {
     public void whenPressingKey(PlayerKeyPressEvent event) {
         PlayerData playerData = event.getData();
         Player player = playerData.getPlayer();
-        if (player.getGameMode() == GameMode.CREATIVE && !MMOCore.plugin.configManager.canCreativeCast)
-            return;
+        if (player.getGameMode() == GameMode.CREATIVE && !MMOCore.plugin.configManager.canCreativeCast) return;
 
         // Don't start combos if no skills are bound
         if (playerData.getBoundSkills().isEmpty()) return;
@@ -85,28 +85,27 @@ public class KeyCombos extends SkillCastingHandler {
                 if (event.getPressed().shouldCancelEvent()) event.setCancelled(true);
 
                 // Start combo
-                if (playerData.setSkillCasting() && beginComboSound != null)
-                    beginComboSound.playTo(player);
-
+                if (playerData.setSkillCasting() && beginComboSound != null) beginComboSound.playTo(player);
             }
             return;
         }
 
-        @Nullable CustomSkillCastingInstance casting = null;
+        // Make sure key is part of the combo map
+        final ComboMap comboMap = Objects.requireNonNullElse(playerData.getProfess().getComboMap(), this.comboMap);
+        if (!comboMap.isComboKey(event.getPressed())) return;
 
-        // Player is already casting
+        // Player already casting
+        final CustomSkillCastingInstance casting;
         if (event.getData().isCasting()) casting = (CustomSkillCastingInstance) playerData.getSkillCasting();
 
             // Start combo when there is NO initializer key
-        else {
-            final @NotNull ComboMap comboMap = Objects.requireNonNullElse(playerData.getProfess().getComboMap(), this.comboMap);
-            if (comboMap.isComboStart(event.getPressed()) && playerData.setSkillCasting()) {
-                casting = (CustomSkillCastingInstance) playerData.getSkillCasting();
-                if (beginComboSound != null) beginComboSound.playTo(player);
-            }
+        else if (comboMap.isComboStart(event.getPressed()) && playerData.setSkillCasting()) {
+            casting = (CustomSkillCastingInstance) playerData.getSkillCasting();
+            if (beginComboSound != null) beginComboSound.playTo(player);
         }
 
-        if (casting == null) return;
+        // Just return
+        else return;
 
         // Adding pressed key
         casting.refreshTimeOut();
@@ -159,12 +158,7 @@ public class KeyCombos extends SkillCastingHandler {
             else getCaster().displayActionBar(actionBarOptions.format(this));
         }
 
-        private static final List<TriggerType> IGNORED_WHEN_CASTING = Arrays.asList(
-                TriggerType.RIGHT_CLICK,
-                TriggerType.LEFT_CLICK,
-                TriggerType.SHIFT_RIGHT_CLICK,
-                TriggerType.SHIFT_LEFT_CLICK,
-                TriggerType.SNEAK);
+        private static final List<TriggerType> IGNORED_WHEN_CASTING = Arrays.asList(TriggerType.RIGHT_CLICK, TriggerType.LEFT_CLICK, TriggerType.SHIFT_RIGHT_CLICK, TriggerType.SHIFT_LEFT_CLICK, TriggerType.SNEAK);
 
         /**
          * This makes sure NO skills are cast when in casting mode so that

@@ -3,6 +3,7 @@ package net.Indyuce.mmocore.skill.cast;
 import io.lumine.mythic.lib.UtilityMethods;
 import org.apache.commons.lang.Validate;
 import org.bukkit.configuration.ConfigurationSection;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.HashMap;
 import java.util.HashSet;
@@ -20,7 +21,7 @@ public class ComboMap {
     /**
      * All the keys that are at the start of a combo.
      */
-    private final Set<PlayerKey> firstKeys = new HashSet<>();
+    private final Set<PlayerKey> firstKeys = new HashSet<>(), keys = new HashSet<>();
 
     private final int longestCombo;
 
@@ -32,9 +33,12 @@ public class ComboMap {
                 final int spellSlot = Integer.valueOf(key);
                 Validate.isTrue(spellSlot >= 0, "Spell slot must be at least 0");
                 Validate.isTrue(!combos.values().contains(spellSlot), "There is already a key combo with the same skill slot");
-                KeyCombo combo = new KeyCombo();
-                for (String str : config.getStringList(key))
-                    combo.registerKey(PlayerKey.valueOf(UtilityMethods.enumName(str)));
+                final KeyCombo combo = new KeyCombo();
+                for (String str : config.getStringList(key)) {
+                    final PlayerKey newKey = PlayerKey.valueOf(UtilityMethods.enumName(str));
+                    keys.add(newKey);
+                    combo.registerKey(newKey);
+                }
 
                 combos.put(combo, spellSlot);
                 firstKeys.add(combo.getAt(0));
@@ -46,12 +50,17 @@ public class ComboMap {
         this.longestCombo = currentLongestCombo;
     }
 
+    @NotNull
     public Map<KeyCombo, Integer> getCombos() {
         return combos;
     }
 
     public int getLongest() {
         return longestCombo;
+    }
+
+    public boolean isComboKey(PlayerKey key) {
+        return keys.contains(key);
     }
 
     public boolean isComboStart(PlayerKey key) {

@@ -1,4 +1,4 @@
-package net.Indyuce.mmocore.skill.cast.listener;
+package net.Indyuce.mmocore.skill.cast.handler;
 
 import io.lumine.mythic.lib.UtilityMethods;
 import io.lumine.mythic.lib.api.player.EquipmentSlot;

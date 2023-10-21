@@ -33,7 +33,7 @@ public class PlayerPressKeyListener implements Listener {
 
     @EventHandler(priority = EventPriority.LOWEST)
     public void registerClickKey(PlayerInteractEvent event) {
-        if (event.useItemInHand() != Event.Result.DENY && event.getAction().name().contains("CLICK")&&event.getHand().equals(EquipmentSlot.HAND)) {
+        if (event.useItemInHand() != Event.Result.DENY && event.getAction().name().contains("CLICK") && event.getHand().equals(EquipmentSlot.HAND)) {
             boolean rightClick = event.getAction() == Action.RIGHT_CLICK_AIR || event.getAction() == Action.RIGHT_CLICK_BLOCK;
             PlayerKeyPressEvent called = new PlayerKeyPressEvent(PlayerData.get(event.getPlayer()), rightClick ? PlayerKey.RIGHT_CLICK : PlayerKey.LEFT_CLICK, event);
             Bukkit.getPluginManager().callEvent(called);

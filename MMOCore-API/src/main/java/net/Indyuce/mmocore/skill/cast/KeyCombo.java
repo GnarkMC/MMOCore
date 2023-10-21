@@ -1,5 +1,7 @@
 package net.Indyuce.mmocore.skill.cast;
 
+import org.jetbrains.annotations.NotNull;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -17,7 +19,7 @@ public class KeyCombo {
         return keys.size();
     }
 
-    public void registerKey(PlayerKey key) {
+    public void registerKey(@NotNull PlayerKey key) {
         keys.add(key);
     }
 
