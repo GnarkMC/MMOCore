@@ -12,6 +12,7 @@ import net.Indyuce.mmocore.api.quest.PlayerQuests;
 import net.Indyuce.mmocore.experience.PlayerProfessions;
 import net.Indyuce.mmocore.experience.Profession;
 import net.Indyuce.mmocore.party.AbstractParty;
+import net.Indyuce.mmocore.skill.CastableSkill;
 import net.Indyuce.mmocore.skill.ClassSkill;
 import net.Indyuce.mmocore.skill.RegisteredSkill;
 import org.bukkit.Bukkit;
@@ -58,10 +59,11 @@ public class RPGPlaceholders extends PlaceholderExpansion {
     public String onRequest(OfflinePlayer player, String identifier) {
         if (!PlayerData.has(player.getUniqueId()))
             return null;
+        final PlayerData playerData = PlayerData.get(player);
 
-        PlayerData playerData = PlayerData.get(player);
         if (identifier.equals("mana_icon"))
             return playerData.getProfess().getManaDisplay().getIcon();
+
         if (identifier.equals("mana_name"))
             return playerData.getProfess().getManaDisplay().getName();
 
@@ -72,15 +74,19 @@ public class RPGPlaceholders extends PlaceholderExpansion {
             String id = identifier.substring(12);
             RegisteredSkill skill = Objects.requireNonNull(MMOCore.plugin.skillManager.getSkill(id), "Could not find skill with ID '" + id + "'");
             return String.valueOf(playerData.getSkillLevel(skill));
-        } else if (identifier.startsWith("skill_modifier_") || identifier.startsWith("skill_parameter_")) {
-            String[] ids = (identifier.startsWith("skill_modifier_") ? identifier.substring(15) : identifier.substring(16)).split(":");
-            String parameterId = ids[0];
-            String skillId = ids[1];
-            RegisteredSkill skill = Objects.requireNonNull(MMOCore.plugin.skillManager.getSkill(skillId), "Could not find skill with ID '" + skillId + "'");
-            ClassSkill classSkill = playerData.getProfess().getSkill(skill);
-            double value = classSkill.toCastable(playerData).getParameter(parameterId);
+        }
+
+        else if (identifier.startsWith("skill_modifier_") || identifier.startsWith("skill_parameter_")) {
+            final String[] ids = (identifier.startsWith("skill_modifier_") ? identifier.substring(15) : identifier.substring(16)).split(":");
+            final String parameterId = ids[0];
+            final String skillId = ids[1];
+            final RegisteredSkill skill = Objects.requireNonNull(MMOCore.plugin.skillManager.getSkill(skillId), "Could not find skill with ID '" + skillId + "'");
+            final CastableSkill castable = playerData.getProfess().getSkill(skill).toCastable(playerData);
+            final double value = playerData.getMMOPlayerData().getSkillModifierMap().calculateValue(castable, parameterId);
             return MythicLib.plugin.getMMOConfig().decimal.format(value);
-        } else if (identifier.startsWith("attribute_points_spent_")) {
+        }
+
+        else if (identifier.startsWith("attribute_points_spent_")) {
             String attributeId = identifier.substring(31);
             PlayerAttributes.AttributeInstance attributeInstance = Objects.requireNonNull(playerData.getAttributes().getInstance(attributeId), "Could not find attribute with ID '" + attributeId + "'");
             return String.valueOf(attributeInstance.getSpent());

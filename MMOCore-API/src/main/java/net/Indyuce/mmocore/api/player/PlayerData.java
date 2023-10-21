@@ -176,8 +176,8 @@ public class PlayerData extends SynchronizedDataHolder implements OfflinePlayerD
 
     public void setupRemovableTrigger() {
         //We remove all the stats and buffs associated to triggers.
-        getMMOPlayerData().getStatMap().getInstances().forEach(statInstance -> statInstance.removeIf(key -> key.startsWith(Trigger.TRIGGER_PREFIX)));
-        getMMOPlayerData().getSkillModifierMap().getInstances().forEach(skillModifierInstance -> skillModifierInstance.removeIf(key -> key.startsWith(Trigger.TRIGGER_PREFIX)));
+        getMMOPlayerData().getStatMap().getInstances().forEach(statInstance -> statInstance.removeIf(Trigger.STAT_MODIFIER_KEY::equals));
+        getMMOPlayerData().getSkillModifierMap().getInstances().forEach(skillModifierInstance -> skillModifierInstance.removeIf(Trigger.STAT_MODIFIER_KEY::equals));
 
         if (profess.hasExperienceTable())
             profess.getExperienceTable().claimRemovableTrigger(this, profess);
@@ -250,7 +250,7 @@ public class PlayerData extends SynchronizedDataHolder implements OfflinePlayerD
             Iterator<StatModifier> iter = instance.getModifiers().iterator();
             while (iter.hasNext()) {
                 StatModifier modifier = iter.next();
-                if (modifier.getKey().startsWith(StatTrigger.TRIGGER_PREFIX)) iter.remove();
+                if (modifier.getKey().startsWith(StatTrigger.STAT_MODIFIER_KEY)) iter.remove();
             }
         }
     }
@@ -357,7 +357,7 @@ public class PlayerData extends SynchronizedDataHolder implements OfflinePlayerD
 
     /**
      * @return If the item is unlocked by the player
-     *         This is used for skills that can be locked & unlocked.
+     * This is used for skills that can be locked & unlocked.
      */
     public boolean hasUnlocked(Unlockable unlockable) {
         return unlockable.isUnlockedByDefault() || unlockedItems.contains(unlockable.getUnlockNamespacedKey());
@@ -1017,7 +1017,7 @@ public class PlayerData extends SynchronizedDataHolder implements OfflinePlayerD
 
     /**
      * @return If the PlayerEnterCastingModeEvent successfully put the player
-     *         into casting mode, otherwise if the event is cancelled, returns false.
+     * into casting mode, otherwise if the event is cancelled, returns false.
      */
     public boolean setSkillCasting() {
         Validate.isTrue(!isCasting(), "Player already in casting mode");
@@ -1036,7 +1036,7 @@ public class PlayerData extends SynchronizedDataHolder implements OfflinePlayerD
 
     /**
      * @return If player successfully left skill casting i.e the Bukkit
-     *         event has not been cancelled
+     * event has not been cancelled
      */
     public boolean leaveSkillCasting() {
         return leaveSkillCasting(false);
@@ -1045,7 +1045,7 @@ public class PlayerData extends SynchronizedDataHolder implements OfflinePlayerD
     /**
      * @param skipEvent Skip firing the exit event
      * @return If player successfully left skill casting i.e the Bukkit
-     *         event has not been cancelled
+     * event has not been cancelled
      */
     public boolean leaveSkillCasting(boolean skipEvent) {
         Validate.isTrue(isCasting(), "Player not in casting mode");
@@ -1161,6 +1161,7 @@ public class PlayerData extends SynchronizedDataHolder implements OfflinePlayerD
         boundSkills.forEach((slot, info) -> info.close());
         boundSkills.clear();
         setupRemovableTrigger();
+
         // Update stats
         if (isOnline()) getStats().updateStats();
     }
@@ -1187,15 +1188,12 @@ public class PlayerData extends SynchronizedDataHolder implements OfflinePlayerD
      */
     public void bindSkill(int slot, @NotNull ClassSkill skill) {
         Validate.notNull(skill, "Skill cannot be null");
+        if (slot < 0) return;
 
-        if (slot >= 0) {
-
-            // Unbinds the previous skill (important for passive skills)
-            unbindSkill(slot);
-
-            final SkillSlot skillSlot = getProfess().getSkillSlot(slot);
-            boundSkills.put(slot, new BoundSkillInfo(skillSlot, skill, this));
-        }
+        // Unbinds the previous skill (important for passive skills)
+        unbindSkill(slot);
+        final SkillSlot skillSlot = getProfess().getSkillSlot(slot);
+        boundSkills.put(slot, new BoundSkillInfo(skillSlot, skill, this));
     }
 
     public void unbindSkill(int slot) {
@@ -1221,7 +1219,7 @@ public class PlayerData extends SynchronizedDataHolder implements OfflinePlayerD
      * checks if they could potentially upgrade to one of these
      *
      * @return If the player can change its current class to
-     *         a subclass
+     * a subclass
      */
     @Deprecated
     public boolean canChooseSubclass() {

@@ -65,15 +65,15 @@ public class CastableSkill extends Skill {
         }
 
         // Mana cost
-        if (playerData.getMana() < getParameter("mana")) {
+        if (playerData.getMana() < skillMeta.getParameter("mana")) {
             if (loud) MMOCore.plugin.configManager.getSimpleMessage("casting.no-mana",
-                    "mana-required", MythicLib.plugin.getMMOConfig().decimal.format((getParameter("mana") - playerData.getMana())),
+                    "mana-required", MythicLib.plugin.getMMOConfig().decimal.format((skillMeta.getParameter("mana") - playerData.getMana())),
                     "mana", playerData.getProfess().getManaDisplay().getName()).send(playerData.getPlayer());
             return false;
         }
 
         // Stamina cost
-        if (playerData.getStamina() < getParameter("stamina")) {
+        if (playerData.getStamina() < skillMeta.getParameter("stamina")) {
 
             if (loud) MMOCore.plugin.configManager.getSimpleMessage("casting.no-stamina").send(playerData.getPlayer());
             return false;
@@ -95,11 +95,11 @@ public class CastableSkill extends Skill {
 
             // Cooldown
             double flatCooldownReduction = Math.max(0, Math.min(1, skillMeta.getCaster().getStat("COOLDOWN_REDUCTION") / 100));
-            CooldownInfo cooldownHandler = skillMeta.getCaster().getData().getCooldownMap().applyCooldown(this, getParameter("cooldown"));
+            CooldownInfo cooldownHandler = skillMeta.getCaster().getData().getCooldownMap().applyCooldown(this, skillMeta.getParameter("cooldown"));
             cooldownHandler.reduceInitialCooldown(flatCooldownReduction);
 
-            casterData.giveMana(-getParameter("mana"), PlayerResourceUpdateEvent.UpdateReason.SKILL_COST);
-            casterData.giveStamina(-getParameter("stamina"), PlayerResourceUpdateEvent.UpdateReason.SKILL_COST);
+            casterData.giveMana(-skillMeta.getParameter("mana"), PlayerResourceUpdateEvent.UpdateReason.SKILL_COST);
+            casterData.giveStamina(-skillMeta.getParameter("stamina"), PlayerResourceUpdateEvent.UpdateReason.SKILL_COST);
         }
 
         if (!getTrigger().isPassive())

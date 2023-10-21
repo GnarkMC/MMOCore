@@ -113,6 +113,7 @@ public class PlayerAttributes {
         return n;
     }
 
+    // TODO have it extend ModifiedInstance
     public class AttributeInstance {
         private int spent;
 
@@ -223,10 +224,9 @@ public class PlayerAttributes {
         }
     }
 
+    @Deprecated
     public void setBaseAttribute(String id, int value) {
-        getInstances().forEach(ins -> {
-            if (ins.getId().equals(id))
-                ins.setBase(value);
-        });
+        AttributeInstance ins = instances.get(id);
+        if (ins != null) ins.setBase(value);
     }
 }

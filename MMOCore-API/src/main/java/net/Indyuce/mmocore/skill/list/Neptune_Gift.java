@@ -4,6 +4,8 @@ import io.lumine.mythic.lib.player.skill.PassiveSkill;
 import io.lumine.mythic.lib.skill.SkillMetadata;
 import io.lumine.mythic.lib.skill.handler.SkillHandler;
 import io.lumine.mythic.lib.skill.result.def.SimpleSkillResult;
+import io.lumine.mythic.lib.skill.trigger.TriggerMetadata;
+import io.lumine.mythic.lib.skill.trigger.TriggerType;
 import net.Indyuce.mmocore.api.event.PlayerResourceUpdateEvent;
 import org.bukkit.Material;
 import org.bukkit.event.EventHandler;
@@ -33,7 +35,7 @@ public class Neptune_Gift extends SkillHandler<SimpleSkillResult> implements Lis
             if (skill == null)
                 return;
 
-            event.setAmount(event.getAmount() * (1 + skill.getTriggeredSkill().getParameter("extra") / 100));
+            event.setAmount(event.getAmount() * (1 + event.getData().getMMOPlayerData().getSkillModifierMap().calculateValue(skill.getTriggeredSkill(), "extra") / 100));
         }
     }
 }

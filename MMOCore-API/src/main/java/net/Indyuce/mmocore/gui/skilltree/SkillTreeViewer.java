@@ -263,7 +263,8 @@ public class SkillTreeViewer extends EditableInventory {
                             lore.add(holders.apply(inv.getPlayer(), str));
                     });
                     meta.setLore(lore);
-                    meta.setDisplayName(node.getName());
+                    final String name = meta.getDisplayName();
+                    meta.setDisplayName(name == null || name.isEmpty() ? node.getName() : name);
                 }
                 //If it is path we remove the display name and the lore.
                 else {
@@ -306,8 +307,8 @@ public class SkillTreeViewer extends EditableInventory {
                 SkillTreeStatus status = inv.getPlayerData().getNodeStatus(node);
                 holders.register("current-state", statusNames.getOrDefault(status, status.name()));
                 holders.register("max-level", node.getMaxLevel());
+                holders.register("name", node.getName());
                 holders.register("max-children", node.getMaxChildren());
-                holders.register("size", node.getSize());
                 holders.register("point-consumed", node.getSkillTreePointsConsumed());
                 holders.register("display-type", node.getNodeType());
             } else {

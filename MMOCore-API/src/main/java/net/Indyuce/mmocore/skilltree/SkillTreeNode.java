@@ -46,7 +46,7 @@ public class SkillTreeNode implements ExperienceObject {
     private final ExperienceTable experienceTable;
 
     // The max level the skill tree node can have and the max amount of children it can have.
-    private final int maxLevel, maxChildren, size;
+    private final int maxLevel, maxChildren;
     private final List<SkillTreeNode> children = new ArrayList<>();
 
     /**
@@ -77,7 +77,6 @@ public class SkillTreeNode implements ExperienceObject {
             }
         }
         name = Objects.requireNonNull(config.getString("name"), "Could not find node name");
-        size = Objects.requireNonNull(config.getInt("size"));
         isRoot = config.getBoolean("is-root", false);
         skillTreePointsConsumed = config.getInt("point-consumed", 1);
         permissionRequired = config.getString("permission-required");
@@ -86,8 +85,8 @@ public class SkillTreeNode implements ExperienceObject {
             for (String key : config.getConfigurationSection("lores").getKeys(false))
                 try {
                     lores.put(Integer.parseInt(key), config.getStringList("lores." + key));
-                } catch (NumberFormatException e) {
-                    throw new RuntimeException("You must only specifiy integers in lores.");
+                } catch (NumberFormatException exception) {
+                    throw new RuntimeException("You shall only specify integers in the 'lores' config section");
                 }
 
         Validate.isTrue(config.contains("experience-table"), "You must specify an exp table");
@@ -180,10 +179,6 @@ public class SkillTreeNode implements ExperienceObject {
         return children;
     }
 
-    public int getSize() {
-        return size;
-    }
-
     /**
      * @return The node identifier relative to its skill tree, like "extra_strength"
      */
@@ -237,7 +232,6 @@ public class SkillTreeNode implements ExperienceObject {
         return NodeType.getNodeType(hasUpPathOrNode, hasRightPathOrNode, hasDownPathOrNode, hasLeftPathOrNode);
     }
 
-
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -255,7 +249,6 @@ public class SkillTreeNode implements ExperienceObject {
         Placeholders holders = new Placeholders();
         holders.register("name", getName());
         holders.register("node-state", playerData.getNodeStatus(this));
-        holders.register("size", getSize());
         holders.register("level", playerData.getNodeLevel(this));
         holders.register("max-level", getMaxLevel());
         holders.register("max-children", getMaxChildren());
@@ -263,15 +256,19 @@ public class SkillTreeNode implements ExperienceObject {
     }
 
     public List<String> getLore(PlayerData playerData) {
-        Placeholders holders = getPlaceholders(playerData);
-        List<String> parsedLore = new ArrayList<>();
-        if (!lores.containsKey(playerData.getNodeLevel(this)))
-            return parsedLore;
-        List<String> lore = lores.get(playerData.getNodeLevel(this));
-        lore.forEach(string -> parsedLore.add(
-                MythicLib.plugin.parseColors(holders.apply(playerData.getPlayer(), string))));
-        return parsedLore;
+        final int nodeLevel = playerData.getNodeLevel(this);
+        final List<String> parsedLore = new ArrayList<>();
 
+        for (int i = nodeLevel; i >= 0; i--) {
+            final List<String> found = lores.get(i);
+            if (found == null) continue;
+
+            final Placeholders holders = getPlaceholders(playerData);
+            found.forEach(string -> parsedLore.add(MythicLib.plugin.parseColors(holders.apply(playerData.getPlayer(), string))));
+            break;
+        }
+
+        return parsedLore;
     }
 
     @Override

@@ -112,7 +112,6 @@ public abstract class InventoryItem<T extends GeneratedInventory> {
                 inv.setItem(slot, display);
         } else for (int j = 0; j < slots.size(); j++)
             inv.setItem(slots.get(j), display(generated, j));
-
     }
 
     public boolean hasDifferentDisplay() {
@@ -125,7 +124,7 @@ public abstract class InventoryItem<T extends GeneratedInventory> {
 
     @NotNull
     public ItemStack display(T inv) {
-        return display(inv, modelData);
+        return display(inv, 0);
     }
 
     @NotNull

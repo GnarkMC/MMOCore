@@ -64,6 +64,8 @@ public class YAMLPlayerDataHandler extends YAMLSynchronizedDataHandler<PlayerDat
         }
         if (config.contains("attribute"))
             data.getAttributes().load(config.getConfigurationSection("attribute"));
+        if (data.isOnline())
+            MMOCore.plugin.attributeManager.getAll().forEach(attribute -> data.getAttributes().getInstance(attribute).updateStats());
         if (config.contains("profession"))
             data.getCollectionSkills().load(config.getConfigurationSection("profession"));
         if (config.contains("quest"))

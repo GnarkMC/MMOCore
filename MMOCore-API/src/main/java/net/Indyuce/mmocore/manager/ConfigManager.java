@@ -207,7 +207,7 @@ public class ConfigManager {
     }
 
     /**
-     * Merge with {@link net.Indyuce.mmocore.api.ConfigMessage}
+     * @deprecated TODO Merge with {@link net.Indyuce.mmocore.api.ConfigMessage}
      */
     @Deprecated
     public SimpleMessage getSimpleMessage(String key, String... placeholders) {
@@ -218,7 +218,7 @@ public class ConfigManager {
     }
 
     /**
-     * Merge with {@link net.Indyuce.mmocore.api.ConfigMessage}
+     * @deprecated TODO Merge with {@link net.Indyuce.mmocore.api.ConfigMessage}
      */
     @Deprecated
     public static class SimpleMessage {
