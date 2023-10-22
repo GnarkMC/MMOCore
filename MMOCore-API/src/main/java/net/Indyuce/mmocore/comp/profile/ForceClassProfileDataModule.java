@@ -15,10 +15,9 @@ import net.Indyuce.mmocore.manager.InventoryManager;
 import org.apache.commons.lang.Validate;
 import org.bukkit.Bukkit;
 import org.bukkit.event.EventHandler;
-import org.bukkit.event.Listener;
 import org.bukkit.plugin.java.JavaPlugin;
 
-public class ForceClassProfileDataModule implements ProfileDataModule, Listener {
+public class ForceClassProfileDataModule implements ProfileDataModule {
     public ForceClassProfileDataModule() {
         final ProfileProvider<?> provider = Bukkit.getServicesManager().getRegistration(ProfileProvider.class).getProvider();
         provider.registerModule(this);
