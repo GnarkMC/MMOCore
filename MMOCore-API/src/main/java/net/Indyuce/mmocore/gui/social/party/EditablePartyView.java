@@ -1,17 +1,18 @@
 package net.Indyuce.mmocore.gui.social.party;
 
 import net.Indyuce.mmocore.MMOCore;
+import net.Indyuce.mmocore.api.ConfigMessage;
 import net.Indyuce.mmocore.api.player.PlayerData;
-import net.Indyuce.mmocore.api.util.math.format.DelayFormat;
-import net.Indyuce.mmocore.gui.api.InventoryClickContext;
-import net.Indyuce.mmocore.party.provided.Party;
 import net.Indyuce.mmocore.api.util.input.ChatInput;
 import net.Indyuce.mmocore.api.util.input.PlayerInput;
-import net.Indyuce.mmocore.gui.api.GeneratedInventory;
-import net.Indyuce.mmocore.gui.api.item.InventoryItem;
-import net.Indyuce.mmocore.gui.api.item.SimplePlaceholderItem;
+import net.Indyuce.mmocore.api.util.math.format.DelayFormat;
 import net.Indyuce.mmocore.gui.api.EditableInventory;
+import net.Indyuce.mmocore.gui.api.GeneratedInventory;
+import net.Indyuce.mmocore.gui.api.InventoryClickContext;
+import net.Indyuce.mmocore.gui.api.item.InventoryItem;
 import net.Indyuce.mmocore.gui.api.item.Placeholders;
+import net.Indyuce.mmocore.gui.api.item.SimplePlaceholderItem;
+import net.Indyuce.mmocore.party.provided.Party;
 import org.apache.commons.lang.Validate;
 import org.bukkit.*;
 import org.bukkit.configuration.ConfigurationSection;
@@ -147,7 +148,7 @@ public class EditablePartyView extends EditableInventory {
             if (item.getFunction().equals("invite")) {
 
                 if (party.getMembers().size() >= MMOCore.plugin.configManager.maxPartyPlayers) {
-                    MMOCore.plugin.configManager.getSimpleMessage("party-is-full").send(player);
+                    ConfigMessage.fromKey("party-is-full").send(player);
                     player.playSound(player.getLocation(), Sound.ENTITY_VILLAGER_NO, 1, 1);
                     return;
                 }
@@ -155,7 +156,7 @@ public class EditablePartyView extends EditableInventory {
                 new ChatInput(player, PlayerInput.InputType.PARTY_INVITE, context.getInventoryHolder(), input -> {
                     Player target = Bukkit.getPlayer(input);
                     if (target == null) {
-                        MMOCore.plugin.configManager.getSimpleMessage("not-online-player", "player", input).send(player);
+                        ConfigMessage.fromKey("not-online-player", "player", input).send(player);
                         player.playSound(player.getLocation(), Sound.ENTITY_VILLAGER_NO, 1, 1);
                         open();
                         return;
@@ -163,14 +164,14 @@ public class EditablePartyView extends EditableInventory {
 
                     long remaining = party.getLastInvite(target) + 60 * 2 * 1000 - System.currentTimeMillis();
                     if (remaining > 0) {
-                        MMOCore.plugin.configManager.getSimpleMessage("party-invite-cooldown", "player", target.getName(), "cooldown", new DelayFormat().format(remaining)).send(player);
+                        ConfigMessage.fromKey("party-invite-cooldown", "player", target.getName(), "cooldown", new DelayFormat().format(remaining)).send(player);
                         open();
                         return;
                     }
 
                     PlayerData targetData = PlayerData.get(target);
                     if (party.hasMember(target)) {
-                        MMOCore.plugin.configManager.getSimpleMessage("already-in-party", "player", target.getName()).send(player);
+                        ConfigMessage.fromKey("already-in-party", "player", target.getName()).send(player);
                         player.playSound(player.getLocation(), Sound.ENTITY_VILLAGER_NO, 1, 1);
                         open();
                         return;
@@ -178,14 +179,14 @@ public class EditablePartyView extends EditableInventory {
 
                     int levelDifference = Math.abs(targetData.getLevel() - party.getLevel());
                     if (levelDifference > MMOCore.plugin.configManager.maxPartyLevelDifference) {
-                        MMOCore.plugin.configManager.getSimpleMessage("high-level-difference", "player", target.getName(), "diff", String.valueOf(levelDifference)).send(player);
+                        ConfigMessage.fromKey("high-level-difference", "player", target.getName(), "diff", String.valueOf(levelDifference)).send(player);
                         player.playSound(player.getLocation(), Sound.ENTITY_VILLAGER_NO, 1, 1);
                         open();
                         return;
                     }
 
                     party.sendInvite(playerData, targetData);
-                    MMOCore.plugin.configManager.getSimpleMessage("sent-party-invite", "player", target.getName()).send(player);
+                    ConfigMessage.fromKey("sent-party-invite", "player", target.getName()).send(player);
                     player.playSound(player.getLocation(), Sound.ENTITY_EXPERIENCE_ORB_PICKUP, 1, 1);
                     open();
                 });
@@ -200,7 +201,7 @@ public class EditablePartyView extends EditableInventory {
                     return;
 
                 party.removeMember(PlayerData.get(target));
-                MMOCore.plugin.configManager.getSimpleMessage("kick-from-party", "player", target.getName()).send(player);
+                ConfigMessage.fromKey("kick-from-party", "player", target.getName()).send(player);
                 player.playSound(player.getLocation(), Sound.ENTITY_EXPERIENCE_ORB_PICKUP, 1, 1);
             }
         }

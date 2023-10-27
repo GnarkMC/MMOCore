@@ -2,10 +2,11 @@ package net.Indyuce.mmocore.listener.profession;
 
 import io.lumine.mythic.lib.version.VersionSound;
 import net.Indyuce.mmocore.MMOCore;
+import net.Indyuce.mmocore.api.ConfigMessage;
 import net.Indyuce.mmocore.api.event.CustomPlayerFishEvent;
-import net.Indyuce.mmocore.experience.EXPSource;
 import net.Indyuce.mmocore.api.player.PlayerData;
 import net.Indyuce.mmocore.api.util.MMOCoreUtils;
+import net.Indyuce.mmocore.experience.EXPSource;
 import net.Indyuce.mmocore.loot.LootBuilder;
 import net.Indyuce.mmocore.loot.fishing.FishingDropItem;
 import net.Indyuce.mmocore.manager.profession.FishingManager.FishingDropTable;
@@ -50,7 +51,7 @@ public class FishingListener implements Listener {
                 return;
 
             new FishingData(player, hook, table);
-            MMOCoreUtils.displayIndicator(hook.getLocation().add(0, 1.25, 0), MMOCore.plugin.configManager.getSimpleMessage("caught-fish").message());
+            MMOCoreUtils.displayIndicator(hook.getLocation().add(0, 1.25, 0), ConfigMessage.fromKey("caught-fish").asLine());
         }
     }
 
@@ -186,7 +187,7 @@ public class FishingListener implements Listener {
             // Calculate yeet velocity
             Item item = hook.getWorld().dropItemNaturally(hook.getLocation(), collect);
             MMOCoreUtils.displayIndicator(location.add(0, 1.25, 0),
-                    MMOCore.plugin.configManager.getSimpleMessage("fish-out-water" + (isCriticalFish() ? "-crit" : "")).message());
+                    ConfigMessage.fromKey("fish-out-water" + (isCriticalFish() ? "-crit" : "")).asLine());
             Vector vec = player.getLocation().subtract(hook.getLocation()).toVector();
             vec.setY(vec.getY() * .031 + vec.length() * .05);
             vec.setX(vec.getX() * .08);

@@ -2,8 +2,9 @@ package net.Indyuce.mmocore.command;
 
 import io.lumine.mythic.lib.UtilityMethods;
 import net.Indyuce.mmocore.MMOCore;
-import net.Indyuce.mmocore.api.player.PlayerData;
+import net.Indyuce.mmocore.api.ConfigMessage;
 import net.Indyuce.mmocore.api.event.MMOCommandEvent;
+import net.Indyuce.mmocore.api.player.PlayerData;
 import net.Indyuce.mmocore.command.api.RegisteredCommand;
 import net.Indyuce.mmocore.command.api.ToggleableCommand;
 import net.Indyuce.mmocore.manager.InventoryManager;
@@ -45,7 +46,7 @@ public class SkillTreesCommand extends RegisteredCommand {
                 InventoryManager.TREE_VIEW.newInventory(data).open();
                 return true;
             } else {
-                MMOCore.plugin.configManager.getSimpleMessage("no-skill-tree").send(player);
+                ConfigMessage.fromKey("no-skill-tree").send(player);
                 return false;
             }
         }

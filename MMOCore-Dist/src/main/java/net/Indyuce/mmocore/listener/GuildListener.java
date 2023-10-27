@@ -1,16 +1,15 @@
 package net.Indyuce.mmocore.listener;
 
 import net.Indyuce.mmocore.MMOCore;
+import net.Indyuce.mmocore.api.ConfigMessage;
 import net.Indyuce.mmocore.api.event.social.GuildChatEvent;
-import net.Indyuce.mmocore.manager.ConfigManager;
+import net.Indyuce.mmocore.api.player.PlayerData;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.AsyncPlayerChatEvent;
-
-import net.Indyuce.mmocore.api.player.PlayerData;
 
 public class GuildListener implements Listener {
 	@EventHandler(priority = EventPriority.LOW)
@@ -24,12 +23,10 @@ public class GuildListener implements Listener {
 
 		event.setCancelled(true);
 
-		/*
-		 * running it in a delayed task is recommended
-		 */
-		Bukkit.getScheduler().scheduleSyncDelayedTask(MMOCore.plugin, () -> {
-			ConfigManager.SimpleMessage format = MMOCore.plugin.configManager.getSimpleMessage("guild-chat", "player", data.getPlayer().getName(), "tag", data.getGuild().getTag(), "message", event.getMessage().substring(MMOCore.plugin.dataProvider.getGuildManager().getConfig().getPrefix().length()));
-			GuildChatEvent called = new GuildChatEvent(data, format.message());
+		// Run it sync
+		Bukkit.getScheduler().runTask(MMOCore.plugin, () -> {
+			ConfigMessage format = ConfigMessage.fromKey("guild-chat", "player", data.getPlayer().getName(), "tag", data.getGuild().getTag(), "message", event.getMessage().substring(MMOCore.plugin.dataProvider.getGuildManager().getConfig().getPrefix().length()));
+			GuildChatEvent called = new GuildChatEvent(data, format.asLine());
 			Bukkit.getPluginManager().callEvent(called);
 			if (!called.isCancelled())
 				data.getGuild().forEachMember(member -> {

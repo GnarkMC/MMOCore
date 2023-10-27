@@ -1,6 +1,6 @@
 package net.Indyuce.mmocore.api.player.social;
 
-import net.Indyuce.mmocore.MMOCore;
+import net.Indyuce.mmocore.api.ConfigMessage;
 import net.Indyuce.mmocore.api.player.PlayerActivity;
 import net.Indyuce.mmocore.api.player.PlayerData;
 import org.bukkit.Sound;
@@ -21,8 +21,8 @@ public class FriendRequest extends Request {
         getCreator().addFriend(getTarget().getUniqueId());
         getTarget().addFriend(getCreator().getUniqueId());
         if (getCreator().isOnline()) {
-            MMOCore.plugin.configManager.getSimpleMessage("now-friends", "player", getTarget().getPlayer().getName()).send(getCreator().getPlayer());
-            MMOCore.plugin.configManager.getSimpleMessage("now-friends", "player", getCreator().getPlayer().getName()).send(getTarget().getPlayer());
+            ConfigMessage.fromKey("now-friends", "player", getTarget().getPlayer().getName()).send(getCreator().getPlayer());
+            ConfigMessage.fromKey("now-friends", "player", getCreator().getPlayer().getName()).send(getTarget().getPlayer());
         }
     }
 }

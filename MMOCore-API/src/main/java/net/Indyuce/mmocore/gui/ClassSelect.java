@@ -28,10 +28,8 @@ import org.bukkit.persistence.PersistentDataType;
 
 import javax.annotation.Nullable;
 import java.util.ArrayList;
-import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
-import java.util.stream.Collectors;
 
 public class ClassSelect extends EditableInventory {
     public ClassSelect() {
@@ -125,19 +123,19 @@ public class ClassSelect extends EditableInventory {
 
                 if (profileRunnable == null && playerData.getClassPoints() < 1) {
                     MMOCore.plugin.soundManager.getSound(SoundEvent.CANT_SELECT_CLASS).playTo(player);
-                    new ConfigMessage("cant-choose-new-class").send(player);
+                    ConfigMessage.fromKey("cant-choose-new-class").send(player);
                     return;
                 }
 
                 if (profess.hasOption(ClassOption.NEEDS_PERMISSION) && !player.hasPermission("mmocore.class." + profess.getId().toLowerCase())) {
                     MMOCore.plugin.soundManager.getSound(SoundEvent.CANT_SELECT_CLASS).playTo(player);
-                    new ConfigMessage("no-permission-for-class").send(player);
+                    ConfigMessage.fromKey("no-permission-for-class").send(player);
                     return;
                 }
 
                 if (profess.equals(playerData.getProfess())) {
                     MMOCore.plugin.soundManager.getSound(SoundEvent.CANT_SELECT_CLASS).playTo(player);
-                    MMOCore.plugin.configManager.getSimpleMessage("already-on-class", "class", profess.getName()).send(player);
+                    ConfigMessage.fromKey("already-on-class", "class", profess.getName()).send(player);
                     return;
                 }
 

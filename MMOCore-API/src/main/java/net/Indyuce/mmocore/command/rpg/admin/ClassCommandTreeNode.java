@@ -1,19 +1,19 @@
 package net.Indyuce.mmocore.command.rpg.admin;
 
+import io.lumine.mythic.lib.command.api.CommandTreeNode;
+import io.lumine.mythic.lib.command.api.Parameter;
 import net.Indyuce.mmocore.MMOCore;
-import net.Indyuce.mmocore.api.player.PlayerData;
+import net.Indyuce.mmocore.api.ConfigMessage;
 import net.Indyuce.mmocore.api.event.PlayerChangeClassEvent;
+import net.Indyuce.mmocore.api.player.PlayerData;
 import net.Indyuce.mmocore.api.player.profess.PlayerClass;
+import net.Indyuce.mmocore.api.player.profess.SavedClassInformation;
+import net.Indyuce.mmocore.command.api.CommandVerbose;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Sound;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
-
-import net.Indyuce.mmocore.api.player.profess.SavedClassInformation;
-import net.Indyuce.mmocore.command.api.CommandVerbose;
-import io.lumine.mythic.lib.command.api.CommandTreeNode;
-import io.lumine.mythic.lib.command.api.Parameter;
 
 public class ClassCommandTreeNode extends CommandTreeNode {
 	public ClassCommandTreeNode(CommandTreeNode parent) {
@@ -54,7 +54,7 @@ public class ClassCommandTreeNode extends CommandTreeNode {
 		(data.hasSavedClass(profess) ? data.getClassInfo(profess)
 				: new SavedClassInformation(MMOCore.plugin.dataProvider.getDataManager().getDefaultData())).load(profess, data);
 		if (data.isOnline()) {
-			MMOCore.plugin.configManager.getSimpleMessage("class-select", "class", profess.getName()).send(data.getPlayer());
+			ConfigMessage.fromKey("class-select", "class", profess.getName()).send(data.getPlayer());
 			data.getPlayer().playSound(data.getPlayer().getLocation(), Sound.UI_TOAST_CHALLENGE_COMPLETE, 1, 1);
 		}
 

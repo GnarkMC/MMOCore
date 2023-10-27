@@ -1,6 +1,7 @@
 package net.Indyuce.mmocore.api.util.input;
 
 import net.Indyuce.mmocore.MMOCore;
+import net.Indyuce.mmocore.api.ConfigMessage;
 import net.Indyuce.mmocore.gui.api.PluginInventory;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
@@ -37,8 +38,8 @@ public class ChatInput extends PlayerInput {
         this.lastOpened = lastOpened;
 
         player.closeInventory();
-        MMOCore.plugin.configManager.getSimpleMessage("player-input.chat." + inputType.getLowerCaseName()).send(player);
-        MMOCore.plugin.configManager.getSimpleMessage("player-input.chat.cancel").send(player);
+        ConfigMessage.fromKey("player-input.chat." + inputType.getLowerCaseName()).send(player);
+        ConfigMessage.fromKey("player-input.chat.cancel").send(player);
     }
 
     @Override
@@ -56,7 +57,7 @@ public class ChatInput extends PlayerInput {
             if (event.getMessage().equals("cancel")) {
                 if (lastOpened != null)
                     Bukkit.getScheduler().runTask(MMOCore.plugin, () -> lastOpened.open());
-                MMOCore.plugin.configManager.getSimpleMessage("player-input.chat." + inputType.getLowerCaseName() + "-cancel").send(getPlayer());
+                ConfigMessage.fromKey("player-input.chat." + inputType.getLowerCaseName() + "-cancel").send(getPlayer());
             } else
                 // Run sync
                 Bukkit.getScheduler().runTask(MMOCore.plugin, () -> output(event.getMessage()));

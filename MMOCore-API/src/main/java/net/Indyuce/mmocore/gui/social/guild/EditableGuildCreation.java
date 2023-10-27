@@ -1,16 +1,17 @@
 package net.Indyuce.mmocore.gui.social.guild;
 
 import net.Indyuce.mmocore.MMOCore;
+import net.Indyuce.mmocore.api.ConfigMessage;
 import net.Indyuce.mmocore.api.player.PlayerData;
-import net.Indyuce.mmocore.gui.api.InventoryClickContext;
-import net.Indyuce.mmocore.manager.InventoryManager;
-import net.Indyuce.mmocore.manager.data.GuildDataManager;
 import net.Indyuce.mmocore.api.util.input.ChatInput;
 import net.Indyuce.mmocore.api.util.input.PlayerInput;
+import net.Indyuce.mmocore.gui.api.EditableInventory;
 import net.Indyuce.mmocore.gui.api.GeneratedInventory;
+import net.Indyuce.mmocore.gui.api.InventoryClickContext;
 import net.Indyuce.mmocore.gui.api.item.InventoryItem;
 import net.Indyuce.mmocore.gui.api.item.SimplePlaceholderItem;
-import net.Indyuce.mmocore.gui.api.EditableInventory;
+import net.Indyuce.mmocore.manager.InventoryManager;
+import net.Indyuce.mmocore.manager.data.GuildDataManager;
 import org.bukkit.Sound;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.Player;
@@ -78,13 +79,13 @@ public class EditableGuildCreation extends EditableInventory {
 				if(!MMOCore.plugin.dataProvider.getGuildManager().isRegistered(input))
 					return true;
 				else
-					reason = MMOCore.plugin.configManager.getSimpleMessage("guild-creation.reasons.already-taken").message();
+					reason = ConfigMessage.fromKey("guild-creation.reasons.already-taken").asLine();
 			else
-				reason = MMOCore.plugin.configManager.getSimpleMessage("guild-creation.reasons.invalid-characters").message();
+				reason = ConfigMessage.fromKey("guild-creation.reasons.invalid-characters").asLine();
 		else
-			reason = MMOCore.plugin.configManager.getSimpleMessage("guild-creation.reasons.invalid-length", "min", "" + rules.getMin(), "max", "" + rules.getMax()).message();
+			reason = ConfigMessage.fromKey("guild-creation.reasons.invalid-length", "min", "" + rules.getMin(), "max", "" + rules.getMax()).asLine();
 			
-		MMOCore.plugin.configManager.getSimpleMessage("guild-creation.failed", "reason", reason).send(player);
+		ConfigMessage.fromKey("guild-creation.failed", "reason", reason).send(player);
 		return false;
 	}
 }

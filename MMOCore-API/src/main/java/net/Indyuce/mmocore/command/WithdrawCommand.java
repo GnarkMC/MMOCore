@@ -1,6 +1,8 @@
 package net.Indyuce.mmocore.command;
 
 import net.Indyuce.mmocore.MMOCore;
+import net.Indyuce.mmocore.api.ConfigMessage;
+import net.Indyuce.mmocore.api.eco.Withdraw;
 import net.Indyuce.mmocore.command.api.RegisteredCommand;
 import net.Indyuce.mmocore.command.api.ToggleableCommand;
 import org.apache.commons.lang.Validate;
@@ -10,8 +12,6 @@ import org.bukkit.Sound;
 import org.bukkit.command.CommandSender;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.Player;
-
-import net.Indyuce.mmocore.api.eco.Withdraw;
 
 public class WithdrawCommand extends RegisteredCommand {
 	public WithdrawCommand(ConfigurationSection config) {
@@ -37,7 +37,7 @@ public class WithdrawCommand extends RegisteredCommand {
 			amount = Integer.parseInt(amountArgument);
 			Validate.isTrue(amount >= 0);
 		} catch (IllegalArgumentException exception) {
-			sender.sendMessage(MMOCore.plugin.configManager.getSimpleMessage("wrong-number", "arg", "" + args[0]).message());
+			sender.sendMessage(ConfigMessage.fromKey("wrong-number", "arg", "" + args[0]).asLine());
 			return true;
 		}
 
@@ -50,14 +50,14 @@ public class WithdrawCommand extends RegisteredCommand {
 
 		int left = (int) MMOCore.plugin.economy.getEconomy().getBalance(player) - amount;
 		if (left < 0) {
-			MMOCore.plugin.configManager.getSimpleMessage("not-enough-money", "left", "" + -left).send(player);
+			ConfigMessage.fromKey("not-enough-money", "left", "" + -left).send(player);
 			return true;
 		}
 
 		MMOCore.plugin.economy.getEconomy().withdrawPlayer(player, amount);
 		request.withdrawAlgorythm(amount);
 		player.playSound(player.getLocation(), Sound.ENTITY_PLAYER_LEVELUP, 1, 1);
-		MMOCore.plugin.configManager.getSimpleMessage("withdrew", "worth", "" + amount).send(player);
+		ConfigMessage.fromKey("withdrew", "worth", amount).send(player);
 		return true;
 	}
 }

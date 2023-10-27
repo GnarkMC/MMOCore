@@ -1,6 +1,5 @@
 package net.Indyuce.mmocore.guild.provided;
 
-import io.lumine.mythic.lib.comp.interaction.relation.Relationship;
 import net.Indyuce.mmocore.MMOCore;
 import net.Indyuce.mmocore.api.ConfigMessage;
 import net.Indyuce.mmocore.api.player.PlayerData;
@@ -82,7 +81,7 @@ public class Guild implements AbstractGuild {
         // Transfer ownership
         if (owner.equals(uuid)) {
             owner = members.stream().findAny().get();
-            MMOCore.plugin.configManager.getSimpleMessage("transfer-guild-ownership").send(Bukkit.getPlayer(owner));
+            ConfigMessage.fromKey("transfer-guild-ownership").send(Bukkit.getPlayer(owner));
         }
     }
 
@@ -112,7 +111,7 @@ public class Guild implements AbstractGuild {
     public void sendGuildInvite(PlayerData inviter, PlayerData target) {
         invites.put(target.getUniqueId(), System.currentTimeMillis());
         Request request = new GuildInvite(this, inviter, target);
-        new ConfigMessage("guild-invite").addPlaceholders("player", inviter.getPlayer().getName(), "uuid", request.getUniqueId().toString()).sendAsJSon(target.getPlayer());
+        ConfigMessage.fromKey("guild-invite").addPlaceholders("player", inviter.getPlayer().getName(), "uuid", request.getUniqueId().toString()).send(target.getPlayer());
         MMOCore.plugin.requestManager.registerRequest(request);
     }
 

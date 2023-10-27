@@ -1,13 +1,13 @@
 package net.Indyuce.mmocore.gui.social.friend;
 
-import net.Indyuce.mmocore.MMOCore;
+import net.Indyuce.mmocore.api.ConfigMessage;
 import net.Indyuce.mmocore.api.player.PlayerData;
-import net.Indyuce.mmocore.gui.api.InventoryClickContext;
-import net.Indyuce.mmocore.gui.api.GeneratedInventory;
-import net.Indyuce.mmocore.gui.api.item.InventoryItem;
-import net.Indyuce.mmocore.manager.data.OfflinePlayerData;
 import net.Indyuce.mmocore.gui.api.EditableInventory;
+import net.Indyuce.mmocore.gui.api.GeneratedInventory;
+import net.Indyuce.mmocore.gui.api.InventoryClickContext;
+import net.Indyuce.mmocore.gui.api.item.InventoryItem;
 import net.Indyuce.mmocore.gui.api.item.Placeholders;
+import net.Indyuce.mmocore.manager.data.OfflinePlayerData;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.Sound;
 import org.bukkit.configuration.ConfigurationSection;
@@ -52,7 +52,7 @@ public class EditableFriendRemoval extends EditableInventory {
 				playerData.removeFriend(friend.getUniqueId());
 				OfflinePlayerData.get(friend.getUniqueId()).removeFriend(playerData.getUniqueId());
 				player.playSound(player.getLocation(), Sound.ENTITY_VILLAGER_NO, 1, 1);
-				MMOCore.plugin.configManager.getSimpleMessage("no-longer-friends", "unfriend", friend.getName()).send(player);
+				ConfigMessage.fromKey("no-longer-friends", "unfriend", friend.getName()).send(player);
 				last.open();
 			}
 

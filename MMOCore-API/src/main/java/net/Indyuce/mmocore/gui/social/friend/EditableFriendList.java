@@ -1,14 +1,15 @@
 package net.Indyuce.mmocore.gui.social.friend;
 
 import net.Indyuce.mmocore.MMOCore;
+import net.Indyuce.mmocore.api.ConfigMessage;
 import net.Indyuce.mmocore.api.player.PlayerActivity;
 import net.Indyuce.mmocore.api.player.PlayerData;
-import net.Indyuce.mmocore.gui.api.InventoryClickContext;
 import net.Indyuce.mmocore.api.util.input.ChatInput;
 import net.Indyuce.mmocore.api.util.input.PlayerInput.InputType;
 import net.Indyuce.mmocore.api.util.math.format.DelayFormat;
 import net.Indyuce.mmocore.gui.api.EditableInventory;
 import net.Indyuce.mmocore.gui.api.GeneratedInventory;
+import net.Indyuce.mmocore.gui.api.InventoryClickContext;
 import net.Indyuce.mmocore.gui.api.item.InventoryItem;
 import net.Indyuce.mmocore.gui.api.item.Placeholders;
 import net.Indyuce.mmocore.gui.api.item.SimplePlaceholderItem;
@@ -199,7 +200,7 @@ public class EditableFriendList extends EditableInventory {
 
                 long remaining = playerData.getActivityTimeOut(PlayerActivity.FRIEND_REQUEST);
                 if (remaining > 0) {
-                    MMOCore.plugin.configManager.getSimpleMessage("friend-request-cooldown", "cooldown", new DelayFormat().format(remaining))
+                    ConfigMessage.fromKey("friend-request-cooldown", "cooldown", new DelayFormat().format(remaining))
                             .send(player);
                     return;
                 }
@@ -207,28 +208,28 @@ public class EditableFriendList extends EditableInventory {
                 new ChatInput(player, InputType.FRIEND_REQUEST, context.getInventoryHolder(), input -> {
                     Player target = Bukkit.getPlayer(input);
                     if (target == null) {
-                        MMOCore.plugin.configManager.getSimpleMessage("not-online-player", "player", input).send(player);
+                        ConfigMessage.fromKey("not-online-player", "player", input).send(player);
                         player.playSound(player.getLocation(), Sound.ENTITY_VILLAGER_NO, 1, 1);
                         open();
                         return;
                     }
 
                     if (playerData.hasFriend(target.getUniqueId())) {
-                        MMOCore.plugin.configManager.getSimpleMessage("already-friends", "player", target.getName()).send(player);
+                        ConfigMessage.fromKey("already-friends", "player", target.getName()).send(player);
                         player.playSound(player.getLocation(), Sound.ENTITY_VILLAGER_NO, 1, 1);
                         open();
                         return;
                     }
 
                     if (playerData.getUniqueId().equals(target.getUniqueId())) {
-                        MMOCore.plugin.configManager.getSimpleMessage("cant-request-to-yourself").send(player);
+                        ConfigMessage.fromKey("cant-request-to-yourself").send(player);
                         player.playSound(player.getLocation(), Sound.ENTITY_VILLAGER_NO, 1, 1);
                         open();
                         return;
                     }
 
                     playerData.sendFriendRequest(PlayerData.get(target));
-                    MMOCore.plugin.configManager.getSimpleMessage("sent-friend-request", "player", target.getName()).send(player);
+                    ConfigMessage.fromKey("sent-friend-request", "player", target.getName()).send(player);
                     player.playSound(player.getLocation(), Sound.ENTITY_EXPERIENCE_ORB_PICKUP, 1, 1);
                     open();
                 });

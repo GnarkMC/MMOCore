@@ -1,6 +1,7 @@
 package net.Indyuce.mmocore.api.util.input;
 
-import net.Indyuce.mmocore.MMOCore;
+import io.lumine.mythic.lib.MythicLib;
+import net.Indyuce.mmocore.api.ConfigMessage;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -12,8 +13,6 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.util.Consumer;
 
-import io.lumine.mythic.lib.MythicLib;
-
 @Deprecated
 public class AnvilGUI extends PlayerInput {
 	private final int containerId;
@@ -24,7 +23,7 @@ public class AnvilGUI extends PlayerInput {
 
 		ItemStack paper = new ItemStack(Material.PAPER);
 		ItemMeta paperMeta = paper.getItemMeta();
-		paperMeta.setDisplayName(MMOCore.plugin.configManager.getSimpleMessage("player-input.anvil." + type.getLowerCaseName()).message());
+		paperMeta.setDisplayName(ConfigMessage.fromKey("player-input.anvil." + type.getLowerCaseName()).asLine());
 		paper.setItemMeta(paperMeta);
 
 		MythicLib.plugin.getVersion().getWrapper().handleInventoryCloseEvent(player);

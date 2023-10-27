@@ -12,6 +12,7 @@ import io.lumine.mythic.lib.MythicLib;
 import io.lumine.mythic.lib.comp.flags.CustomFlag;
 import io.lumine.mythic.lib.comp.flags.WorldGuardFlags;
 import net.Indyuce.mmocore.MMOCore;
+import net.Indyuce.mmocore.api.ConfigMessage;
 import net.Indyuce.mmocore.command.PvpModeCommand;
 
 import java.util.Objects;
@@ -64,7 +65,7 @@ public class PvPModeHandler extends MMOCoreFlagHandler {
                 final boolean pvpEnabled = playerData.getCombat().isInPvpMode() && !playerData.getCombat().canQuitPvpMode() && pvpFlag;
                 lastMessage = System.currentTimeMillis();
                 final double remaining = (playerData.getCombat().getLastHit() + MMOCore.plugin.configManager.pvpModeCombatTimeout * 1000.0D - System.currentTimeMillis()) / 1000.0D;
-                MMOCore.plugin.configManager.getSimpleMessage("pvp-mode.leave.pvp-" + (pvpEnabled ? "allowed" : "denied"), "remaining",
+                ConfigMessage.fromKey("pvp-mode.leave.pvp-" + (pvpEnabled ? "allowed" : "denied"), "remaining",
                         (MythicLib.plugin.getMMOConfig()).decimal.format(remaining)).send(playerData.getPlayer());
             }
         } else if (newPvpMode && !lastPvpMode) {
@@ -80,7 +81,7 @@ public class PvPModeHandler extends MMOCoreFlagHandler {
             // Send message
             if (canSendMessage()) {
                 lastMessage = System.currentTimeMillis();
-                MMOCore.plugin.configManager.getSimpleMessage("pvp-mode.enter.pvp-mode-" + (applyInvulnerability ? "on" : "off"), "time",
+                ConfigMessage.fromKey("pvp-mode.enter.pvp-mode-" + (applyInvulnerability ? "on" : "off"), "time",
                         MythicLib.plugin.getMMOConfig().decimal.format(MMOCore.plugin.configManager.pvpModeInvulnerabilityTimeRegionChange)).send(playerData.getPlayer());
             }
         }

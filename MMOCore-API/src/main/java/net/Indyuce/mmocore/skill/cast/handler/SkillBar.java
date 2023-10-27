@@ -5,11 +5,15 @@ import io.lumine.mythic.lib.api.player.EquipmentSlot;
 import io.lumine.mythic.lib.player.PlayerMetadata;
 import io.lumine.mythic.lib.skill.trigger.TriggerMetadata;
 import net.Indyuce.mmocore.MMOCore;
+import net.Indyuce.mmocore.api.ConfigMessage;
 import net.Indyuce.mmocore.api.SoundEvent;
 import net.Indyuce.mmocore.api.event.PlayerKeyPressEvent;
 import net.Indyuce.mmocore.api.player.PlayerData;
 import net.Indyuce.mmocore.skill.ClassSkill;
-import net.Indyuce.mmocore.skill.cast.*;
+import net.Indyuce.mmocore.skill.cast.PlayerKey;
+import net.Indyuce.mmocore.skill.cast.SkillCastingHandler;
+import net.Indyuce.mmocore.skill.cast.SkillCastingInstance;
+import net.Indyuce.mmocore.skill.cast.SkillCastingMode;
 import org.bukkit.GameMode;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.Player;
@@ -59,11 +63,11 @@ public class SkillBar extends SkillCastingHandler {
     }
 
     public class CustomSkillCastingInstance extends SkillCastingInstance {
-        private final String ready = MMOCore.plugin.configManager.getSimpleMessage("casting.action-bar.ready").message();
-        private final String onCooldown = MMOCore.plugin.configManager.getSimpleMessage("casting.action-bar.on-cooldown").message();
-        private final String noMana = MMOCore.plugin.configManager.getSimpleMessage("casting.action-bar.no-mana").message();
-        private final String noStamina = MMOCore.plugin.configManager.getSimpleMessage("casting.action-bar.no-stamina").message();
-        private final String split = MMOCore.plugin.configManager.getSimpleMessage("casting.split").message();
+        private final String ready = ConfigMessage.fromKey("casting.action-bar.ready").asLine();
+        private final String onCooldown = ConfigMessage.fromKey("casting.action-bar.on-cooldown").asLine();
+        private final String noMana = ConfigMessage.fromKey("casting.action-bar.no-mana").asLine();
+        private final String noStamina = ConfigMessage.fromKey("casting.action-bar.no-stamina").asLine();
+        private final String split = ConfigMessage.fromKey("casting.split").asLine();
 
         private int j;
 
@@ -113,7 +117,7 @@ public class SkillBar extends SkillCastingHandler {
 
             if (getCaster().leaveSkillCasting()) {
                 MMOCore.plugin.soundManager.getSound(SoundEvent.SPELL_CAST_END).playTo(player);
-                MMOCore.plugin.configManager.getSimpleMessage("casting.no-longer").send(getCaster().getPlayer());
+                ConfigMessage.fromKey("casting.no-longer").send(getCaster().getPlayer());
             }
         }
 

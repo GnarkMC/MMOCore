@@ -5,6 +5,7 @@ import java.util.Set;
 import java.util.UUID;
 
 import net.Indyuce.mmocore.MMOCore;
+import net.Indyuce.mmocore.api.ConfigMessage;
 import net.Indyuce.mmocore.util.item.CurrencyItemBuilder;
 import org.bukkit.Bukkit;
 import org.bukkit.Sound;
@@ -28,7 +29,7 @@ public class Withdraw implements Listener {
 	public Withdraw(Player player) {
 		this.player = player;
 	}
-	
+
 	public Player getPlayer() {
 		return player;
 	}
@@ -38,7 +39,7 @@ public class Withdraw implements Listener {
 			return;
 
 		withdrawing.add(player.getUniqueId());
-		MMOCore.plugin.configManager.getSimpleMessage("withdrawing").send(player);
+		ConfigMessage.fromKey("withdrawing").send(player);
 		Bukkit.getPluginManager().registerEvents(this, MMOCore.plugin);
 		Bukkit.getScheduler().runTaskLater(MMOCore.plugin, this::close, 20 * 20);
 	}
@@ -60,7 +61,7 @@ public class Withdraw implements Listener {
 		if (!event.getPlayer().equals(player))
 			return;
 
-		MMOCore.plugin.configManager.getSimpleMessage("withdraw-cancel").send(player);
+		ConfigMessage.fromKey("withdraw-cancel").send(player);
 		close();
 	}
 
@@ -75,13 +76,13 @@ public class Withdraw implements Listener {
 		try {
 			worth = Integer.parseInt(event.getMessage());
 		} catch (Exception e) {
-			MMOCore.plugin.configManager.getSimpleMessage("wrong-number", "arg", event.getMessage()).send(player);
+			ConfigMessage.fromKey("wrong-number").addPlaceholders("arg", event.getMessage()).send(player);
 			return;
 		}
 
 		int left = (int) (MMOCore.plugin.economy.getEconomy().getBalance(player) - worth);
 		if (left < 0) {
-			MMOCore.plugin.configManager.getSimpleMessage("not-enough-money", "left", "" + -left).send(player);
+			ConfigMessage.fromKey("not-enough-money").addPlaceholders("left", -left).send(player);
 			return;
 		}
 
@@ -91,7 +92,7 @@ public class Withdraw implements Listener {
 			MMOCore.plugin.economy.getEconomy().withdrawPlayer(player, worth);
 			withdrawAlgorythm(worth);
 			player.playSound(player.getLocation(), Sound.ENTITY_PLAYER_LEVELUP, 1, 1);
-			MMOCore.plugin.configManager.getSimpleMessage("withdrew", "worth", "" + worth).send(player);
+			ConfigMessage.fromKey("withdrew").addPlaceholders("worth", worth).send(player);
 		});
 	}
 

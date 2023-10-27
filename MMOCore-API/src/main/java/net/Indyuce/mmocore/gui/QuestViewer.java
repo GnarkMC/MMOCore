@@ -1,6 +1,7 @@
 package net.Indyuce.mmocore.gui;
 
 import net.Indyuce.mmocore.MMOCore;
+import net.Indyuce.mmocore.api.ConfigMessage;
 import net.Indyuce.mmocore.api.SoundEvent;
 import net.Indyuce.mmocore.api.player.PlayerData;
 import net.Indyuce.mmocore.api.quest.Quest;
@@ -225,70 +226,53 @@ public class QuestViewer extends EditableInventory {
 
 				if (playerData.getQuestData().hasCurrent()) {
 
-					/*
-					 * check if the player is cancelling his ongoing quest.
-					 */
+					// Check if the player is cancelling his ongoing quest
 					if (playerData.getQuestData().hasCurrent(quest)) {
 						if (context.getClickType() == ClickType.RIGHT) {
 							playerData.getQuestData().start(null);
 							MMOCore.plugin.soundManager.getSound(SoundEvent.CANCEL_QUEST).playTo(player);
-							MMOCore.plugin.configManager.getSimpleMessage("cancel-quest").send(player);
+							ConfigMessage.fromKey("cancel-quest").send(player);
 							open();
 						}
 						return;
 					}
 
-					/*
-					 * the player cannot start a new quest if he is already
-					 * doing one.
-					 */
-					MMOCore.plugin.configManager.getSimpleMessage("already-on-quest").send(player);
+					// The player cannot start a new quest if he is already doing one
+					ConfigMessage.fromKey("already-on-quest").send(player);
 					return;
 				}
 
-				/*
-				 * check for level requirements.
-				 */
+				// Check for level requirements.
 				int level;
 				if (playerData.getLevel() < (level = quest.getLevelRestriction(null))) {
-					MMOCore.plugin.configManager.getSimpleMessage("quest-level-restriction", "level", "Lvl", "count", "" + level).send(player);
+					ConfigMessage.fromKey("quest-level-restriction", "level", "Lvl", "count", "" + level).send(player);
 					return;
 				}
 
-				for (Profession profession : quest.getLevelRestrictions())
-					if (playerData.getCollectionSkills().getLevel(profession) < (level = quest.getLevelRestriction(profession))) {
-						MMOCore.plugin.configManager
-								.getSimpleMessage("quest-level-restriction", "level", profession.getName() + " Lvl", "count", "" + level)
-								.send(player);
-						return;
-					}
+                for (Profession profession : quest.getLevelRestrictions())
+                    if (playerData.getCollectionSkills().getLevel(profession) < (level = quest.getLevelRestriction(profession))) {
+                        ConfigMessage.fromKey("quest-level-restriction", "level", profession.getName() + " Lvl", "count", "" + level)
+                                .send(player);
+                        return;
+                    }
 
 				if (playerData.getQuestData().hasFinished(quest)) {
 
-					/*
-					 * if the player has already finished this quest, he can't
-					 * start it again.
-					 */
+					// If the player has already finished this quest, he can't start it again
 					if (!quest.isRedoable()) {
-						MMOCore.plugin.configManager.getSimpleMessage("cant-redo-quest").send(player);
+						ConfigMessage.fromKey("cant-redo-quest").send(player);
 						return;
 					}
 
-					/*
-					*
-					*/
-					if (!playerData.getQuestData().checkCooldownAvailability(quest)) {
-						MMOCore.plugin.configManager
-								.getSimpleMessage("quest-cooldown", "delay", new DelayFormat(2).format(playerData.getQuestData().getDelayFeft(quest)))
-								.send(player);
-						return;
-					}
+                    // Has the player waited long enough
+                    if (!playerData.getQuestData().checkCooldownAvailability(quest)) {
+                        ConfigMessage.fromKey("quest-cooldown", "delay", new DelayFormat(2).format(playerData.getQuestData().getDelayFeft(quest))).send(player);
+                        return;
+                    }
 				}
 
-				/*
-				 * eventually start a new quest.
-				 */
-				MMOCore.plugin.configManager.getSimpleMessage("start-quest", "quest", quest.getName()).send(player);
+				// Eventually start the quest
+				ConfigMessage.fromKey("start-quest", "quest", quest.getName()).send(player);
 				MMOCore.plugin.soundManager.getSound(SoundEvent.START_QUEST).playTo(player);
 				playerData.getQuestData().start(quest);
 				open();

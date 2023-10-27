@@ -3,6 +3,7 @@ package net.Indyuce.mmocore.listener;
 import io.lumine.mythic.lib.MythicLib;
 import io.lumine.mythic.lib.UtilityMethods;
 import net.Indyuce.mmocore.MMOCore;
+import net.Indyuce.mmocore.api.ConfigMessage;
 import net.Indyuce.mmocore.api.block.BlockInfo;
 import net.Indyuce.mmocore.api.block.VanillaBlockType;
 import net.Indyuce.mmocore.api.event.CustomBlockMineEvent;
@@ -77,13 +78,11 @@ public class BlockListener implements Listener {
         boolean canBreak = true;
         ItemStack item = player.getInventory().getItemInMainHand();
         if (!MMOCore.plugin.restrictionManager.checkPermissions(item, info.getBlock())) {
-            MMOCore.plugin.configManager.getSimpleMessage("cannot-break").send(player);
+            ConfigMessage.fromKey("cannot-break").send(player);
             canBreak = false;
         }
 
-        /*
-         * Find the block drops
-         */
+        // Find the block drops
         boolean conditionsMet = !info.hasDropTable() || info.getDropTable().areConditionsMet(new ConditionInstance(player));
         List<ItemStack> drops = conditionsMet && info.hasDropTable() ? info.getDropTable().collect(new LootBuilder(PlayerData.get(player), 0)) : new ArrayList<>();
 

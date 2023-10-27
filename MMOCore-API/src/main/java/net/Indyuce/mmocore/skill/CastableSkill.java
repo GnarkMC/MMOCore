@@ -49,7 +49,7 @@ public class CastableSkill extends Skill {
 
         // Skill is not usable yet
         if (!playerData.hasUnlockedLevel(skill)) {
-            if (loud) MMOCore.plugin.configManager.getSimpleMessage("skill-level-not-met").send(playerData.getPlayer());
+            if (loud) ConfigMessage.fromKey("skill-level-not-met").send(playerData.getPlayer());
             return false;
         }
 
@@ -59,14 +59,14 @@ public class CastableSkill extends Skill {
 
         // Cooldown check
         if (skillMeta.getCaster().getData().getCooldownMap().isOnCooldown(this)) {
-            if (loud) MMOCore.plugin.configManager.getSimpleMessage("casting.on-cooldown",
+            if (loud) ConfigMessage.fromKey("casting.on-cooldown",
                     "cooldown", MythicLib.plugin.getMMOConfig().decimal.format(skillMeta.getCaster().getData().getCooldownMap().getCooldown(this))).send(playerData.getPlayer());
             return false;
         }
 
         // Mana cost
         if (playerData.getMana() < skillMeta.getParameter("mana")) {
-            if (loud) MMOCore.plugin.configManager.getSimpleMessage("casting.no-mana",
+            if (loud) ConfigMessage.fromKey("casting.no-mana",
                     "mana-required", MythicLib.plugin.getMMOConfig().decimal.format((skillMeta.getParameter("mana") - playerData.getMana())),
                     "mana", playerData.getProfess().getManaDisplay().getName()).send(playerData.getPlayer());
             return false;
@@ -75,7 +75,7 @@ public class CastableSkill extends Skill {
         // Stamina cost
         if (playerData.getStamina() < skillMeta.getParameter("stamina")) {
 
-            if (loud) MMOCore.plugin.configManager.getSimpleMessage("casting.no-stamina").send(playerData.getPlayer());
+            if (loud) ConfigMessage.fromKey("casting.no-stamina").send(playerData.getPlayer());
             return false;
         }
 

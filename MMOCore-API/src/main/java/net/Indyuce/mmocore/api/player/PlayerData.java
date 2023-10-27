@@ -357,7 +357,7 @@ public class PlayerData extends SynchronizedDataHolder implements OfflinePlayerD
 
     /**
      * @return If the item is unlocked by the player
-     * This is used for skills that can be locked & unlocked.
+     *         This is used for skills that can be locked & unlocked.
      */
     public boolean hasUnlocked(Unlockable unlockable) {
         return unlockable.isUnlockedByDefault() || unlockedItems.contains(unlockable.getUnlockNamespacedKey());
@@ -726,7 +726,7 @@ public class PlayerData extends SynchronizedDataHolder implements OfflinePlayerD
 
         setLastActivity(PlayerActivity.FRIEND_REQUEST);
         FriendRequest request = new FriendRequest(this, target);
-        new ConfigMessage("friend-request").addPlaceholders("player", getPlayer().getName(), "uuid", request.getUniqueId().toString()).sendAsJSon(target.getPlayer());
+        ConfigMessage.fromKey("friend-request").addPlaceholders("player", getPlayer().getName(), "uuid", request.getUniqueId().toString()).send(target.getPlayer());
         MMOCore.plugin.requestManager.registerRequest(request);
     }
 
@@ -757,13 +757,13 @@ public class PlayerData extends SynchronizedDataHolder implements OfflinePlayerD
             public void run() {
                 if (!isOnline() || getPlayer().getLocation().getBlockX() != x || getPlayer().getLocation().getBlockY() != y || getPlayer().getLocation().getBlockZ() != z) {
                     MMOCore.plugin.soundManager.getSound(SoundEvent.WARP_CANCELLED).playTo(getPlayer());
-                    MMOCore.plugin.configManager.getSimpleMessage("warping-canceled").send(getPlayer());
+                    ConfigMessage.fromKey("warping-canceled").send(getPlayer());
                     giveStellium(cost, PlayerResourceUpdateEvent.UpdateReason.USE_WAYPOINT);
                     cancel();
                     return;
                 }
 
-                MMOCore.plugin.configManager.getSimpleMessage("warping-comencing", "left", String.valueOf((warpTime - t) / 20)).send(getPlayer());
+                ConfigMessage.fromKey("warping-comencing", "left", String.valueOf((warpTime - t) / 20)).send(getPlayer());
                 if (hasPerm || t++ >= warpTime) {
                     getPlayer().teleport(target.getLocation());
                     getPlayer().addPotionEffect(new PotionEffect(PotionEffectType.BLINDNESS, 20, 1, false, false));
@@ -840,7 +840,7 @@ public class PlayerData extends SynchronizedDataHolder implements OfflinePlayerD
 
         // Experience hologram
         if (hologramLocation != null && isOnline())
-            MMOCoreUtils.displayIndicator(hologramLocation, MMOCore.plugin.configManager.getSimpleMessage("exp-hologram", "exp", MythicLib.plugin.getMMOConfig().decimal.format(event.getExperience())).message());
+            MMOCoreUtils.displayIndicator(hologramLocation, ConfigMessage.fromKey("exp-hologram", "exp", MythicLib.plugin.getMMOConfig().decimal.format(event.getExperience())).asLine());
 
         experience = Math.max(0, experience + event.getExperience());
 
@@ -864,7 +864,7 @@ public class PlayerData extends SynchronizedDataHolder implements OfflinePlayerD
         if (level > oldLevel) {
             Bukkit.getPluginManager().callEvent(new PlayerLevelUpEvent(this, null, oldLevel, level));
             if (isOnline()) {
-                new ConfigMessage("level-up").addPlaceholders("level", String.valueOf(level)).send(getPlayer());
+                ConfigMessage.fromKey("level-up").addPlaceholders("level", String.valueOf(level)).send(getPlayer());
                 MMOCore.plugin.soundManager.getSound(SoundEvent.LEVEL_UP).playTo(getPlayer());
                 new SmallParticleEffect(getPlayer(), Particle.SPELL_INSTANT);
             }
@@ -1017,7 +1017,7 @@ public class PlayerData extends SynchronizedDataHolder implements OfflinePlayerD
 
     /**
      * @return If the PlayerEnterCastingModeEvent successfully put the player
-     * into casting mode, otherwise if the event is cancelled, returns false.
+     *         into casting mode, otherwise if the event is cancelled, returns false.
      */
     public boolean setSkillCasting() {
         Validate.isTrue(!isCasting(), "Player already in casting mode");
@@ -1036,7 +1036,7 @@ public class PlayerData extends SynchronizedDataHolder implements OfflinePlayerD
 
     /**
      * @return If player successfully left skill casting i.e the Bukkit
-     * event has not been cancelled
+     *         event has not been cancelled
      */
     public boolean leaveSkillCasting() {
         return leaveSkillCasting(false);
@@ -1045,7 +1045,7 @@ public class PlayerData extends SynchronizedDataHolder implements OfflinePlayerD
     /**
      * @param skipEvent Skip firing the exit event
      * @return If player successfully left skill casting i.e the Bukkit
-     * event has not been cancelled
+     *         event has not been cancelled
      */
     public boolean leaveSkillCasting(boolean skipEvent) {
         Validate.isTrue(isCasting(), "Player not in casting mode");
@@ -1063,8 +1063,13 @@ public class PlayerData extends SynchronizedDataHolder implements OfflinePlayerD
     }
 
     public void displayActionBar(String message) {
+        displayActionBar(message, false);
+    }
+
+    public void displayActionBar(String message, boolean raw) {
         setLastActivity(PlayerActivity.ACTION_BAR_MESSAGE);
-        getPlayer().spigot().sendMessage(ChatMessageType.ACTION_BAR, TextComponent.fromLegacyText(message));
+        if (raw) MythicLib.plugin.getVersion().getWrapper().sendActionBarRaw(getPlayer(), message);
+        else getPlayer().spigot().sendMessage(ChatMessageType.ACTION_BAR, TextComponent.fromLegacyText(message));
     }
 
     @Deprecated
@@ -1219,7 +1224,7 @@ public class PlayerData extends SynchronizedDataHolder implements OfflinePlayerD
      * checks if they could potentially upgrade to one of these
      *
      * @return If the player can change its current class to
-     * a subclass
+     *         a subclass
      */
     @Deprecated
     public boolean canChooseSubclass() {

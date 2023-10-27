@@ -1,9 +1,9 @@
 package net.Indyuce.mmocore.party.provided;
 
 import net.Indyuce.mmocore.MMOCore;
+import net.Indyuce.mmocore.api.ConfigMessage;
 import net.Indyuce.mmocore.api.event.social.PartyChatEvent;
 import net.Indyuce.mmocore.api.player.PlayerData;
-import net.Indyuce.mmocore.manager.ConfigManager;
 import net.Indyuce.mmocore.party.AbstractParty;
 import org.bukkit.Bukkit;
 import org.bukkit.event.EventHandler;
@@ -32,13 +32,12 @@ public class PartyListener implements Listener {
         event.setCancelled(true);
 
         // Running it in a delayed task is recommended
-        Bukkit.getScheduler().scheduleSyncDelayedTask(MMOCore.plugin, () -> {
-            ConfigManager.SimpleMessage format = MMOCore.plugin.configManager.getSimpleMessage("party-chat", "player", data.getPlayer().getName(), "message",
+        Bukkit.getScheduler().runTask(MMOCore.plugin, () -> {
+            ConfigMessage message = ConfigMessage.fromKey("party-chat", "player", data.getPlayer().getName(), "message",
                     event.getMessage().substring(MMOCore.plugin.configManager.partyChatPrefix.length()));
-            PartyChatEvent called = new PartyChatEvent(party, data, format.message());
+            PartyChatEvent called = new PartyChatEvent(party, data, message.asLine());
             Bukkit.getPluginManager().callEvent(called);
-            if (!called.isCancelled())
-                party.getOnlineMembers().forEach(member -> format.send(member.getPlayer()));
+            if (!called.isCancelled()) party.getOnlineMembers().forEach(member -> message.send(member.getPlayer()));
         });
     }
 

@@ -14,9 +14,7 @@ import net.Indyuce.mmocore.manager.InventoryManager;
 import net.Indyuce.mmocore.api.player.profess.PlayerClass;
 import net.Indyuce.mmocore.api.ConfigMessage;
 import net.Indyuce.mmocore.api.SoundEvent;
-import net.Indyuce.mmocore.api.player.profess.Subclass;
 import org.apache.commons.lang.Validate;
-import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
 import org.bukkit.configuration.ConfigurationSection;
@@ -28,7 +26,6 @@ import org.bukkit.persistence.PersistentDataType;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
-import java.util.stream.Collectors;
 
 public class SubclassSelect extends EditableInventory {
     public SubclassSelect() {
@@ -123,12 +120,12 @@ public class SubclassSelect extends EditableInventory {
                 if (playerData.getClassPoints() < 1) {
                     player.closeInventory();
                     MMOCore.plugin.soundManager.getSound(SoundEvent.CANT_SELECT_CLASS).playTo(getPlayer());
-                    new ConfigMessage("cant-choose-new-class").send(player);
+                    ConfigMessage.fromKey("cant-choose-new-class").send(player);
                     return;
                 }
                 if (profess.hasOption(ClassOption.NEEDS_PERMISSION) && !player.hasPermission("mmocore.class." + profess.getId().toLowerCase())) {
                     MMOCore.plugin.soundManager.getSound(SoundEvent.CANT_SELECT_CLASS).playTo(player);
-                    new ConfigMessage("no-permission-for-class").send(player);
+                    ConfigMessage.fromKey("no-permission-for-class").send(player);
                     return;
                 }
 

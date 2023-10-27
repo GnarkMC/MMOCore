@@ -2,12 +2,13 @@ package net.Indyuce.mmocore.listener;
 
 import io.lumine.mythic.lib.api.item.NBTItem;
 import net.Indyuce.mmocore.MMOCore;
-import net.Indyuce.mmocore.waypoint.Waypoint;
-import net.Indyuce.mmocore.waypoint.WaypointOption;
+import net.Indyuce.mmocore.api.ConfigMessage;
 import net.Indyuce.mmocore.api.SoundEvent;
 import net.Indyuce.mmocore.api.player.PlayerData;
 import net.Indyuce.mmocore.loot.chest.particle.SmallParticleEffect;
 import net.Indyuce.mmocore.manager.InventoryManager;
+import net.Indyuce.mmocore.waypoint.Waypoint;
+import net.Indyuce.mmocore.waypoint.WaypointOption;
 import org.bukkit.Particle;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -35,7 +36,7 @@ public class WaypointsListener implements Listener {
         if (waypoint.hasOption(WaypointOption.UNLOCKABLE) && !data.hasWaypoint(waypoint)) {
             data.unlockWaypoint(waypoint);
             new SmallParticleEffect(player, Particle.SPELL_WITCH);
-            MMOCore.plugin.configManager.getSimpleMessage("new-waypoint", "waypoint", waypoint.getName()).send(player);
+            ConfigMessage.fromKey("new-waypoint", "waypoint", waypoint.getName()).send(player);
             MMOCore.plugin.soundManager.getSound(SoundEvent.WARP_UNLOCK).playTo(player);
             return;
         }
@@ -64,7 +65,7 @@ public class WaypointsListener implements Listener {
 
             playerData.unlockWaypoint(waypoint);
             event.getItem().setAmount(event.getItem().getAmount() - 1); // Consume item
-            MMOCore.plugin.configManager.getSimpleMessage("new-waypoint-book", "waypoint", waypoint.getName()).send(event.getPlayer());
+            ConfigMessage.fromKey("new-waypoint-book", "waypoint", waypoint.getName()).send(event.getPlayer());
         }
     }
 }

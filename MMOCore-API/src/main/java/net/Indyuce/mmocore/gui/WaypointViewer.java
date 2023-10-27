@@ -1,6 +1,7 @@
 package net.Indyuce.mmocore.gui;
 
 import net.Indyuce.mmocore.MMOCore;
+import net.Indyuce.mmocore.api.ConfigMessage;
 import net.Indyuce.mmocore.api.player.PlayerActivity;
 import net.Indyuce.mmocore.api.player.PlayerData;
 import net.Indyuce.mmocore.gui.api.EditableInventory;
@@ -244,25 +245,25 @@ public class WaypointViewer extends EditableInventory {
                 // Locked waypoint?
                 Waypoint waypoint = MMOCore.plugin.waypointManager.get(tag);
                 if (!playerData.hasWaypoint(waypoint)) {
-                    MMOCore.plugin.configManager.getSimpleMessage("not-unlocked-waypoint").send(player);
+                    ConfigMessage.fromKey("not-unlocked-waypoint").send(player);
                     return;
                 }
 
                 // Cannot teleport to current waypoint
                 if (waypoint.equals(current)) {
-                    MMOCore.plugin.configManager.getSimpleMessage("standing-on-waypoint").send(player);
+                    ConfigMessage.fromKey("standing-on-waypoint").send(player);
                     return;
                 }
 
                 // Waypoint does not have target as destination
                 if (current != null && current.getPath(waypoint) == null) {
-                    MMOCore.plugin.configManager.getSimpleMessage("cannot-teleport-to").send(player);
+                    ConfigMessage.fromKey("cannot-teleport-to").send(player);
                     return;
                 }
 
                 // Not dynamic waypoint
                 if (current == null && !paths.containsKey(waypoint)) {
-                    MMOCore.plugin.configManager.getSimpleMessage("not-dynamic-waypoint").send(player);
+                    ConfigMessage.fromKey("not-dynamic-waypoint").send(player);
                     return;
                 }
 
@@ -270,7 +271,7 @@ public class WaypointViewer extends EditableInventory {
                 double withdraw = paths.get(waypoint).getCost();
                 double left = withdraw - playerData.getStellium();
                 if (left > 0) {
-                    MMOCore.plugin.configManager.getSimpleMessage("not-enough-stellium", "more", decimal.format(left)).send(player);
+                    ConfigMessage.fromKey("not-enough-stellium", "more", decimal.format(left)).send(player);
                     return;
                 }
 

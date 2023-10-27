@@ -1,17 +1,18 @@
 package net.Indyuce.mmocore.gui.social.guild;
 
 import net.Indyuce.mmocore.MMOCore;
+import net.Indyuce.mmocore.api.ConfigMessage;
 import net.Indyuce.mmocore.api.player.PlayerData;
-import net.Indyuce.mmocore.api.util.math.format.DelayFormat;
-import net.Indyuce.mmocore.gui.api.InventoryClickContext;
 import net.Indyuce.mmocore.api.util.input.ChatInput;
 import net.Indyuce.mmocore.api.util.input.PlayerInput;
+import net.Indyuce.mmocore.api.util.math.format.DelayFormat;
+import net.Indyuce.mmocore.gui.api.EditableInventory;
 import net.Indyuce.mmocore.gui.api.GeneratedInventory;
+import net.Indyuce.mmocore.gui.api.InventoryClickContext;
 import net.Indyuce.mmocore.gui.api.item.InventoryItem;
+import net.Indyuce.mmocore.gui.api.item.Placeholders;
 import net.Indyuce.mmocore.gui.api.item.SimplePlaceholderItem;
 import net.Indyuce.mmocore.manager.data.OfflinePlayerData;
-import net.Indyuce.mmocore.gui.api.EditableInventory;
-import net.Indyuce.mmocore.gui.api.item.Placeholders;
 import org.apache.commons.lang.Validate;
 import org.bukkit.*;
 import org.bukkit.configuration.ConfigurationSection;
@@ -196,7 +197,7 @@ public class EditableGuildView extends EditableInventory {
 
 				/*
 				 * if (playerData.getGuild().getMembers().count() >= max) {
-				 * MMOCore.plugin.configManager.getSimpleMessage("guild-is-full").send(player);
+				 * ConfigMessage.fromKey("guild-is-full").send(player);
 				 * player.playSound(player.getLocation(),
 				 * Sound.ENTITY_VILLAGER_NO, 1, 1); return; }
 				 */
@@ -204,7 +205,7 @@ public class EditableGuildView extends EditableInventory {
 				new ChatInput(player, PlayerInput.InputType.GUILD_INVITE, context.getInventoryHolder(), input -> {
 					Player target = Bukkit.getPlayer(input);
 					if (target == null) {
-						MMOCore.plugin.configManager.getSimpleMessage("not-online-player", "player", input).send(player);
+						ConfigMessage.fromKey("not-online-player", "player", input).send(player);
 						player.playSound(player.getLocation(), Sound.ENTITY_VILLAGER_NO, 1, 1);
 						open();
 						return;
@@ -212,21 +213,21 @@ public class EditableGuildView extends EditableInventory {
 
 					long remaining = playerData.getGuild().getLastInvite(target) + 60 * 2 * 1000 - System.currentTimeMillis();
 					if (remaining > 0) {
-						MMOCore.plugin.configManager.getSimpleMessage("guild-invite-cooldown", "player", target.getName(), "cooldown", new DelayFormat().format(remaining)).send(player);
+						ConfigMessage.fromKey("guild-invite-cooldown", "player", target.getName(), "cooldown", new DelayFormat().format(remaining)).send(player);
 						open();
 						return;
 					}
 
 					PlayerData targetData = PlayerData.get(target);
 					if (playerData.getGuild().hasMember(targetData.getUniqueId())) {
-						MMOCore.plugin.configManager.getSimpleMessage("already-in-guild", "player", target.getName()).send(player);
+						ConfigMessage.fromKey("already-in-guild", "player", target.getName()).send(player);
 						player.playSound(player.getLocation(), Sound.ENTITY_VILLAGER_NO, 1, 1);
 						open();
 						return;
 					}
 
 					playerData.getGuild().sendGuildInvite(playerData, targetData);
-					MMOCore.plugin.configManager.getSimpleMessage("sent-guild-invite", "player", target.getName()).send(player);
+					ConfigMessage.fromKey("sent-guild-invite", "player", target.getName()).send(player);
 					player.playSound(player.getLocation(), Sound.ENTITY_EXPERIENCE_ORB_PICKUP, 1, 1);
 					open();
 				});
@@ -245,7 +246,7 @@ public class EditableGuildView extends EditableInventory {
 					return;
 
 				playerData.getGuild().removeMember(target.getUniqueId());
-				MMOCore.plugin.configManager.getSimpleMessage("kick-from-guild", "player", target.getName()).send(player);
+				ConfigMessage.fromKey("kick-from-guild", "player", target.getName()).send(player);
 				player.playSound(player.getLocation(), Sound.ENTITY_EXPERIENCE_ORB_PICKUP, 1, 1);
 			}
 		}

@@ -127,7 +127,7 @@ public class Party implements AbstractParty {
         if (owner.equals(data)) {
             owner = members.get(0);
             if (notify && owner.isOnline())
-                MMOCore.plugin.configManager.getSimpleMessage("transfer-party-ownership").send(owner.getPlayer());
+                ConfigMessage.fromKey("transfer-party-ownership").send(owner.getPlayer());
         }
     }
 
@@ -158,8 +158,8 @@ public class Party implements AbstractParty {
     public void sendInvite(PlayerData inviter, PlayerData target) {
         invites.put(target.getUniqueId(), System.currentTimeMillis());
         Request request = new PartyInvite(this, inviter, target);
-        new ConfigMessage("party-invite").addPlaceholders("player", inviter.getPlayer().getName(), "uuid", request.getUniqueId().toString())
-                .sendAsJSon(target.getPlayer());
+        ConfigMessage.fromKey("party-invite").addPlaceholders("player", inviter.getPlayer().getName(), "uuid", request.getUniqueId().toString())
+                .send(target.getPlayer());
 
         MMOCore.plugin.requestManager.registerRequest(request);
     }

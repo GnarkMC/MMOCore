@@ -191,7 +191,7 @@ public class PlayerProfessions {
 
         // Display hologram
         if (hologramLocation != null)
-            MMOCoreUtils.displayIndicator(hologramLocation.add(.5, 1.5, .5), MMOCore.plugin.configManager.getSimpleMessage("exp-hologram", "exp", MythicLib.plugin.getMMOConfig().decimal.format(event.getExperience())).message());
+            MMOCoreUtils.displayIndicator(hologramLocation.add(.5, 1.5, .5), ConfigMessage.fromKey("exp-hologram", "exp", MythicLib.plugin.getMMOConfig().decimal.format(event.getExperience())).asLine());
 
         exp.put(profession.getId(), Math.max(0, exp.getOrDefault(profession.getId(), 0d) + event.getExperience()));
         int level, oldLevel = getLevel(profession);
@@ -222,7 +222,7 @@ public class PlayerProfessions {
         if (check) {
             Bukkit.getPluginManager().callEvent(new PlayerLevelUpEvent(playerData, profession, oldLevel, level));
             new SmallParticleEffect(playerData.getPlayer(), Particle.SPELL_INSTANT);
-            new ConfigMessage("profession-level-up").addPlaceholders("level", String.valueOf(level), "profession", profession.getName())
+            ConfigMessage.fromKey("profession-level-up").addPlaceholders("level", String.valueOf(level), "profession", profession.getName())
                     .send(playerData.getPlayer());
             MMOCore.plugin.soundManager.getSound(SoundEvent.LEVEL_UP).playTo(playerData.getPlayer());
             playerData.getStats().updateStats();
@@ -233,7 +233,7 @@ public class PlayerProfessions {
         for (int j = 0; j < 20; j++)
             bar.append(j == chars ? "" + ChatColor.WHITE + ChatColor.BOLD : "").append("|");
         if (playerData.isOnline())
-            MMOCore.plugin.configManager.getSimpleMessage("exp-notification", "profession", profession.getName(), "progress", bar.toString(), "ratio",
+            ConfigMessage.fromKey("exp-notification", "profession", profession.getName(), "progress", bar.toString(), "ratio",
                     MythicLib.plugin.getMMOConfig().decimal.format(exp / needed * 100)).send(playerData.getPlayer());
     }
 }

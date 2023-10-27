@@ -4,9 +4,9 @@ import io.lumine.mythic.lib.MythicLib;
 import io.lumine.mythic.lib.api.item.ItemTag;
 import io.lumine.mythic.lib.api.item.NBTItem;
 import net.Indyuce.mmocore.MMOCore;
+import net.Indyuce.mmocore.api.ConfigMessage;
 import net.Indyuce.mmocore.api.SoundEvent;
 import net.Indyuce.mmocore.api.player.PlayerData;
-import net.Indyuce.mmocore.skill.binding.SkillSlot;
 import net.Indyuce.mmocore.api.util.MMOCoreUtils;
 import net.Indyuce.mmocore.gui.api.EditableInventory;
 import net.Indyuce.mmocore.gui.api.GeneratedInventory;
@@ -16,6 +16,7 @@ import net.Indyuce.mmocore.gui.api.item.Placeholders;
 import net.Indyuce.mmocore.gui.api.item.SimplePlaceholderItem;
 import net.Indyuce.mmocore.skill.ClassSkill;
 import net.Indyuce.mmocore.skill.RegisteredSkill;
+import net.Indyuce.mmocore.skill.binding.SkillSlot;
 import org.apache.commons.lang.Validate;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
@@ -416,13 +417,13 @@ public class SkillList extends EditableInventory {
                 int spent = getPlayerData().countSkillPointsSpent();
 
                 if (spent < 1) {
-                    MMOCore.plugin.configManager.getSimpleMessage("no-skill-points-spent").send(player);
+                    ConfigMessage.fromKey("no-skill-points-spent").send(player);
                     MMOCore.plugin.soundManager.getSound(SoundEvent.NOT_ENOUGH_POINTS).playTo(getPlayer());
                     return;
                 }
 
                 if (playerData.getSkillReallocationPoints() < 1) {
-                    MMOCore.plugin.configManager.getSimpleMessage("not-skill-reallocation-point").send(player);
+                    ConfigMessage.fromKey("not-skill-reallocation-point").send(player);
                     MMOCore.plugin.soundManager.getSound(SoundEvent.NOT_ENOUGH_POINTS).playTo(getPlayer());
                     return;
                 }
@@ -432,7 +433,7 @@ public class SkillList extends EditableInventory {
 
                 playerData.giveSkillPoints(spent);
                 playerData.setSkillReallocationPoints(playerData.getSkillReallocationPoints() - 1);
-                MMOCore.plugin.configManager.getSimpleMessage("skill-points-reallocated", "points", "" + playerData.getSkillPoints()).send(player);
+                ConfigMessage.fromKey("skill-points-reallocated", "points", "" + playerData.getSkillPoints()).send(player);
                 MMOCore.plugin.soundManager.getSound(SoundEvent.RESET_SKILLS).playTo(getPlayer());
                 open();
             }
@@ -465,12 +466,12 @@ public class SkillList extends EditableInventory {
                 // unbind if there is a current spell.
                 if (context.getClickType() == ClickType.RIGHT) {
                     if (!playerData.hasSkillBound(index)) {
-                        MMOCore.plugin.configManager.getSimpleMessage("no-skill-bound").send(player);
+                        ConfigMessage.fromKey("no-skill-bound").send(player);
                         player.playSound(player.getLocation(), Sound.ENTITY_VILLAGER_NO, 1, 2);
                         return;
                     }
                     if (!playerData.getProfess().getSkillSlot(index).canManuallyBind()) {
-                        MMOCore.plugin.configManager.getSimpleMessage("cant-manually-bind").send(player);
+                        ConfigMessage.fromKey("cant-manually-bind").send(player);
                         player.playSound(player.getLocation(), Sound.ENTITY_VILLAGER_NO, 1, 2);
                         return;
                     }
@@ -481,19 +482,19 @@ public class SkillList extends EditableInventory {
                 }
 
                 if (!playerData.hasUnlockedLevel(selected)) {
-                    MMOCore.plugin.configManager.getSimpleMessage("skill-level-not-met").send(player);
+                    ConfigMessage.fromKey("skill-level-not-met").send(player);
                     player.playSound(player.getLocation(), Sound.ENTITY_VILLAGER_NO, 1, 2);
                     return;
                 }
 
                 if (!skillSlot.canManuallyBind()) {
-                    MMOCore.plugin.configManager.getSimpleMessage("cant-manually-bind").send(player);
+                    ConfigMessage.fromKey("cant-manually-bind").send(player);
                     player.playSound(player.getLocation(), Sound.ENTITY_VILLAGER_NO, 1, 2);
                     return;
                 }
 
                 if (!skillSlot.acceptsSkill(selected)) {
-                    MMOCore.plugin.configManager.getSimpleMessage("not-compatible-skill").send(player);
+                    ConfigMessage.fromKey("not-compatible-skill").send(player);
                     player.playSound(player.getLocation(), Sound.ENTITY_VILLAGER_NO, 1, 2);
                     return;
                 }
@@ -509,26 +510,26 @@ public class SkillList extends EditableInventory {
                 int shiftCost = ((UpgradeItem) item).shiftCost;
 
                 if (!playerData.hasUnlockedLevel(selected)) {
-                    MMOCore.plugin.configManager.getSimpleMessage("skill-level-not-met").send(player);
+                    ConfigMessage.fromKey("skill-level-not-met").send(player);
                     player.playSound(player.getLocation(), Sound.ENTITY_VILLAGER_NO, 1, 2);
                     return;
                 }
 
                 if (playerData.getSkillPoints() < 1) {
-                    MMOCore.plugin.configManager.getSimpleMessage("not-enough-skill-points").send(player);
+                    ConfigMessage.fromKey("not-enough-skill-points").send(player);
                     player.playSound(player.getLocation(), Sound.ENTITY_VILLAGER_NO, 1, 2);
                     return;
                 }
 
                 if (selected.hasMaxLevel() && playerData.getSkillLevel(selected.getSkill()) >= selected.getMaxLevel()) {
-                    MMOCore.plugin.configManager.getSimpleMessage("skill-max-level-hit").send(player);
+                    ConfigMessage.fromKey("skill-max-level-hit").send(player);
                     player.playSound(player.getLocation(), Sound.ENTITY_VILLAGER_NO, 1, 2);
                     return;
                 }
 
                 if (context.getClickType().isShiftClick()) {
                     if (playerData.getSkillPoints() < shiftCost) {
-                        MMOCore.plugin.configManager.getSimpleMessage("not-enough-skill-points-shift", "shift_points", "" + shiftCost).send(player);
+                        ConfigMessage.fromKey("not-enough-skill-points-shift", "shift_points", "" + shiftCost).send(player);
                         player.playSound(player.getLocation(), Sound.ENTITY_VILLAGER_NO, 1, 2);
                         return;
                     }
@@ -540,7 +541,7 @@ public class SkillList extends EditableInventory {
                     playerData.setSkillLevel(selected.getSkill(), playerData.getSkillLevel(selected.getSkill()) + 1);
                 }
 
-                MMOCore.plugin.configManager.getSimpleMessage("upgrade-skill", "skill", selected.getSkill().getName(), "level",
+                ConfigMessage.fromKey("upgrade-skill", "skill", selected.getSkill().getName(), "level",
                         "" + playerData.getSkillLevel(selected.getSkill())).send(player);
                 player.playSound(player.getLocation(), Sound.ENTITY_PLAYER_LEVELUP, 1, 2);
                 open();

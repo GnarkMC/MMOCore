@@ -2,6 +2,7 @@ package net.Indyuce.mmocore.gui;
 
 import io.lumine.mythic.lib.UtilityMethods;
 import net.Indyuce.mmocore.MMOCore;
+import net.Indyuce.mmocore.api.ConfigMessage;
 import net.Indyuce.mmocore.api.SoundEvent;
 import net.Indyuce.mmocore.api.event.PlayerChangeClassEvent;
 import net.Indyuce.mmocore.api.player.PlayerData;
@@ -145,7 +146,7 @@ public class ClassConfirmation extends EditableInventory {
                 else
                     (playerData.hasSavedClass(profess) ? playerData.getClassInfo(profess)
                             : new SavedClassInformation(MMOCore.plugin.dataProvider.getDataManager().getDefaultData())).load(profess, playerData);
-                MMOCore.plugin.configManager.getSimpleMessage("class-select", "class", profess.getName()).send(player);
+                ConfigMessage.fromKey("class-select", "class", profess.getName()).send(player);
                 MMOCore.plugin.soundManager.getSound(SoundEvent.SELECT_CLASS).playTo(player);
                 player.closeInventory();
                 if (profileRunnable != null) profileRunnable.run();

@@ -1,10 +1,9 @@
 package net.Indyuce.mmocore.manager;
 
-import io.lumine.mythic.lib.MythicLib;
 import io.lumine.mythic.lib.UtilityMethods;
 import net.Indyuce.mmocore.MMOCore;
 import net.Indyuce.mmocore.api.ConfigFile;
-import net.Indyuce.mmocore.api.player.PlayerData;
+import net.Indyuce.mmocore.api.ConfigMessage;
 import net.Indyuce.mmocore.api.util.input.ChatInput;
 import net.Indyuce.mmocore.api.util.input.PlayerInput;
 import net.Indyuce.mmocore.api.util.input.PlayerInput.InputType;
@@ -16,6 +15,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.util.Consumer;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.io.File;
 import java.io.IOException;
@@ -125,7 +125,7 @@ public class ConfigManager {
         lootChestExpireTime = Math.max(MMOCore.plugin.getConfig().getInt("loot-chests.chest-expire-time"), 1) * 20;
         lootChestPlayerCooldown = (long) MMOCore.plugin.getConfig().getDouble("player-cooldown") * 1000L;
         globalSkillCooldown = MMOCore.plugin.getConfig().getLong("global-skill-cooldown") * 50;
-        noSkillBoundPlaceholder = getSimpleMessage("no-skill-placeholder").message();
+        noSkillBoundPlaceholder = String.valueOf(messages.get("no-skill-placeholder"));
         lootChestsChanceWeight = MMOCore.plugin.getConfig().getDouble("chance-stat-weight.loot-chests");
         dropItemsChanceWeight = MMOCore.plugin.getConfig().getDouble("chance-stat-weight.drop-items");
         fishingDropsChanceWeight = MMOCore.plugin.getConfig().getDouble("chance-stat-weight.fishing-drops");
@@ -202,48 +202,41 @@ public class ConfigManager {
         }
     }
 
+    @Deprecated
     public List<String> getMessage(String key) {
         return messages.getStringList(key);
     }
 
-    /**
-     * @deprecated TODO Merge with {@link net.Indyuce.mmocore.api.ConfigMessage}
-     */
-    @Deprecated
-    public SimpleMessage getSimpleMessage(String key, String... placeholders) {
-        String format = messages.getString(key, "{MessageNotFound:\"" + key + "\"}");
-        for (int j = 0; j < placeholders.length - 1; j += 2)
-            format = format.replace("{" + placeholders[j] + "}", placeholders[j + 1]);
-        return new SimpleMessage(MythicLib.plugin.parseColors(format));
+    @Nullable
+    public Object getMessageObject(String key) {
+        return messages.get(key);
     }
 
-    /**
-     * @deprecated TODO Merge with {@link net.Indyuce.mmocore.api.ConfigMessage}
-     */
+    @Deprecated
+    public SimpleMessage getSimpleMessage(String key, String... placeholders) {
+        SimpleMessage wrapper = new SimpleMessage(ConfigMessage.fromKey(key));
+        wrapper.message.addPlaceholders(placeholders);
+        return wrapper;
+    }
+
     @Deprecated
     public static class SimpleMessage {
-        private final String message;
-        private final boolean actionbar;
-        private final boolean hasPlaceholders;
+        private final ConfigMessage message;
 
-        public SimpleMessage(String message) {
-            this.actionbar = message.startsWith("%");
-            this.message = actionbar ? message.substring(1) : message;
-            this.hasPlaceholders = this.message.contains("%");
+        @Deprecated
+        public SimpleMessage(ConfigMessage message) {
+            this.message = message;
         }
 
+        @Deprecated
         public String message() {
-            return message;
+            return message.getLines().isEmpty() ? "" : message.getLines().get(0);
         }
 
+        @Deprecated
         public boolean send(Player player) {
-            String msg = hasPlaceholders ? MMOCore.plugin.placeholderParser.parse(player, message) : message;
-
-            if (!msg.isEmpty()) {
-                if (actionbar) PlayerData.get(player).displayActionBar(msg);
-                else player.sendMessage(msg);
-            }
-            return !msg.isEmpty();
+            message.send(player);
+            return !message.getLines().isEmpty();
         }
     }
 }

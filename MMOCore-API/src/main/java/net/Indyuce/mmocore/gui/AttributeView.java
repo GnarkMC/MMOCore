@@ -2,6 +2,7 @@ package net.Indyuce.mmocore.gui;
 
 import io.lumine.mythic.lib.manager.StatManager;
 import net.Indyuce.mmocore.MMOCore;
+import net.Indyuce.mmocore.api.ConfigMessage;
 import net.Indyuce.mmocore.api.player.PlayerData;
 import net.Indyuce.mmocore.gui.api.EditableInventory;
 import net.Indyuce.mmocore.gui.api.GeneratedInventory;
@@ -95,13 +96,13 @@ public class AttributeView extends EditableInventory {
 			if (item.getFunction().equalsIgnoreCase("reallocation")) {
 				int spent = playerData.getAttributes().countPoints();
 				if (spent < 1) {
-					MMOCore.plugin.configManager.getSimpleMessage("no-attribute-points-spent").send(player);
+					ConfigMessage.fromKey("no-attribute-points-spent").send(player);
 					MMOCore.plugin.soundManager.getSound(SoundEvent.NOT_ENOUGH_POINTS).playTo(getPlayer());
 					return;
 				}
 
 				if (playerData.getAttributeReallocationPoints() < 1) {
-					MMOCore.plugin.configManager.getSimpleMessage("not-attribute-reallocation-point").send(player);
+					ConfigMessage.fromKey("not-attribute-reallocation-point").send(player);
 					MMOCore.plugin.soundManager.getSound(SoundEvent.NOT_ENOUGH_POINTS).playTo(getPlayer());
 					return;
 				}
@@ -109,7 +110,7 @@ public class AttributeView extends EditableInventory {
 				playerData.getAttributes().getInstances().forEach(ins -> ins.setBase(0));
 				playerData.giveAttributePoints(spent);
 				playerData.giveAttributeReallocationPoints(-1);
-				MMOCore.plugin.configManager.getSimpleMessage("attribute-points-reallocated", "points", String.valueOf(playerData.getAttributePoints())).send(player);
+				ConfigMessage.fromKey("attribute-points-reallocated", "points", String.valueOf(playerData.getAttributePoints())).send(player);
 				MMOCore.plugin.soundManager.getSound(SoundEvent.RESET_ATTRIBUTES).playTo(getPlayer());
 				open();
 			}
@@ -118,14 +119,14 @@ public class AttributeView extends EditableInventory {
 				PlayerAttribute attribute = ((AttributeItem) item).attribute;
 
 				if (playerData.getAttributePoints() < 1) {
-					MMOCore.plugin.configManager.getSimpleMessage("not-attribute-point").send(player);
+					ConfigMessage.fromKey("not-attribute-point").send(player);
 					MMOCore.plugin.soundManager.getSound(SoundEvent.NOT_ENOUGH_POINTS).playTo(getPlayer());
 					return;
 				}
 
 				PlayerAttributes.AttributeInstance ins = playerData.getAttributes().getInstance(attribute);
 				if (attribute.hasMax() && ins.getBase() >= attribute.getMax()) {
-					MMOCore.plugin.configManager.getSimpleMessage("attribute-max-points-hit").send(player);
+					ConfigMessage.fromKey("attribute-max-points-hit").send(player);
 					MMOCore.plugin.soundManager.getSound(SoundEvent.NOT_ENOUGH_POINTS).playTo(getPlayer());
 					return;
 				}
@@ -137,7 +138,7 @@ public class AttributeView extends EditableInventory {
 					pointsSpent = Math.min(pointsSpent, attribute.getMax() - ins.getBase());
 
 				if (shiftClick && playerData.getAttributePoints() < pointsSpent) {
-					MMOCore.plugin.configManager.getSimpleMessage("not-attribute-point-shift", "shift_points", String.valueOf(pointsSpent)).send(player);
+					ConfigMessage.fromKey("not-attribute-point-shift", "shift_points", String.valueOf(pointsSpent)).send(player);
 					MMOCore.plugin.soundManager.getSound(SoundEvent.NOT_ENOUGH_POINTS).playTo(getPlayer());
 					return;
 				}
@@ -150,7 +151,7 @@ public class AttributeView extends EditableInventory {
 					while (pointsSpent-- > 0)
 						attribute.getExperienceTable().claim(playerData, ins.getBase(), attribute);
 
-				MMOCore.plugin.configManager.getSimpleMessage("attribute-level-up", "attribute", attribute.getName(), "level", String.valueOf(ins.getBase())).send(player);
+				ConfigMessage.fromKey("attribute-level-up", "attribute", attribute.getName(), "level", String.valueOf(ins.getBase())).send(player);
 				MMOCore.plugin.soundManager.getSound(SoundEvent.LEVEL_ATTRIBUTE).playTo(getPlayer());
 
 				PlayerAttributeUseEvent playerAttributeUseEvent = new PlayerAttributeUseEvent(playerData, attribute);

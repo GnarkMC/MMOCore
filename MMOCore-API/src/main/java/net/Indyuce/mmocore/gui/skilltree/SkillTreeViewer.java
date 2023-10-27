@@ -3,9 +3,7 @@ package net.Indyuce.mmocore.gui.skilltree;
 import io.lumine.mythic.lib.MythicLib;
 import io.lumine.mythic.lib.UtilityMethods;
 import net.Indyuce.mmocore.MMOCore;
-
-import java.util.logging.Level;
-
+import net.Indyuce.mmocore.api.ConfigMessage;
 import net.Indyuce.mmocore.api.SoundEvent;
 import net.Indyuce.mmocore.api.player.PlayerData;
 import net.Indyuce.mmocore.api.util.MMOCoreUtils;
@@ -34,6 +32,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
+import java.util.logging.Level;
 import java.util.stream.Collectors;
 
 public class SkillTreeViewer extends EditableInventory {
@@ -469,13 +468,13 @@ public class SkillTreeViewer extends EditableInventory {
             if (item.getFunction().equals("reallocation")) {
                 int spent = playerData.getPointSpent(skillTree);
                 if (spent < 1) {
-                    MMOCore.plugin.configManager.getSimpleMessage("no-skill-tree-points-spent").send(player);
+                    ConfigMessage.fromKey("no-skill-tree-points-spent").send(player);
                     MMOCore.plugin.soundManager.getSound(SoundEvent.NOT_ENOUGH_POINTS).playTo(getPlayer());
                     return;
                 }
 
                 if (getPlayerData().getSkillTreeReallocationPoints() <= 0) {
-                    MMOCore.plugin.configManager.getSimpleMessage("not-skill-tree-reallocation-point").send(player);
+                    ConfigMessage.fromKey("not-skill-tree-reallocation-point").send(player);
                     MMOCore.plugin.soundManager.getSound(SoundEvent.NOT_ENOUGH_POINTS).playTo(getPlayer());
                     return;
                 } else {
@@ -485,7 +484,7 @@ public class SkillTreeViewer extends EditableInventory {
                     playerData.giveSkillTreeReallocationPoints(-1);
                     playerData.resetSkillTree(skillTree);
                     skillTree.setupNodeStates(playerData);
-                    MMOCore.plugin.configManager.getSimpleMessage("reallocated-points", "points", "" + playerData.getSkillTreePoint(skillTree.getId()), "skill-tree", skillTree.getName()).send(player);
+                    ConfigMessage.fromKey("reallocated-points", "points", "" + playerData.getSkillTreePoint(skillTree.getId()), "skill-tree", skillTree.getName()).send(player);
                     MMOCore.plugin.soundManager.getSound(SoundEvent.RESET_SKILL_TREE).playTo(player);
                     open();
                     return;
@@ -512,31 +511,31 @@ public class SkillTreeViewer extends EditableInventory {
                     }
                     SkillTreeNode node = skillTree.getNode(new IntegerCoordinates(x, y));
                     if (playerData.getPointSpent(skillTree) >= skillTree.getMaxPointSpent()) {
-                        MMOCore.plugin.configManager.getSimpleMessage("max-points-reached").send(player);
+                        ConfigMessage.fromKey("max-points-reached").send(player);
                         MMOCore.plugin.soundManager.getSound(SoundEvent.NOT_ENOUGH_POINTS).playTo(getPlayer());
                         return;
                     }
 
                     if (playerData.canIncrementNodeLevel(node)) {
                         playerData.incrementNodeLevel(node);
-                        MMOCore.plugin.configManager.getSimpleMessage("upgrade-skill-node", "skill-node", node.getName(), "level", "" + playerData.getNodeLevel(node)).send(player);
+                        ConfigMessage.fromKey("upgrade-skill-node", "skill-node", node.getName(), "level", "" + playerData.getNodeLevel(node)).send(player);
                         MMOCore.plugin.soundManager.getSound(SoundEvent.LEVEL_UP).playTo(getPlayer());
                         open();
                     } else if (playerData.getNodeStatus(node) == SkillTreeStatus.LOCKED || playerData.getNodeStatus(node) == SkillTreeStatus.FULLY_LOCKED) {
-                        MMOCore.plugin.configManager.getSimpleMessage("locked-node").send(player);
+                        ConfigMessage.fromKey("locked-node").send(player);
                         MMOCore.plugin.soundManager.getSound(SoundEvent.NOT_ENOUGH_POINTS).playTo(getPlayer());
 
                     } else if (playerData.getNodeLevel(node) >= node.getMaxLevel()) {
-                        MMOCore.plugin.configManager.getSimpleMessage("skill-node-max-level-hit").send(player);
+                        ConfigMessage.fromKey("skill-node-max-level-hit").send(player);
                         MMOCore.plugin.soundManager.getSound(SoundEvent.NOT_ENOUGH_POINTS).playTo(getPlayer());
                     } else if (!node.hasPermissionRequirement(playerData)) {
-                        MMOCore.plugin.configManager.getSimpleMessage("missing-skill-node-permission").send(player);
+                        ConfigMessage.fromKey("missing-skill-node-permission").send(player);
                         MMOCore.plugin.soundManager.getSound(SoundEvent.NOT_ENOUGH_POINTS).playTo(getPlayer());
                     }
 
                     //Else the player doesn't doesn't have the skill tree points
                     else {
-                        MMOCore.plugin.configManager.getSimpleMessage("not-enough-skill-tree-points", "point", "" + node.getSkillTreePointsConsumed()).send(player);
+                        ConfigMessage.fromKey("not-enough-skill-tree-points", "point", "" + node.getSkillTreePointsConsumed()).send(player);
                         MMOCore.plugin.soundManager.getSound(SoundEvent.NOT_ENOUGH_POINTS).playTo(getPlayer());
                     }
 

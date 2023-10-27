@@ -143,9 +143,8 @@ public class RPGPlaceholders extends PlaceholderExpansion {
         } else if (identifier.startsWith("cooldown_bound_")) {
             int slot = Math.max(0, Integer.parseInt(identifier.substring(15)));
             if (playerData.hasSkillBound(slot))
-                return "" + playerData.getCooldownMap().getCooldown(playerData.getBoundSkill(slot));
-            else
-                return MMOCore.plugin.configManager.noSkillBoundPlaceholder;
+                return Double.toString(playerData.getCooldownMap().getCooldown(playerData.getBoundSkill(slot)));
+            else return MMOCore.plugin.configManager.noSkillBoundPlaceholder;
         } else if (identifier.startsWith("profession_experience_"))
             return MythicLib.plugin.getMMOConfig().decimal.format(
                     playerData.getCollectionSkills().getExperience(identifier.substring(22).replace(" ", "-").replace("_", "-").toLowerCase()));

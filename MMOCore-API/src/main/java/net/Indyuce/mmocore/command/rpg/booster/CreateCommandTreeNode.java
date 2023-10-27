@@ -49,7 +49,7 @@ public class CreateCommandTreeNode extends CommandTreeNode {
 
 		if (args[2].equalsIgnoreCase("main")) {
 			MMOCore.plugin.boosterManager.register(new Booster(args.length > 5 ? args[5] : null, extra, length));
-			new ConfigMessage("booster-main").addPlaceholders("multiplier", "" + (1 + extra)).send(Bukkit.getOnlinePlayers());
+			ConfigMessage.fromKey("booster-main").addPlaceholders("multiplier", "" + (1 + extra)).send(Bukkit.getOnlinePlayers());
 			Bukkit.getOnlinePlayers().forEach(player -> player.playSound(player.getLocation(), Sound.ENTITY_EXPERIENCE_ORB_PICKUP, 1, 1));
 			return CommandResult.SUCCESS;
 		}
@@ -62,7 +62,7 @@ public class CreateCommandTreeNode extends CommandTreeNode {
 
 		Profession profession = MMOCore.plugin.professionManager.get(format);
 		MMOCore.plugin.boosterManager.register(new Booster(args.length > 5 ? args[5] : null, profession, extra, length));
-		new ConfigMessage("booster-skill").addPlaceholders("multiplier", "" + (1 + extra), "profession", profession.getName())
+		ConfigMessage.fromKey("booster-skill").addPlaceholders("multiplier", "" + (1 + extra), "profession", profession.getName())
 				.send(Bukkit.getOnlinePlayers());
 		Bukkit.getOnlinePlayers().forEach(player -> player.playSound(player.getLocation(), Sound.ENTITY_EXPERIENCE_ORB_PICKUP, 1, 1));
 		return CommandResult.SUCCESS;

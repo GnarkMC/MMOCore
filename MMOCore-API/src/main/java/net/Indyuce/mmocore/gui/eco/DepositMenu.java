@@ -3,13 +3,13 @@ package net.Indyuce.mmocore.gui.eco;
 import io.lumine.mythic.lib.api.item.NBTItem;
 import io.lumine.mythic.lib.api.util.SmartGive;
 import net.Indyuce.mmocore.MMOCore;
+import net.Indyuce.mmocore.api.ConfigMessage;
 import net.Indyuce.mmocore.api.util.MMOCoreUtils;
 import net.Indyuce.mmocore.gui.api.InventoryClickContext;
-import net.Indyuce.mmocore.util.item.SimpleItemBuilder;
 import net.Indyuce.mmocore.gui.api.PluginInventory;
+import net.Indyuce.mmocore.util.item.SimpleItemBuilder;
 import net.milkbowl.vault.economy.EconomyResponse;
 import org.bukkit.Bukkit;
-import org.bukkit.Material;
 import org.bukkit.Sound;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.InventoryCloseEvent;
@@ -57,7 +57,7 @@ public class DepositMenu extends PluginInventory {
             event.getInventory().clear();
             player.closeInventory();
             player.playSound(player.getLocation(), Sound.ENTITY_PLAYER_LEVELUP, 1, 2);
-            MMOCore.plugin.configManager.getSimpleMessage("deposit", "worth", String.valueOf(deposit)).send(player);
+            ConfigMessage.fromKey("deposit", "worth", String.valueOf(deposit)).send(player);
             return;
         }
 

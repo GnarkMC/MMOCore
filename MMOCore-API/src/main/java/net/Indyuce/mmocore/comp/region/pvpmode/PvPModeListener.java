@@ -6,6 +6,7 @@ import io.lumine.mythic.lib.MythicLib;
 import io.lumine.mythic.lib.UtilityMethods;
 import io.lumine.mythic.lib.comp.flags.CustomFlag;
 import net.Indyuce.mmocore.MMOCore;
+import net.Indyuce.mmocore.api.ConfigMessage;
 import net.Indyuce.mmocore.api.player.PlayerData;
 import org.apache.commons.lang.Validate;
 import org.bukkit.entity.Player;
@@ -53,14 +54,14 @@ public class PvPModeListener implements Listener {
             if (targetData.getLevel() < minLevel) {
                 event.setCancelled(true);
                 if (event.getDamage() > 0)
-                    MMOCore.plugin.configManager.getSimpleMessage("pvp-mode.cannot-hit.low-level-target").send(source);
+                    ConfigMessage.fromKey("pvp-mode.cannot-hit.low-level-target").send(source);
                 return;
             }
 
             if (sourceData.getLevel() < minLevel) {
                 event.setCancelled(true);
                 if (event.getDamage() > 0)
-                    MMOCore.plugin.configManager.getSimpleMessage("pvp-mode.cannot-hit.low-level-self").send(source);
+                    ConfigMessage.fromKey("pvp-mode.cannot-hit.low-level-self").send(source);
                 return;
             }
 
@@ -68,7 +69,7 @@ public class PvPModeListener implements Listener {
             if (maxLevelDiff > 0 && Math.abs(targetData. getLevel() - sourceData.getLevel()) > maxLevelDiff) {
                 event.setCancelled(true);
                 if (event.getDamage() > 0)
-                    MMOCore.plugin.configManager.getSimpleMessage("pvp-mode.cannot-hit.high-level-difference").send(source);
+                    ConfigMessage.fromKey("pvp-mode.cannot-hit.high-level-difference").send(source);
                 return;
             }
         }
@@ -80,7 +81,7 @@ public class PvPModeListener implements Listener {
         if (targetData.getCombat().isInvulnerable()) {
             if (event.getDamage() > 0) {
                 final long left = targetData.getCombat().getInvulnerableTill() - System.currentTimeMillis();
-                MMOCore.plugin.configManager.getSimpleMessage("pvp-mode.cannot-hit.invulnerable-target",
+                ConfigMessage.fromKey("pvp-mode.cannot-hit.invulnerable-target",
                         "left", MythicLib.plugin.getMMOConfig().decimal.format(left / 1000d)).send(source);
             }
             event.setCancelled(true);
@@ -91,7 +92,7 @@ public class PvPModeListener implements Listener {
         if (!MMOCore.plugin.configManager.pvpModeInvulnerabilityCanDamage && sourceData.getCombat().isInvulnerable()) {
             if (event.getDamage() > 0) {
                 final long left = sourceData.getCombat().getInvulnerableTill() - System.currentTimeMillis();
-                MMOCore.plugin.configManager.getSimpleMessage("pvp-mode.cannot-hit.invulnerable-self",
+                ConfigMessage.fromKey("pvp-mode.cannot-hit.invulnerable-self",
                         "left", MythicLib.plugin.getMMOConfig().decimal.format(left / 1000d)).send(source);
             }
             event.setCancelled(true);
@@ -108,14 +109,14 @@ public class PvPModeListener implements Listener {
         if (!targetData.getCombat().isInPvpMode()) {
             event.setCancelled(true);
             if (event.getDamage() > 0)
-                MMOCore.plugin.configManager.getSimpleMessage("pvp-mode.cannot-hit.pvp-mode-disabled-target").send(source);
+                ConfigMessage.fromKey("pvp-mode.cannot-hit.pvp-mode-disabled-target").send(source);
         }
 
         // Attacker has not enabled PvP mode
         else if (!sourceData.getCombat().isInPvpMode()) {
             event.setCancelled(true);
             if (event.getDamage() > 0)
-                MMOCore.plugin.configManager.getSimpleMessage("pvp-mode.cannot-hit.pvp-mode-disabled-self").send(source);
+                ConfigMessage.fromKey("pvp-mode.cannot-hit.pvp-mode-disabled-self").send(source);
         }
     }
 }

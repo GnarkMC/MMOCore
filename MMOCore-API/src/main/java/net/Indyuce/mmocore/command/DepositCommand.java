@@ -27,7 +27,7 @@ public class DepositCommand extends RegisteredCommand {
 
 		// if (sender instanceof Player)
 		// if (!isNearEnderchest(((Player) sender).getLocation())) {
-		// sender.sendMessage(MMOCore.plugin.configManager.getSimpleMessage("stand-near-enderchest"));
+		// sender.sendMessage(ConfigMessage.fromKey("stand-near-enderchest"));
 		// return true;
 		// }
 

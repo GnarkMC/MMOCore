@@ -10,6 +10,7 @@ import com.sk89q.worldguard.session.MoveType;
 import com.sk89q.worldguard.session.Session;
 import io.lumine.mythic.lib.MythicLib;
 import net.Indyuce.mmocore.MMOCore;
+import net.Indyuce.mmocore.api.ConfigMessage;
 
 public class PvPFlagHandler extends MMOCoreFlagHandler {
 
@@ -50,7 +51,7 @@ public class PvPFlagHandler extends MMOCoreFlagHandler {
             // Send message
             if (canSendMessage()) {
                 lastMessage = System.currentTimeMillis();
-                MMOCore.plugin.configManager.getSimpleMessage("pvp-mode.enter.pvp-mode-on", "time",
+                ConfigMessage.fromKey("pvp-mode.enter.pvp-mode-on", "time",
                         MythicLib.plugin.getMMOConfig().decimal.format(MMOCore.plugin.configManager.pvpModeInvulnerabilityTimeRegionChange)).send(playerData.getPlayer());
             }
         }

@@ -6,7 +6,9 @@ import io.lumine.mythic.lib.api.stat.modifier.StatModifier;
 import io.lumine.mythic.lib.manager.StatManager;
 import io.lumine.mythic.lib.version.VersionMaterial;
 import net.Indyuce.mmocore.MMOCore;
+import net.Indyuce.mmocore.api.ConfigMessage;
 import net.Indyuce.mmocore.api.player.PlayerData;
+import net.Indyuce.mmocore.api.player.attribute.PlayerAttribute;
 import net.Indyuce.mmocore.api.util.math.format.DelayFormat;
 import net.Indyuce.mmocore.experience.Booster;
 import net.Indyuce.mmocore.experience.Profession;
@@ -18,12 +20,10 @@ import net.Indyuce.mmocore.gui.api.item.Placeholders;
 import net.Indyuce.mmocore.gui.api.item.SimplePlaceholderItem;
 import net.Indyuce.mmocore.party.AbstractParty;
 import net.Indyuce.mmocore.player.stats.StatInfo;
-import net.Indyuce.mmocore.api.player.attribute.PlayerAttribute;
 import org.apache.commons.lang.Validate;
 import org.bukkit.ChatColor;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.configuration.ConfigurationSection;
-import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.SkullMeta;
 
@@ -307,7 +307,7 @@ public class PlayerStats extends EditableInventory {
                     holders.register("author", boost.hasAuthor() ? boost.getAuthor() : "Server");
                     holders.register("value", (int) (boost.getExtra() * 100));
                     holders.register("left", boost.isTimedOut() ?
-                            MMOCore.plugin.configManager.getSimpleMessage("booster-expired").message()
+                            ConfigMessage.fromKey("booster-expired").asLine()
                             : new DelayFormat(2).format(boost.getLeft()));
 
                     return holders;
@@ -332,7 +332,7 @@ public class PlayerStats extends EditableInventory {
                     holders.register("profession", boost.getProfession().getName());
                     holders.register("value", (int) (boost.getExtra() * 100));
                     holders.register("left", boost.isTimedOut() ?
-                            MMOCore.plugin.configManager.getSimpleMessage("booster-expired").message()
+                            ConfigMessage.fromKey("booster-expired").asLine()
                             : new DelayFormat(2).format(boost.getLeft()));
 
                     return holders;
