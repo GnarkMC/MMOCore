@@ -1,5 +1,6 @@
 package net.Indyuce.mmocore.api.quest.objective;
 
+import io.lumine.mythic.lib.UtilityMethods;
 import net.Indyuce.mmocore.api.quest.ObjectiveProgress;
 import net.Indyuce.mmocore.api.event.CustomBlockMineEvent;
 import net.Indyuce.mmocore.api.quest.QuestProgress;
@@ -42,6 +43,8 @@ public class MineBlockObjective extends Objective {
 		@EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
 		public void a(BlockBreakEvent event) {
 			if(!getQuestProgress().getPlayer().isOnline()) return;
+			if (UtilityMethods.isFake(event)) return;
+
 			if ((!playerPlaced) && event.getBlock().hasMetadata("player_placed"))
 				return;
 			if (event.getPlayer().equals(getQuestProgress().getPlayer().getPlayer()) && event.getBlock().getType() == block) {

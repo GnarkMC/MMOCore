@@ -75,6 +75,9 @@ public class BlockListener implements Listener {
             return;
         }
 
+        // Broken can be broken, if event is fake then skip it.
+        if (UtilityMethods.isFake(event)) return;
+
         boolean canBreak = true;
         ItemStack item = player.getInventory().getItemInMainHand();
         if (!MMOCore.plugin.restrictionManager.checkPermissions(item, info.getBlock())) {
@@ -148,6 +151,7 @@ public class BlockListener implements Listener {
      */
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
     public void unregisterPlayerPlacedBlocksTag(BlockBreakEvent event) {
+        if (UtilityMethods.isFake(event)) return;
         event.getBlock().removeMetadata("player_placed", MMOCore.plugin);
     }
 

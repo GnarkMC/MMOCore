@@ -1,5 +1,6 @@
 package net.Indyuce.mmocore.api.player.profess.event.trigger;
 
+import io.lumine.mythic.lib.UtilityMethods;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.block.BlockBreakEvent;
@@ -17,6 +18,8 @@ public class BlockBrokenTrigger implements EventTriggerHandler {
 
 	@EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
 	public void a(BlockBreakEvent event) {
+		if (UtilityMethods.isFake(event)) return;
+
 		PlayerData player = PlayerData.get(event.getPlayer());
 		if (player.getProfess().hasEventTriggers("break-block"))
 			player.getProfess().getEventTriggers("break-block").getTriggers().forEach(trigger -> trigger.apply(player));

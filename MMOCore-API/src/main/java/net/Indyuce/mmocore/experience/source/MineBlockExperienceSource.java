@@ -1,6 +1,7 @@
 package net.Indyuce.mmocore.experience.source;
 
 import io.lumine.mythic.lib.MythicLib;
+import io.lumine.mythic.lib.UtilityMethods;
 import io.lumine.mythic.lib.api.MMOLineConfig;
 import net.Indyuce.mmocore.api.player.PlayerData;
 import net.Indyuce.mmocore.experience.source.type.SpecificExperienceSource;
@@ -21,7 +22,7 @@ public class MineBlockExperienceSource extends SpecificExperienceSource<Material
 
     /**
      * Set to false by default.
-     *
+     * <p>
      * When set to true, the exp source will trigger when breaking
      * blocks that were placed by players. This can be used for crops
      */
@@ -39,12 +40,11 @@ public class MineBlockExperienceSource extends SpecificExperienceSource<Material
 
     @Override
     public ExperienceSourceManager<MineBlockExperienceSource> newManager() {
-        return
-                new ExperienceSourceManager<MineBlockExperienceSource>() {
+        return new ExperienceSourceManager<MineBlockExperienceSource>() {
             @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
             public void a(BlockBreakEvent event) {
-                if (event.getPlayer().getGameMode() != GameMode.SURVIVAL)
-                    return;
+                if (event.getPlayer().getGameMode() != GameMode.SURVIVAL) return;
+                if (UtilityMethods.isFake(event)) return;
 
                 PlayerData data = PlayerData.get(event.getPlayer());
 

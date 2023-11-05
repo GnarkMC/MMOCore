@@ -65,7 +65,6 @@ public class BlockInfo {
 				if (condition instanceof BlockCondition)
 					conditions.add((BlockCondition) condition);
 			}
-
 	}
 
 	public boolean getOption(BlockInfoOption option) {
