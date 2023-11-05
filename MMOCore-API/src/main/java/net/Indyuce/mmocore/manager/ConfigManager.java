@@ -207,6 +207,9 @@ public class ConfigManager {
         return messages.getStringList(key);
     }
 
+    /**
+     * @return The original object, which should be cloned afterwards!!
+     */
     @Nullable
     public Object getMessageObject(String key) {
         return messages.get(key);

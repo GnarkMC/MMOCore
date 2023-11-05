@@ -10,20 +10,22 @@ import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.Arrays;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
 public class ConfigMessage {
     private final String key;
-    private final List<String> lines;
+    private final List<String> lines = new ArrayList<>();
     private final boolean papiPlaceholders, actionbar, raw;
 
     private ConfigMessage(@NotNull String key) {
         this.key = key;
 
         final Object obj = MMOCore.plugin.configManager.getMessageObject(key);
-        this.lines = obj == null ? Arrays.asList("<message_not_found:'" + key + "'>") : obj instanceof List<?> ? (List<String>) obj : Arrays.asList(obj.toString());
+        if (obj == null) lines.add("<message_not_found:'" + key + "'>");
+        else if (obj instanceof List<?>) lines.addAll((List<String>) obj);
+        else lines.add(obj.toString());
 
         // Does message include placeholders
         boolean hasPlaceholders = false;
