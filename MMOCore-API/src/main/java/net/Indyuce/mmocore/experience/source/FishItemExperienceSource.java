@@ -27,7 +27,7 @@ public class FishItemExperienceSource extends SpecificExperienceSource<ItemStack
     public ExperienceSourceManager<FishItemExperienceSource> newManager() {
         return new ExperienceSourceManager<FishItemExperienceSource>() {
 
-            @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
+            @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
             public void a(PlayerFishEvent event) {
                 if (event.getState() == State.CAUGHT_FISH) {
                     ItemStack caught = ((Item) event.getCaught()).getItemStack();

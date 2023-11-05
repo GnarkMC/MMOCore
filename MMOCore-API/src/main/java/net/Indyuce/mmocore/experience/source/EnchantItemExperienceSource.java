@@ -43,7 +43,7 @@ public class EnchantItemExperienceSource extends ExperienceSource<Void> {
     public ExperienceSourceManager<EnchantItemExperienceSource> newManager() {
         return new ExperienceSourceManager<EnchantItemExperienceSource>() {
 
-            @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
+            @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
             public void a(EnchantItemEvent event) {
                 PlayerData player = PlayerData.get(event.getEnchanter());
                 for (EnchantItemExperienceSource source : getSources())

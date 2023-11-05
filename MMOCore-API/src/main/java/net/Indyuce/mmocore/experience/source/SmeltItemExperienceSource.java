@@ -29,7 +29,7 @@ public class SmeltItemExperienceSource extends SpecificExperienceSource<ItemStac
     public ExperienceSourceManager<SmeltItemExperienceSource> newManager() {
         return new ExperienceSourceManager<SmeltItemExperienceSource>() {
 
-            @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
+            @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
             public void a(BlockCookEvent event) {
                 Optional<Player> player = getNearestPlayer(event.getBlock().getLocation());
                 if (!player.isPresent())

@@ -10,9 +10,8 @@ import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.Wolf;
 import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
-
-import static org.bukkit.event.EventPriority.HIGHEST;
 
 public class TameExperienceSource extends SpecificExperienceSource {
     public TameExperienceSource(ExperienceDispenser dispenser, MMOLineConfig config) {
@@ -23,7 +22,7 @@ public class TameExperienceSource extends SpecificExperienceSource {
     public ExperienceSourceManager<TameExperienceSource> newManager() {
         return new ExperienceSourceManager<TameExperienceSource>() {
 
-            @EventHandler(priority = HIGHEST,ignoreCancelled = true)
+            @EventHandler(priority = EventPriority.HIGHEST,ignoreCancelled = true)
             public void onWolfHit(EntityDamageByEntityEvent e) {
                 if(e.getDamager() instanceof Wolf) {
                     Wolf wolf= (Wolf) e.getDamager();

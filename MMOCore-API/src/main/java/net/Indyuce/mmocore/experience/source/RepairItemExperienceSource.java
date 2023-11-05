@@ -46,7 +46,7 @@ public class RepairItemExperienceSource extends ExperienceSource<ItemStack> {
 
     private class CustomExperienceManager extends ExperienceSourceManager<RepairItemExperienceSource> {
 
-        @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
+        @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
         public void a(InventoryClickEvent event) {
             if (event.getInventory() == null || event.getInventory().getType() != InventoryType.ANVIL || event.getSlot() != 2)
                 return;

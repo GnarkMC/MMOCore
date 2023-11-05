@@ -46,7 +46,7 @@ public class BrewPotionExperienceSource extends ExperienceSource<PotionMeta> {
     public ExperienceSourceManager<BrewPotionExperienceSource> newManager() {
         return new ExperienceSourceManager<BrewPotionExperienceSource>() {
 
-            @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
+            @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
             public void a(BrewEvent event) {
                 Optional<Player> playerOpt = getNearbyPlayer(event.getBlock().getLocation());
                 if (!playerOpt.isPresent())
