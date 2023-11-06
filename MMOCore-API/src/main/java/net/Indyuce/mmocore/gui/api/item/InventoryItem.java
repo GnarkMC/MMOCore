@@ -147,7 +147,7 @@ public abstract class InventoryItem<T extends GeneratedInventory> {
         final ItemMeta meta = item.getItemMeta();
         meta.setCustomModelData(modelData);
         if (texture != null && meta instanceof SkullMeta)
-            UtilityMethods.setTextureValue(meta, texture);
+            UtilityMethods.setTextureValue((SkullMeta) meta, texture);
 
         if (hasName()) meta.setDisplayName(placeholders.apply(effectivePlayer, getName()));
 

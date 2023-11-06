@@ -40,6 +40,7 @@ import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
+import org.bukkit.inventory.meta.SkullMeta;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -89,7 +90,7 @@ public class PlayerClass extends PostLoadObject implements ExperienceObject {
 
         if (config.contains("display.texture") && icon.getType() == VersionMaterial.PLAYER_HEAD.toMaterial()) {
             ItemMeta meta = icon.getItemMeta();
-            UtilityMethods.setTextureValue(meta, config.getString("display.texture"));
+            UtilityMethods.setTextureValue((SkullMeta) meta, config.getString("display.texture"));
             icon.setItemMeta(meta);
         }
 

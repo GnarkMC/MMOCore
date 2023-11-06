@@ -10,10 +10,10 @@ import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.Damageable;
 import org.bukkit.inventory.meta.ItemMeta;
+import org.bukkit.inventory.meta.SkullMeta;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
-import java.util.logging.Level;
 
 public abstract class AbstractItemBuilder {
     private final ConfigItem configItem;
@@ -42,11 +42,7 @@ public abstract class AbstractItemBuilder {
         ItemMeta meta = item.getItemMeta();
 
         if (item.getType() == VersionMaterial.PLAYER_HEAD.toMaterial() && configItem.getTexture() != null)
-            try {
-                UtilityMethods.setTextureValue(meta, configItem.getTexture());
-            } catch (IllegalArgumentException exception) {
-                MMOCore.log(Level.WARNING, "Could not load texture of config item called '" + configItem.getId() + "'");
-            }
+            UtilityMethods.setTextureValue((SkullMeta) meta, configItem.getTexture());
 
         meta.addItemFlags(ItemFlag.values());
         meta.setDisplayName(applyPlaceholders(configItem.getName()));
