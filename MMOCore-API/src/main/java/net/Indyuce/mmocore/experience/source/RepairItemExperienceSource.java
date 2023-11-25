@@ -48,7 +48,7 @@ public class RepairItemExperienceSource extends ExperienceSource<ItemStack> {
 
         @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
         public void a(InventoryClickEvent event) {
-            if (event.getInventory() == null || event.getInventory().getType() != InventoryType.ANVIL || event.getSlot() != 2)
+            if (event.getInventory() == null || event.getInventory().getType() != InventoryType.ANVIL || event.getRawSlot() != 2)
                 return;
 
             // Check if there's exp associated to it

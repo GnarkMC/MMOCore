@@ -1,5 +1,6 @@
 package net.Indyuce.mmocore.experience.source;
 
+import io.lumine.mythic.lib.UtilityMethods;
 import io.lumine.mythic.lib.api.MMOLineConfig;
 import net.Indyuce.mmocore.MMOCore;
 import net.Indyuce.mmocore.api.player.PlayerData;
@@ -21,7 +22,7 @@ public class PlayExperienceSource extends SpecificExperienceSource {
 
     /**
      * Experience source giving the specified amount of xp to all the players online each second in certain world bounds.
-     * If no bounds are given, it will give the xp to every player online. You can also specifiy if the player
+     * If no bounds are given, it will give the xp to every player online. You can also specify if the player
      * has to be inCombat or not to get the xp.
      */
     public PlayExperienceSource(ExperienceDispenser dispenser, MMOLineConfig config) {
@@ -71,13 +72,12 @@ public class PlayExperienceSource extends SpecificExperienceSource {
 
                 @Override
                 public void run() {
-                    Bukkit.getOnlinePlayers().forEach((player) -> {
-                        if (!player.hasMetadata("NPC")) {
+                    Bukkit.getOnlinePlayers().forEach(player -> {
+                        if (UtilityMethods.isRealPlayer(player)) {
                             PlayerData playerData = PlayerData.get(player);
-                            for (PlayExperienceSource source : getSources()) {
+                            for (PlayExperienceSource source : getSources())
                                 if (source.matchesParameter(playerData, null))
                                     giveExperience(playerData, 1, null);
-                            }
                         }
                     });
                 }
