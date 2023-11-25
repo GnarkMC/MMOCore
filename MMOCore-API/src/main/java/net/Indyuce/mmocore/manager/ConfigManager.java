@@ -153,7 +153,7 @@ public class ConfigManager {
         skillTreeScrollStepY = config.getInt("skill-tree-scroll-step-y", 1);
         // Resources
         staminaFull = getColorOrDefault("stamina-whole", ChatColor.GREEN);
-        staminaHalf = getColorOrDefault("stamina-half", ChatColor.DARK_GREEN);
+        staminaHalf = getColorOrDefault("stamina-half", ChatColor.DARK_GRAY);
         staminaEmpty = getColorOrDefault("stamina-empty", ChatColor.WHITE);
 
         passiveSkillNeedBound = MMOCore.plugin.getConfig().getBoolean("passive-skill-need-bound");

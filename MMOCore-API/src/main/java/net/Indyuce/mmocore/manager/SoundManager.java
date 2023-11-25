@@ -1,9 +1,9 @@
 package net.Indyuce.mmocore.manager;
 
+import io.lumine.mythic.lib.util.SoundObject;
 import net.Indyuce.mmocore.MMOCore;
 import net.Indyuce.mmocore.api.ConfigFile;
 import net.Indyuce.mmocore.api.SoundEvent;
-import net.Indyuce.mmocore.api.SoundObject;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.jetbrains.annotations.NotNull;
 

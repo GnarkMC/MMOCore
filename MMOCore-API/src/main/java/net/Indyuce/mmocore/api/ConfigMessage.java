@@ -22,10 +22,14 @@ public class ConfigMessage {
     private ConfigMessage(@NotNull String key) {
         this.key = key;
 
+        // Initialize message list
         final Object obj = MMOCore.plugin.configManager.getMessageObject(key);
         if (obj == null) lines.add("<message_not_found:'" + key + "'>");
         else if (obj instanceof List<?>) lines.addAll((List<String>) obj);
-        else lines.add(obj.toString());
+        else {
+            final String tostr = obj.toString();
+            if (!tostr.isEmpty()) lines.add(tostr);
+        }
 
         // Does message include placeholders
         boolean hasPlaceholders = false;
@@ -106,7 +110,7 @@ public class ConfigMessage {
         final String rawMessage = format(player, messageFormat);
         final PlayerData playerData = PlayerData.has(player) ? PlayerData.get(player) : null;
 
-        // Handle special case with player data+action bar
+        // Handle special case with player data + action bar
         if (playerData != null && playerData.isOnline() && actionbar) {
             playerData.displayActionBar(rawMessage, raw);
             return;

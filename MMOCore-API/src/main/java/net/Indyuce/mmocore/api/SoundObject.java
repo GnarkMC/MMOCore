@@ -24,6 +24,7 @@ public class SoundObject {
     private final float volume;
     private final float pitch;
 
+    @Deprecated
     public SoundObject(String input) {
         String[] split = input.split(",");
 
@@ -43,6 +44,7 @@ public class SoundObject {
         pitch = split.length > 2 ? Float.parseFloat(split[2]) : 1;
     }
 
+    @Deprecated
     public SoundObject(ConfigurationSection config) {
         String input = config.getString("sound");
 
@@ -65,32 +67,39 @@ public class SoundObject {
      * @return If this object is custom a custom sound, potentially
      * from a resource pack
      */
+    @Deprecated
     public boolean isCustom() {
         return sound == null;
     }
 
     @Nullable
+    @Deprecated
     public Sound getSound() {
         return sound;
     }
 
     @Nullable
+    @Deprecated
     public String getKey() {
         return key;
     }
 
+    @Deprecated
     public float getVolume() {
         return volume;
     }
 
+    @Deprecated
     public float getPitch() {
         return pitch;
     }
 
+    @Deprecated
     public void playTo(Player player) {
         playTo(player, volume, pitch);
     }
 
+    @Deprecated
     public void playTo(Player player, float volume, float pitch) {
         if (isCustom())
             player.playSound(player.getLocation(), key, volume, pitch);
@@ -98,10 +107,12 @@ public class SoundObject {
             player.playSound(player.getLocation(), sound, volume, pitch);
     }
 
+    @Deprecated
     public void playAt(Location loc) {
         playAt(loc, volume, pitch);
     }
 
+    @Deprecated
     public void playAt(Location loc, float volume, float pitch) {
         if (isCustom())
             loc.getWorld().playSound(loc, key, volume, pitch);
