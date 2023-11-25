@@ -31,19 +31,37 @@ public class PlayerPressKeyListener implements Listener {
         }
     }
 
+    /**
+     * Recent bukkit builds automatically send an interact packet
+     * when dropping an item, by pressing Q or from any inventory.
+     * <p>
+     * Simple implementation of a Xms timeout after drop events
+     * where all interact events are nulled. This timeout should
+     * be lower slightly lower than one tick, if the TPS gets
+     * really close to 20 it could cause a loss of true clicks.
+     * Finally, it should only cancel ONE click event at most
+     * and get reset by the first cancelled click event.
+     */
+    private static final long CLICK_EVENT_TIMEOUT = 30;
+
     @EventHandler(priority = EventPriority.LOWEST)
     public void registerClickKey(PlayerInteractEvent event) {
         if (event.useItemInHand() != Event.Result.DENY && event.getAction().name().contains("CLICK") && event.getHand().equals(EquipmentSlot.HAND)) {
-            boolean rightClick = event.getAction() == Action.RIGHT_CLICK_AIR || event.getAction() == Action.RIGHT_CLICK_BLOCK;
-            PlayerKeyPressEvent called = new PlayerKeyPressEvent(PlayerData.get(event.getPlayer()), rightClick ? PlayerKey.RIGHT_CLICK : PlayerKey.LEFT_CLICK, event);
-            Bukkit.getPluginManager().callEvent(called);
+            final PlayerData playerData = PlayerData.get(event.getPlayer());
+            if (System.currentTimeMillis() - playerData.lastDropEvent < CLICK_EVENT_TIMEOUT) {
+                playerData.lastDropEvent = 0;
+                return;
+            }
+            final boolean rightClick = event.getAction() == Action.RIGHT_CLICK_AIR || event.getAction() == Action.RIGHT_CLICK_BLOCK;
+            Bukkit.getPluginManager().callEvent(new PlayerKeyPressEvent(playerData, rightClick ? PlayerKey.RIGHT_CLICK : PlayerKey.LEFT_CLICK, event));
         }
     }
 
     @EventHandler(priority = EventPriority.LOWEST)
     public void registerDropKey(PlayerDropItemEvent event) {
-        PlayerKeyPressEvent called = new PlayerKeyPressEvent(PlayerData.get(event.getPlayer()), PlayerKey.DROP, event);
-        Bukkit.getPluginManager().callEvent(called);
+        final PlayerData playerData = PlayerData.get(event.getPlayer());
+        Bukkit.getPluginManager().callEvent(new PlayerKeyPressEvent(playerData, PlayerKey.DROP, event));
+        playerData.lastDropEvent = System.currentTimeMillis();
     }
 
     @EventHandler(priority = EventPriority.LOWEST)
