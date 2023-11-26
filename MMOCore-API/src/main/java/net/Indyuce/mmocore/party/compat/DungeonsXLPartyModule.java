@@ -1,7 +1,5 @@
 package net.Indyuce.mmocore.party.compat;
 
-import com.alessiodp.parties.api.events.bukkit.player.BukkitPartiesPlayerPostJoinEvent;
-import com.alessiodp.parties.api.events.bukkit.player.BukkitPartiesPlayerPostLeaveEvent;
 import de.erethon.dungeonsxl.DungeonsXL;
 import de.erethon.dungeonsxl.api.event.group.GroupDisbandEvent;
 import de.erethon.dungeonsxl.api.event.group.GroupPlayerJoinEvent;
@@ -52,20 +50,6 @@ public class DungeonsXLPartyModule implements PartyModule, Listener {
     @EventHandler
     public void onGroupDisband(GroupDisbandEvent event) {
         event.getGroup().getMembers().getOnlinePlayers().forEach(p -> clearStatBonuses(PlayerData.get(p)));
-    }
-
-    /**
-     * Applies party stat bonuses to a specific player
-     */
-    private void applyStatBonuses(PlayerData player, int membersSize) {
-        MMOCore.plugin.partyManager.getBonuses().forEach(buff -> buff.multiply(membersSize - 1).register(player.getMMOPlayerData()));
-    }
-
-    /**
-     * Clear party stat bonuses from a player
-     */
-    private void clearStatBonuses(PlayerData player) {
-        MMOCore.plugin.partyManager.getBonuses().forEach(buff -> buff.unregister(player.getMMOPlayerData()));
     }
 
     class CustomParty implements AbstractParty {

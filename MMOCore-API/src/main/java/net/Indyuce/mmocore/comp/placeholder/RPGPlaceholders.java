@@ -89,7 +89,7 @@ public class RPGPlaceholders extends PlaceholderExpansion {
         else if (identifier.startsWith("attribute_points_spent_")) {
             String attributeId = identifier.substring(31);
             PlayerAttributes.AttributeInstance attributeInstance = Objects.requireNonNull(playerData.getAttributes().getInstance(attributeId), "Could not find attribute with ID '" + attributeId + "'");
-            return String.valueOf(attributeInstance.getSpent());
+            return String.valueOf(attributeInstance.getBase());
         } else if (identifier.equals("level_percent")) {
             double current = playerData.getExperience(), next = playerData.getLevelUpExperience();
             return MythicLib.plugin.getMMOConfig().decimal.format(current / next * 100);

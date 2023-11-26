@@ -1,13 +1,14 @@
 package net.Indyuce.mmocore.party.provided;
 
 import net.Indyuce.mmocore.MMOCore;
-import net.Indyuce.mmocore.gui.api.PluginInventory;
-import net.Indyuce.mmocore.gui.social.party.EditablePartyView;
-import net.Indyuce.mmocore.manager.InventoryManager;
 import net.Indyuce.mmocore.api.ConfigMessage;
 import net.Indyuce.mmocore.api.player.PlayerData;
 import net.Indyuce.mmocore.api.player.social.Request;
+import net.Indyuce.mmocore.gui.api.PluginInventory;
+import net.Indyuce.mmocore.gui.social.party.EditablePartyView;
+import net.Indyuce.mmocore.manager.InventoryManager;
 import net.Indyuce.mmocore.party.AbstractParty;
+import org.bukkit.craftbukkit.libs.org.apache.commons.lang3.Validate;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 
@@ -29,18 +30,11 @@ public class Party implements AbstractParty {
     @NotNull
     private PlayerData owner;
 
-    /**
-     * If the difference between a player level and the party
-     * level is too high then players cannot join the party.
-     */
-    private final int partyLevel;
-
     private final MMOCorePartyModule module;
 
     public Party(MMOCorePartyModule module, PlayerData owner) {
-        this.owner = owner;
         this.module = module;
-        this.partyLevel = owner.getLevel();
+        this.owner = owner;
 
         addMember(owner);
     }
@@ -69,7 +63,7 @@ public class Party implements AbstractParty {
     }
 
     public int getLevel() {
-        return partyLevel;
+        return owner.getLevel();
     }
 
     @Override
@@ -113,8 +107,8 @@ public class Party implements AbstractParty {
         members.remove(data);
 
         module.setParty(data, null);
-        clearStatBonuses(data);
-        members.forEach(this::applyStatBonuses);
+        module.clearStatBonuses(data);
+        members.forEach(member -> module.applyStatBonuses(member, members.size()));
         updateOpenInventories();
 
         // Disband the party if no member left
@@ -138,7 +132,7 @@ public class Party implements AbstractParty {
 
         module.setParty(data, this);
         members.add(data);
-        members.forEach(this::applyStatBonuses);
+        members.forEach(member -> module.applyStatBonuses(member, members.size()));
 
         updateOpenInventories();
     }
@@ -173,20 +167,6 @@ public class Party implements AbstractParty {
      */
     public void forEachMember(Consumer<PlayerData> action) {
         new ArrayList<>(members).forEach(action);
-    }
-
-    /**
-     * Applies party stat bonuses to a specific player
-     */
-    private void applyStatBonuses(PlayerData player) {
-        MMOCore.plugin.partyManager.getBonuses().forEach(buff -> buff.multiply(members.size() - 1).register(player.getMMOPlayerData()));
-    }
-
-    /**
-     * Clear party stat bonuses from a player
-     */
-    private void clearStatBonuses(PlayerData player) {
-        MMOCore.plugin.partyManager.getBonuses().forEach(buff -> buff.unregister(player.getMMOPlayerData()));
     }
 
     @Override

@@ -5,6 +5,7 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import io.lumine.mythic.lib.UtilityMethods;
 import io.lumine.mythic.lib.api.player.EquipmentSlot;
+import io.lumine.mythic.lib.api.stat.StatInstance;
 import io.lumine.mythic.lib.player.modifier.Closeable;
 import io.lumine.mythic.lib.player.modifier.ModifierSource;
 import io.lumine.mythic.lib.player.modifier.ModifierType;
@@ -216,6 +217,12 @@ public class PlayerAttributes {
         public void updateStats() {
             final PlayerAttribute attr = MMOCore.plugin.attributeManager.get(id);
             final int total = getTotal();
+
+            // Remove ALL stat modifiers
+            for (StatInstance ins : data.getMMOPlayerData().getStatMap().getInstances())
+                ins.removeIf(str -> str.equals("attribute." + id));
+
+            // Register new stat modifiers
             attr.getBuffs().forEach(buff -> buff.multiply(total).register(data.getMMOPlayerData()));
         }
 

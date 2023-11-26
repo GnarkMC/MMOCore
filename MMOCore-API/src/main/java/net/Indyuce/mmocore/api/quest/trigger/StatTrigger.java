@@ -28,12 +28,8 @@ public class StatTrigger extends Trigger implements Removable {
     @Override
     public void apply(PlayerData player) {
         StatModifier prevModifier = player.getMMOPlayerData().getStatMap().getInstance(stat).getModifier(modifier.getUniqueId());
-        if (prevModifier == null)
-            modifier.register(player.getMMOPlayerData());
-        else {
-            prevModifier.unregister(player.getMMOPlayerData());
-            prevModifier.add(amount).register(player.getMMOPlayerData());
-        }
+        if (prevModifier == null) modifier.register(player.getMMOPlayerData());
+        else prevModifier.add(amount).register(player.getMMOPlayerData());
     }
 
     @Override
