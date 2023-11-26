@@ -352,12 +352,12 @@ public class SavedClassInformation implements ClassDataContainer {
 
         // This needs to be done at the end to make sure the MAX_HEALTH/MAX_MANA/... stats are loaded.
         player.getPlayer().setHealth(MMOCoreUtils.fixResource(health, player.getPlayer().getAttribute(Attribute.GENERIC_MAX_HEALTH).getValue()));
+        player.setHealth(health);
         player.setMana(mana);
         player.setStellium(stellium);
         player.setStamina(stamina);
-        player.setupRemovableTrigger();
-        // Updates level on exp bar
-        player.refreshVanillaExp();
+        player.updateTemporaryTriggers();
+        player.getStats().updateStats();
     }
 }
 

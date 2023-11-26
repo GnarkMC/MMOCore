@@ -33,7 +33,7 @@ public class BoundSkillInfo implements Closeable {
             if (skillModifierTrigger.getTargetSkills().contains(classSkill.getSkill().getHandler()))
                 skillModifierTrigger.apply(playerData, classSkill.getSkill().getHandler());
 
-        if (classSkill.getSkill().getTrigger().isPassive()&& classSkill.needsBound()) {
+        if (classSkill.getSkill().getTrigger().isPassive() && classSkill.needsBound()) {
             registered = classSkill.toPassive(playerData);
             registered.register(playerData.getMMOPlayerData());
         } else registered = null;

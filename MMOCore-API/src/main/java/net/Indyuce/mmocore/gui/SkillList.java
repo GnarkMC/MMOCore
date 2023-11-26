@@ -382,7 +382,7 @@ public class SkillList extends EditableInventory {
             super(playerData, editable);
             skills = playerData.getProfess().getSkills()
                     .stream()
-                    .filter((classSkill) -> playerData.hasUnlocked(classSkill))
+                    .filter(skill -> playerData.hasUnlocked(skill))
                     .sorted(Comparator.comparingInt(ClassSkill::getUnlockLevel))
                     .collect(Collectors.toList());
             skillSlots = getEditable().getByFunction("skill").getSlots();

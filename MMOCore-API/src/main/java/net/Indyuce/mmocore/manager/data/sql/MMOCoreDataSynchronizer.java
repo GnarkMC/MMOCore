@@ -16,7 +16,6 @@ import net.Indyuce.mmocore.skill.ClassSkill;
 import net.Indyuce.mmocore.skilltree.SkillTreeNode;
 import net.Indyuce.mmocore.skilltree.tree.SkillTree;
 import org.apache.commons.lang.Validate;
-import org.bukkit.attribute.Attribute;
 import org.jetbrains.annotations.Nullable;
 
 import java.sql.ResultSet;
@@ -68,7 +67,6 @@ public class MMOCoreDataSynchronizer extends SQLDataSynchronizer<PlayerData> {
                 getData().setNodeLevel(skillTreeNode, json.has(skillTreeNode.getFullId()) ? json.get(skillTreeNode.getFullId()).getAsInt() : 0);
             }
         }
-        getData().setupSkillTree();
         Set<String> unlockedItems = new HashSet<>();
         if (!isEmpty(result.getString("unlocked_items"))) {
             JsonArray unlockedItemsArray = MythicLib.plugin.getGson().fromJson(result.getString("unlocked_items"), JsonArray.class);
@@ -101,7 +99,6 @@ public class MMOCoreDataSynchronizer extends SQLDataSynchronizer<PlayerData> {
             for (Map.Entry<String, JsonElement> entry : object.entrySet()) {
                 ClassSkill skill = getData().getProfess().getSkill(entry.getValue().getAsString());
                 if (skill != null) getData().bindSkill(Integer.parseInt(entry.getKey()), skill);
-
             }
         }
         if (!isEmpty(result.getString("class_info"))) {
@@ -121,20 +118,10 @@ public class MMOCoreDataSynchronizer extends SQLDataSynchronizer<PlayerData> {
          * These should be loaded after to make sure that the
          * MAX_MANA, MAX_STAMINA & MAX_STELLIUM stats are already loaded.
          */
+        getData().setHealth(result.getDouble("health"));
         getData().setMana(result.getDouble("mana"));
         getData().setStamina(result.getDouble("stamina"));
         getData().setStellium(result.getDouble("stellium"));
-        getData().setupRemovableTrigger();
-        if (getData().isOnline() && !getData().getPlayer().isDead()) {
-
-            /*
-             * If the player is not dead and the health is 0, this means that the data was
-             * missing from the data base and it gives full health to the player. If the
-             * player is dead however, it must not account for that subtle edge case.
-             */
-            final double health = MMOCoreUtils.fixResource(result.getDouble("health"), getData().getPlayer().getAttribute(Attribute.GENERIC_MAX_HEALTH).getValue());
-            getData().getPlayer().setHealth(health);
-        }
 
         UtilityMethods.debug(MMOCore.plugin, "SQL", String.format("{ class: %s, level: %d }", getData().getProfess().getId(), getData().getLevel()));
     }

@@ -147,7 +147,6 @@ public class PlayerData extends SynchronizedDataHolder implements OfflinePlayerD
     public void reload() {
         try {
             profess = profess == null ? null : MMOCore.plugin.classManager.get(profess.getId());
-            getStats().updateStats();
         } catch (NullPointerException exception) {
             MMOCore.log(Level.SEVERE, "[Userdata] Could not find class " + getProfess().getId() + " while refreshing player data.");
         }
@@ -172,20 +171,69 @@ public class PlayerData extends SynchronizedDataHolder implements OfflinePlayerD
                 if (!nodeLevels.containsKey(node)) nodeLevels.put(node, 0);
 
         setupSkillTree();
-        setupRemovableTrigger();
+        updateTemporaryTriggers();
+        getStats().updateStats();
     }
 
+    /**
+     * This script is called when the player data has been successfully
+     * loaded from the SQL/local text database.
+     */
+    @Override
+    public void markAsSynchronized() {
+
+        /*
+         * If the player is not dead and the health is 0, this means that the data was
+         * missing from the database and it gives full health to the player. If the
+         * player is dead however, it must not account for that subtle edge case.
+         */
+        if (isOnline() && !getPlayer().isDead())
+            getPlayer().setHealth(MMOCoreUtils.fixResource(getHealth(), getPlayer().getAttribute(Attribute.GENERIC_MAX_HEALTH).getValue()));
+
+        setupSkillTree();
+        updateTemporaryTriggers();
+        getStats().updateStats(true);
+
+        // Finally mark synchronized
+        super.markAsSynchronized();
+    }
+
+    @Deprecated
     public void setupRemovableTrigger() {
-        //We remove all the stats and buffs associated to triggers.
+        updateTemporaryTriggers();
+    }
+
+    /**
+     * Some triggers are marked with the Removable interface as
+     * they are non-permanent triggers and they need to be updated
+     * everytime their MMOPlayerData gets flushed from ML cache.
+     * <p>
+     * This method should go through ALL {@link ExperienceTable}
+     * that the player has spent points into and register all
+     * non-permanent triggers.
+     * <p>
+     * For ease of implementation, these non-permanent triggers are
+     * refreshed everytime the player joins the server ie on every
+     * player data fetch.
+     *
+     * @see {@link net.Indyuce.mmocore.api.quest.trigger.api.Removable}
+     */
+    public void updateTemporaryTriggers() {
+
+        // Remove all stats and buffs associated to triggers
         getMMOPlayerData().getStatMap().getInstances().forEach(statInstance -> statInstance.removeIf(Trigger.STAT_MODIFIER_KEY::equals));
         getMMOPlayerData().getSkillModifierMap().getInstances().forEach(skillModifierInstance -> skillModifierInstance.removeIf(Trigger.STAT_MODIFIER_KEY::equals));
 
+        // Experience tables from main class
         if (profess.hasExperienceTable())
             profess.getExperienceTable().claimRemovableTrigger(this, profess);
+
+        // Experience tables from professions
         for (Profession profession : MMOCore.plugin.professionManager.getAll())
             if (profession.hasExperienceTable())
                 profession.getExperienceTable().claimRemovableTrigger(this, profession);
-        // Stat triggers setup
+
+        // Experience tables from skill tree nodes
         for (SkillTree skillTree : MMOCore.plugin.skillTreeManager.getAll())
             for (SkillTreeNode node : skillTree.getNodes())
                 node.getExperienceTable().claimRemovableTrigger(this, node);
@@ -358,7 +406,7 @@ public class PlayerData extends SynchronizedDataHolder implements OfflinePlayerD
 
     /**
      * @return If the item is unlocked by the player
-     *         This is used for skills that can be locked & unlocked.
+     * This is used for skills that can be locked & unlocked.
      */
     public boolean hasUnlocked(Unlockable unlockable) {
         return unlockable.isUnlockedByDefault() || unlockedItems.contains(unlockable.getUnlockNamespacedKey());
@@ -506,10 +554,10 @@ public class PlayerData extends SynchronizedDataHolder implements OfflinePlayerD
         return sum;
     }
 
-    @Deprecated
+    @NotNull
     public List<ClassSkill> getUnlockedSkills() {
         return getProfess().getSkills().stream()
-                .filter((classSkill) -> hasUnlocked(classSkill))
+                .filter(skill -> hasUnlocked(skill) && hasUnlockedLevel(skill))
                 .collect(Collectors.toList());
     }
 
@@ -567,9 +615,8 @@ public class PlayerData extends SynchronizedDataHolder implements OfflinePlayerD
 
     public void setLevel(int level) {
         this.level = Math.max(1, level);
-
         if (isOnline()) {
-            getStats().updateStats();
+            if (isSynchronized()) getStats().updateStats();
             refreshVanillaExp();
         }
     }
@@ -1018,7 +1065,7 @@ public class PlayerData extends SynchronizedDataHolder implements OfflinePlayerD
 
     /**
      * @return If the PlayerEnterCastingModeEvent successfully put the player
-     *         into casting mode, otherwise if the event is cancelled, returns false.
+     * into casting mode, otherwise if the event is cancelled, returns false.
      */
     public boolean setSkillCasting() {
         Validate.isTrue(!isCasting(), "Player already in casting mode");
@@ -1037,7 +1084,7 @@ public class PlayerData extends SynchronizedDataHolder implements OfflinePlayerD
 
     /**
      * @return If player successfully left skill casting i.e the Bukkit
-     *         event has not been cancelled
+     * event has not been cancelled
      */
     public boolean leaveSkillCasting() {
         return leaveSkillCasting(false);
@@ -1046,7 +1093,7 @@ public class PlayerData extends SynchronizedDataHolder implements OfflinePlayerD
     /**
      * @param skipEvent Skip firing the exit event
      * @return If player successfully left skill casting i.e the Bukkit
-     *         event has not been cancelled
+     * event has not been cancelled
      */
     public boolean leaveSkillCasting(boolean skipEvent) {
         Validate.isTrue(isCasting(), "Player not in casting mode");
@@ -1166,10 +1213,10 @@ public class PlayerData extends SynchronizedDataHolder implements OfflinePlayerD
         // Clear bound skills
         boundSkills.forEach((slot, info) -> info.close());
         boundSkills.clear();
-        setupRemovableTrigger();
+        updateTemporaryTriggers();
 
         // Update stats
-        if (isOnline()) getStats().updateStats();
+        if (isOnline() && isSynchronized()) getStats().updateStats();
     }
 
     public boolean hasSkillBound(int slot) {
@@ -1225,7 +1272,7 @@ public class PlayerData extends SynchronizedDataHolder implements OfflinePlayerD
      * checks if they could potentially upgrade to one of these
      *
      * @return If the player can change its current class to
-     *         a subclass
+     * a subclass
      */
     @Deprecated
     public boolean canChooseSubclass() {

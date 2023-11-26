@@ -8,10 +8,12 @@ import io.lumine.mythic.lib.player.modifier.ModifierSource;
 import io.lumine.mythic.lib.player.modifier.ModifierType;
 import io.lumine.mythic.lib.player.skill.PassiveSkill;
 import io.lumine.mythic.lib.player.skill.PassiveSkillMap;
+import io.lumine.mythic.lib.skill.trigger.TriggerType;
 import net.Indyuce.mmocore.MMOCore;
 import net.Indyuce.mmocore.api.player.PlayerData;
 import net.Indyuce.mmocore.experience.Profession;
 import net.Indyuce.mmocore.player.stats.StatInfo;
+import net.Indyuce.mmocore.skill.ClassSkill;
 
 public class PlayerStats {
     private final PlayerData data;
@@ -65,14 +67,22 @@ public class PlayerStats {
         return data.getProfess().calculateStat(stat, profession == null ? data.getLevel() : data.getCollectionSkills().getLevel(profession));
     }
 
+    public void updateStats() {
+        updateStats(false);
+    }
+
     /**
      * Used to update MMOCore stat modifiers due to class and send them over to
-     * MythicLib. Must be ran everytime the player levels up or changes class.
+     * MythicLib. Must be ran everytime the player levels up, changes class or
+     * when the plugin reloads.
      * <p>
-     * This is also called when reloading the plugin to make class setup easier,
-     * see {@link PlayerData#reload()} for more info
+     * Login scripts are a pretty special case of scripts/skills since they are
+     * not loaded yet when MythicLib triggers them naturally. Therefore, they
+     * need to be cast as soon as they are loaded into the MMOCore player data.
+     *
+     * @param castLoginScripts Should login scripts be cast
      */
-    public synchronized void updateStats() {
+    public synchronized void updateStats(boolean castLoginScripts) {
 
         // Update player stats
         for (String stat : MMOCore.plugin.statManager.getRegistered()) {
@@ -91,19 +101,33 @@ public class PlayerStats {
             packet.runUpdate();
         }
 
-        // Updates the player's unbindable passive skills.
+        // Updates the player's unbindable CLASS passive skills
         final PassiveSkillMap skillMap = data.getMMOPlayerData().getPassiveSkillMap();
         skillMap.removeModifiers("MMOCorePassiveSkillNotBound");
-        data.getProfess().getSkills().stream()
-                .filter((classSkill) -> !classSkill.needsBound() && classSkill.getSkill().getTrigger().isPassive() && data.hasUnlocked(classSkill) && data.hasUnlockedLevel(classSkill))
-                .forEach(classSkill -> skillMap.addModifier(classSkill.toPassive(data)));
+        for (ClassSkill skill : data.getProfess().getSkills())
+            if (!skill.needsBound()
+                    && skill.getSkill().getTrigger().isPassive()
+                    && skill.getSkill().getTrigger() != TriggerType.LOGIN
+                    && data.hasUnlocked(skill)
+                    && data.hasUnlockedLevel(skill))
+                skillMap.addModifier(skill.toPassive(data));
 
-        /*
-         * Updates the player's class scripts, which act just
-         * like non-bindable passive skills.
-         */
+        // Updates the player's CLASS scripts
         skillMap.removeModifiers("MMOCoreClassScript");
         for (PassiveSkill script : data.getProfess().getScripts())
-            skillMap.addModifier(script);
+            if (script.getType() != TriggerType.LOGIN) skillMap.addModifier(script);
+
+        // If data hasn't been synchronized yet, cast LOGIN scripts
+        if (castLoginScripts) {
+
+            // Call class login skills
+            for (ClassSkill skill : data.getProfess().getSkills())
+                if (skill.getSkill().getTrigger() == TriggerType.LOGIN)
+                    skill.toCastable(data).cast(data.getMMOPlayerData());
+
+            // Call class login scripts
+            for (PassiveSkill skill : data.getProfess().getScripts())
+                if (skill.getType() == TriggerType.LOGIN) skill.getTriggeredSkill().cast(data.getMMOPlayerData());
+        }
     }
 }
