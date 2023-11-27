@@ -69,6 +69,9 @@ public class PlayerData extends SynchronizedDataHolder implements OfflinePlayerD
     /**
      * Can be null, the {@link #getProfess()} method will return the
      * player class, or the default one if this field is null.
+     * <p>
+     * NEVER access the player class using this field, you must
+     * use the {@link #getProfess()} method instead
      */
     @Nullable
     private PlayerClass profess;
@@ -225,8 +228,8 @@ public class PlayerData extends SynchronizedDataHolder implements OfflinePlayerD
         getMMOPlayerData().getSkillModifierMap().getInstances().forEach(skillModifierInstance -> skillModifierInstance.removeIf(Trigger.STAT_MODIFIER_KEY::equals));
 
         // Experience tables from main class
-        if (profess.hasExperienceTable())
-            profess.getExperienceTable().claimRemovableTrigger(this, profess);
+        if (getProfess().hasExperienceTable())
+            getProfess().getExperienceTable().claimRemovableTrigger(this, getProfess());
 
         // Experience tables from professions
         for (Profession profession : MMOCore.plugin.professionManager.getAll())
