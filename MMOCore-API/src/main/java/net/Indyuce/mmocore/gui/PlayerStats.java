@@ -133,7 +133,7 @@ public class PlayerStats extends EditableInventory {
 
                             if (holder.endsWith("_extra")) {
                                 final String stat = UtilityMethods.enumName(holder.substring(0, holder.length() - 6));
-                                return StatManager.format(stat, MythicLib.plugin.getStats().getTotalValue(stat, stats.getMap()) - stats.getBase(stat));
+                                return StatManager.format(stat, stats.getStat(stat) - stats.getBase(stat));
                             }
 
                             if (holder.startsWith("attribute_")) {
@@ -142,7 +142,7 @@ public class PlayerStats extends EditableInventory {
                             }
 
                             final String stat = UtilityMethods.enumName(holder);
-                            return StatManager.format(stat, MythicLib.plugin.getStats().getTotalValue(stat, stats.getMap()));
+                            return StatManager.format(stat, stats.getStat(stat));
                         }
                     };
                 }
