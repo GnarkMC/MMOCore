@@ -4,6 +4,7 @@ import io.lumine.mythic.lib.MythicLib;
 import io.lumine.mythic.lib.UtilityMethods;
 import io.lumine.mythic.lib.data.sql.SQLDataSource;
 import io.lumine.mythic.lib.metrics.bukkit.Metrics;
+import io.lumine.mythic.lib.util.MMOPlugin;
 import io.lumine.mythic.lib.version.SpigotPlugin;
 import net.Indyuce.mmocore.api.player.PlayerData;
 import net.Indyuce.mmocore.api.player.attribute.AttributeModifier;
@@ -54,14 +55,13 @@ import org.apache.commons.lang.Validate;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.event.EventPriority;
-import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
 import java.util.logging.Level;
 
-public class MMOCore extends JavaPlugin {
+public class MMOCore extends MMOPlugin {
     public static MMOCore plugin;
     public final WaypointManager waypointManager = new WaypointManager();
     public final SoundManager soundManager = new SoundManager();
