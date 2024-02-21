@@ -280,9 +280,8 @@ public class MMOCore extends MMOPlugin {
         for (Guild guild : dataProvider.getGuildManager().getAll())
             dataProvider.getGuildManager().save(guild);
 
-        // Close MySQL data provider (memory leaks)
-        playerDataManager.saveAll(false);
-        playerDataManager.getDataHandler().close();
+        // Close player data manager
+        playerDataManager.close();
 
         // Reset active blocks
         mineManager.resetRemainingBlocks();
