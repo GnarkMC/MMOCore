@@ -1293,7 +1293,7 @@ public class PlayerData extends SynchronizedDataHolder implements OfflinePlayerD
     }
 
     public static PlayerData get(@NotNull UUID uuid) {
-        return MMOCore.plugin.dataProvider.getDataManager().get(uuid);
+        return MMOCore.plugin.playerDataManager.get(uuid);
     }
 
     /**
@@ -1325,10 +1325,10 @@ public class PlayerData extends SynchronizedDataHolder implements OfflinePlayerD
      * @return If player data for that player is loaded
      */
     public static boolean has(UUID uuid) {
-        return MMOCore.plugin.dataProvider.getDataManager().isLoaded(uuid);
+        return MMOCore.plugin.playerDataManager.isLoaded(uuid);
     }
 
     public static Collection<PlayerData> getAll() {
-        return MMOCore.plugin.dataProvider.getDataManager().getLoaded();
+        return MMOCore.plugin.playerDataManager.getLoaded();
     }
 }
