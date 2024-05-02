@@ -3,9 +3,10 @@ package net.Indyuce.mmocore.party.compat;
 import net.Indyuce.mmocore.api.player.PlayerData;
 import net.Indyuce.mmocore.party.AbstractParty;
 import net.Indyuce.mmocore.party.PartyModule;
-import net.playavalon.avnparty.AvNParty;
-import net.playavalon.avnparty.party.Party;
-import net.playavalon.avnparty.player.AvalonPlayer;
+import net.playavalon.mythicdungeons.api.MythicDungeonsService;
+import net.playavalon.mythicdungeons.player.party.partysystem.MythicParty;
+import org.apache.commons.lang3.Validate;
+import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Listener;
 import org.jetbrains.annotations.Nullable;
@@ -13,26 +14,33 @@ import org.jetbrains.annotations.Nullable;
 import java.util.ArrayList;
 import java.util.List;
 
-public class DungeonPartiesPartyModule implements PartyModule, Listener {
+public class MythicDungeonsPartyModule implements PartyModule, Listener {
+    private final MythicDungeonsService hook;
+
+    public MythicDungeonsPartyModule() {
+        this.hook = Bukkit.getServer().getServicesManager().load(MythicDungeonsService.class);
+        Validate.notNull(hook, "Could not load compatibility with MythicDungeons");
+    }
 
     @Nullable
     @Override
     public AbstractParty getParty(PlayerData playerData) {
-        final @Nullable Party party = AvNParty.plugin.players.get(playerData.getPlayer()).getParty();
+        final MythicParty party = hook.getParty(playerData.getPlayer());
         return party == null ? null : new CustomParty(party);
     }
 
-    class CustomParty implements AbstractParty {
-        private final Party party;
 
-        public CustomParty(Party party) {
+    static class CustomParty implements AbstractParty {
+        private final MythicParty party;
+
+        public CustomParty(MythicParty party) {
             this.party = party;
         }
 
         @Override
         public boolean hasMember(Player player) {
-            for (AvalonPlayer member : party.getPlayers())
-                if (member.getPlayer().getUniqueId().equals(player.getUniqueId())) return true;
+            for (Player member : party.getPlayers())
+                if (member.getUniqueId().equals(player.getUniqueId())) return true;
             return false;
         }
 
@@ -40,7 +48,7 @@ public class DungeonPartiesPartyModule implements PartyModule, Listener {
         public List<PlayerData> getOnlineMembers() {
             final List<PlayerData> list = new ArrayList<>();
 
-            for (AvalonPlayer member : party.getPlayers())
+            for (Player member : party.getPlayers())
                 try {
                     list.add(PlayerData.get(member.getPlayer()));
                 } catch (Exception ignored) {
