@@ -74,7 +74,7 @@ public class KeyCombos extends SkillCastingHandler {
         if (player.getGameMode() == GameMode.CREATIVE && !MMOCore.plugin.configManager.canCreativeCast) return;
 
         // Don't start combos if no skills are bound
-        if (playerData.getBoundSkills().isEmpty()) return;
+        if (!playerData.hasActiveSkillBound()) return;
 
         // Start combo when there is an initializer key
         if (!event.getData().isCasting() && initializerKey != null) {
