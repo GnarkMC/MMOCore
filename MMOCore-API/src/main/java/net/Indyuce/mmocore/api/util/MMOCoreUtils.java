@@ -128,7 +128,7 @@ public class MMOCoreUtils {
      * @param message Message to display
      */
     public static void displayIndicator(Location loc, String message) {
-        Hologram holo = Hologram.create(loc, Collections.singletonList(message));
+        Hologram holo = Hologram.create(loc, MythicLib.plugin.parseColors(Collections.singletonList(message)));
         Bukkit.getScheduler().runTaskLater(MMOCore.plugin, holo::despawn, 20);
     }
 
