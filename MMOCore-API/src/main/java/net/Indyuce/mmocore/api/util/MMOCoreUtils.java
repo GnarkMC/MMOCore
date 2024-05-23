@@ -8,6 +8,7 @@ import io.lumine.mythic.lib.version.VersionMaterial;
 import net.Indyuce.mmocore.MMOCore;
 import org.bukkit.*;
 import org.bukkit.attribute.Attribute;
+import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
@@ -264,6 +265,8 @@ public class MMOCoreUtils {
             target.setHealth(target.getHealth() + gain);
     }
 
+    private static final Random RANDOM = new Random();
+
     /**
      * Method used when mining a custom block or fishing, as the corresponding
      * interaction event is cancelled durability is not handled. This method is
@@ -283,12 +286,16 @@ public class MMOCoreUtils {
         if (item == null || item.getType().getMaxDurability() == 0 || item.getItemMeta().isUnbreakable())
             return;
 
+        // Check unbreakable, ignore if necessary
+        final ItemMeta meta = item.getItemMeta();
+        final int unbreakingLevel = meta.getEnchantLevel(Enchantment.DURABILITY);
+        if (unbreakingLevel > 0 && RANDOM.nextInt(unbreakingLevel + 1) != 0) return;
+
         PlayerItemDamageEvent event = new PlayerItemDamageEvent(player, item, damage);
         Bukkit.getPluginManager().callEvent(event);
         if (event.isCancelled())
             return;
 
-        ItemMeta meta = item.getItemMeta();
         final int newDamage = event.getDamage() + ((Damageable) meta).getDamage();
         if (newDamage >= item.getType().getMaxDurability()) {
             player.playSound(player.getLocation(), Sound.ENTITY_ITEM_BREAK, 1F, 1F);
