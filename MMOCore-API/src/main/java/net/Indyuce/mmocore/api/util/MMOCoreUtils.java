@@ -128,8 +128,8 @@ public class MMOCoreUtils {
      * @param message Message to display
      */
     public static void displayIndicator(Location loc, String message) {
-        Hologram holo = Hologram.create(loc, Arrays.asList(message));
-        Bukkit.getScheduler().runTaskLater(MMOCore.plugin, () -> holo.despawn(), 20);
+        Hologram holo = Hologram.create(loc, Collections.singletonList(message));
+        Bukkit.getScheduler().runTaskLater(MMOCore.plugin, holo::despawn, 20);
     }
 
     public static boolean isPlayerHead(Material material) {
