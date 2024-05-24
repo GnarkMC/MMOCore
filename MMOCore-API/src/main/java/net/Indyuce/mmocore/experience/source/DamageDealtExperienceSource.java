@@ -3,7 +3,6 @@ package net.Indyuce.mmocore.experience.source;
 import io.lumine.mythic.lib.UtilityMethods;
 import io.lumine.mythic.lib.api.MMOLineConfig;
 import io.lumine.mythic.lib.api.event.PlayerAttackEvent;
-import io.lumine.mythic.lib.damage.DamagePacket;
 import io.lumine.mythic.lib.damage.DamageType;
 import net.Indyuce.mmocore.api.player.PlayerData;
 import net.Indyuce.mmocore.experience.dispenser.ExperienceDispenser;
@@ -40,27 +39,29 @@ public class DamageDealtExperienceSource extends SpecificExperienceSource<Void> 
 
     @Override
     public ExperienceSourceManager<DamageDealtExperienceSource> newManager() {
-        return new ExperienceSourceManager<DamageDealtExperienceSource>() {
-
-            @EventHandler(priority = MONITOR, ignoreCancelled = true)
-            public void onDamageDealt(PlayerAttackEvent event) {
-                final PlayerData playerData = PlayerData.get(event.getPlayer());
-                for (DamageDealtExperienceSource source : getSources())
-                    if (source.matches(playerData, null)) {
-                        double value = event.getDamage().getDamage(source.type);
-                        if (value == 0) continue;
-
-                        // Cannot count more than the entity's max health
-                        final double enemyMaxHealth = event.getEntity().getAttribute(Attribute.GENERIC_MAX_HEALTH).getValue();
-                        value = Math.min(value, enemyMaxHealth);
-                        source.giveExperience(playerData, value, null);
-                    }
-            }
-        };
+        return new Manager();
     }
 
     @Override
     public boolean matchesParameter(PlayerData player, Void v) {
         return true;
+    }
+
+    private static class Manager extends ExperienceSourceManager<DamageDealtExperienceSource> {
+
+        @EventHandler(priority = MONITOR, ignoreCancelled = true)
+        public void onDamageDealt(PlayerAttackEvent event) {
+            final PlayerData playerData = PlayerData.get(event.getPlayer());
+            for (DamageDealtExperienceSource source : getSources())
+                if (source.matches(playerData, null)) {
+                    double value = source.type == null ? event.getDamage().getDamage() : event.getDamage().getDamage(source.type);
+                    if (value == 0) continue;
+
+                    // Cannot count more than the entity's max health
+                    final double enemyMaxHealth = event.getEntity().getAttribute(Attribute.GENERIC_MAX_HEALTH).getValue();
+                    value = Math.min(value, enemyMaxHealth);
+                    source.giveExperience(playerData, value, null);
+                }
+        }
     }
 }

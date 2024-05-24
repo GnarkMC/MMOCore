@@ -43,37 +43,40 @@ public class DamageTakenExperienceSource extends SpecificExperienceSource<Entity
 
     @Override
     public ExperienceSourceManager<DamageTakenExperienceSource> newManager() {
-        return new ExperienceSourceManager<DamageTakenExperienceSource>() {
-            @EventHandler(priority = HIGHEST, ignoreCancelled = true)
-
-            public void onDamageTaken(EntityDamageEvent event) {
-                if (!UtilityMethods.isRealPlayer(event.getEntity())) return;
-
-                final PlayerData playerData = PlayerData.get((Player) event.getEntity());
-                final Lazy<Double> effectiveDamage = Lazy.of(() -> {
-                    final double eventDamage = event.getDamage();
-                    final double maxHealth = ((Player) event.getEntity()).getAttribute(Attribute.GENERIC_MAX_HEALTH).getValue();
-                    return Math.min(eventDamage, maxHealth);
-                });
-
-                // Wait 2 tick to check if the player died
-                new BukkitRunnable() {
-                    @Override
-                    public void run() {
-                        for (DamageTakenExperienceSource source : getSources())
-                            if (source.matchesParameter(playerData, event.getCause())) {
-                              //  System.out.println("-> " + effectiveDamage.get());
-                                source.giveExperience(playerData, effectiveDamage.get(), null);
-                            }
-                    }
-                }.runTaskLater(MMOCore.plugin, 2);
-            }
-        };
+        return new Manager();
     }
 
     @Override
     public boolean matchesParameter(PlayerData player, EntityDamageEvent.DamageCause damageCause) {
         if (player.getPlayer().isDead()) return false;
         return cause == null || damageCause.equals(cause);
+    }
+
+    private static class Manager extends ExperienceSourceManager<DamageTakenExperienceSource> {
+
+        @EventHandler(priority = HIGHEST, ignoreCancelled = true)
+
+        public void onDamageTaken(EntityDamageEvent event) {
+            if (!UtilityMethods.isRealPlayer(event.getEntity())) return;
+
+            final PlayerData playerData = PlayerData.get((Player) event.getEntity());
+            final Lazy<Double> effectiveDamage = Lazy.of(() -> {
+                final double eventDamage = event.getDamage();
+                final double maxHealth = ((Player) event.getEntity()).getAttribute(Attribute.GENERIC_MAX_HEALTH).getValue();
+                return Math.min(eventDamage, maxHealth);
+            });
+
+            // Wait 2 tick to check if the player died
+            new BukkitRunnable() {
+                @Override
+                public void run() {
+                    for (DamageTakenExperienceSource source : getSources())
+                        if (source.matchesParameter(playerData, event.getCause())) {
+                            //  System.out.println("-> " + effectiveDamage.get());
+                            source.giveExperience(playerData, effectiveDamage.get(), null);
+                        }
+                }
+            }.runTaskLater(MMOCore.plugin, 2);
+        }
     }
 }
