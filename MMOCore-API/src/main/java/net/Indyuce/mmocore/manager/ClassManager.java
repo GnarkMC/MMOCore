@@ -58,8 +58,9 @@ public class ClassManager implements MMOCoreManager {
     }
 
     public PlayerClass getOrThrow(String id) {
-        Validate.isTrue(map.containsKey(id), "Could not find class with ID '" + id + "'");
-        return map.get(id);
+        final PlayerClass found = map.get(id);
+        Validate.notNull(found, "Could not find class with ID '" + id + "'");
+        return found;
     }
 
     public Collection<PlayerClass> getAll() {

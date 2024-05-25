@@ -3,6 +3,7 @@ package net.Indyuce.mmocore.skilltree.tree;
 import io.lumine.mythic.lib.MythicLib;
 import io.lumine.mythic.lib.UtilityMethods;
 import io.lumine.mythic.lib.api.util.PostLoadObject;
+import io.lumine.mythic.lib.util.PreloadedObject;
 import net.Indyuce.mmocore.MMOCore;
 import net.Indyuce.mmocore.api.player.PlayerData;
 import net.Indyuce.mmocore.api.util.MMOCoreUtils;
@@ -32,7 +33,7 @@ import java.util.*;
  * @author Ka0rX
  * @see {@link SkillTreeNode}
  */
-public abstract class SkillTree extends PostLoadObject implements RegisteredObject {
+public abstract class SkillTree extends PostLoadObject implements RegisteredObject, PreloadedObject {
     private final String id, name;
     private final List<String> lore = new ArrayList<>();
     private final Material item;
@@ -64,7 +65,7 @@ public abstract class SkillTree extends PostLoadObject implements RegisteredObje
         this.id = Objects.requireNonNull(config.getString("id"), "Could not find skill tree id");
         this.name = MythicLib.plugin.parseColors(Objects.requireNonNull(config.getString("name"), "Could not find skill tree name"));
         Objects.requireNonNull(config.getStringList("lore"), "Could not find skill tree lore").forEach(str -> lore.add(MythicLib.plugin.parseColors(str)));
-        this.item = Material.valueOf(UtilityMethods.enumName(Objects.requireNonNull(config.getString("item"))));
+        this.item = Material.valueOf(UtilityMethods.enumName(Objects.requireNonNull(config.getString("item"), "Could not find item")));
         this.customModelData = config.getInt("custom-model-data", 0);
         Validate.isTrue(config.isConfigurationSection("nodes"), "Could not find any nodes in the tree");
         this.maxPointSpent = config.getInt("max-point-spent", Integer.MAX_VALUE);

@@ -15,7 +15,6 @@ import net.Indyuce.mmocore.party.AbstractParty;
 import net.Indyuce.mmocore.skill.CastableSkill;
 import net.Indyuce.mmocore.skill.ClassSkill;
 import net.Indyuce.mmocore.skill.RegisteredSkill;
-import net.Indyuce.mmocore.skill.binding.BoundSkillInfo;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.OfflinePlayer;
@@ -73,7 +72,7 @@ public class RPGPlaceholders extends PlaceholderExpansion {
 
         else if (identifier.startsWith("skill_level_")) {
             String id = identifier.substring(12);
-            RegisteredSkill skill = Objects.requireNonNull(MMOCore.plugin.skillManager.getSkill(id), "Could not find skill with ID '" + id + "'");
+            RegisteredSkill skill = MMOCore.plugin.skillManager.getSkillOrThrow(id);
             return String.valueOf(playerData.getSkillLevel(skill));
         }
 
