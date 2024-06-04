@@ -23,7 +23,10 @@ import net.Indyuce.mmocore.api.quest.PlayerQuests;
 import net.Indyuce.mmocore.api.quest.trigger.Trigger;
 import net.Indyuce.mmocore.api.quest.trigger.api.Removable;
 import net.Indyuce.mmocore.api.util.MMOCoreUtils;
-import net.Indyuce.mmocore.experience.*;
+import net.Indyuce.mmocore.experience.EXPSource;
+import net.Indyuce.mmocore.experience.ExperienceObject;
+import net.Indyuce.mmocore.experience.PlayerProfessions;
+import net.Indyuce.mmocore.experience.Profession;
 import net.Indyuce.mmocore.experience.droptable.ExperienceItem;
 import net.Indyuce.mmocore.experience.droptable.ExperienceTable;
 import net.Indyuce.mmocore.guild.provided.Guild;
@@ -62,7 +65,7 @@ import java.util.*;
 import java.util.logging.Level;
 import java.util.stream.Collectors;
 
-public class PlayerData extends SynchronizedDataHolder implements OfflinePlayerData, Closeable, ExperienceTableClaimer, ClassDataContainer {
+public class PlayerData extends SynchronizedDataHolder implements OfflinePlayerData, Closeable, ClassDataContainer {
 
     /**
      * Can be null, the {@link #getProfess()} method will return the
@@ -271,7 +274,17 @@ public class PlayerData extends SynchronizedDataHolder implements OfflinePlayerD
         return mapped;
     }
 
+    @Deprecated
     public void clearSkillTrees() {
+        resetSkillTrees();
+    }
+
+    public void resetSkillTrees() {
+
+        // Un-apply triggers
+        for (SkillTree tree : getProfess().getSkillTrees())
+            for (SkillTreeNode node : tree.getNodes())
+                node.resetAdvancement(this, false);
 
         // Node levels, states and points spent
         nodeLevels.clear();
@@ -298,9 +311,8 @@ public class PlayerData extends SynchronizedDataHolder implements OfflinePlayerD
      * global skill-tree points ('all')
      */
     public void incrementNodeLevel(@NotNull SkillTreeNode node) {
-        nodeLevels.merge(node, 1, (level, ignored) -> level + 1);
-        // Claims the nodes experience table.
-        node.getExperienceTable().claim(this, getNodeLevel(node), node);
+        final int newLevel = nodeLevels.merge(node, 1, (level, ignored) -> level + 1);
+        node.updateAdvancement(this, newLevel); // Claim the node exp table
 
         if (nodeStates.get(node) == SkillTreeStatus.UNLOCKABLE) setNodeState(node, SkillTreeStatus.UNLOCKED);
         int cost = node.getSkillTreePointsConsumed();
@@ -354,7 +366,7 @@ public class PlayerData extends SynchronizedDataHolder implements OfflinePlayerD
 
     public void resetSkillTree(SkillTree skillTree) {
         for (SkillTreeNode node : skillTree.getNodes()) {
-            node.getExperienceTable().unclaim(this, node, true);
+            node.resetAdvancement(this, true);
             setNodeLevel(node, 0);
             nodeStates.remove(node);
         }
@@ -422,6 +434,7 @@ public class PlayerData extends SynchronizedDataHolder implements OfflinePlayerD
         this.unlockedItems.addAll(unlockedItems);
     }
 
+    @Deprecated
     public void resetTimesClaimed() {
         tableItemClaims.clear();
     }
@@ -546,8 +559,8 @@ public class PlayerData extends SynchronizedDataHolder implements OfflinePlayerD
         return skillTreeReallocationPoints;
     }
 
-    @Override
-    public int getClaims(ExperienceObject object, ExperienceTable table, ExperienceItem item) {
+    public int getClaims(@NotNull ExperienceObject object, @NotNull ExperienceItem item) {
+        final ExperienceTable table = object.getExperienceTable();
         return getClaims(object.getKey() + "." + table.getId() + "." + item.getId());
     }
 
@@ -555,13 +568,24 @@ public class PlayerData extends SynchronizedDataHolder implements OfflinePlayerD
         return tableItemClaims.getOrDefault(key, 0);
     }
 
-    @Override
+    public void setClaims(@NotNull ExperienceObject object, @NotNull ExperienceItem item, int times) {
+        final ExperienceTable table = object.getExperienceTable();
+        setClaims(object.getKey() + "." + table.getId() + "." + item.getId(), times);
+    }
+
+    public void setClaims(@NotNull String itemKey, int times) {
+        if (times <= 0) tableItemClaims.remove(itemKey);
+        else tableItemClaims.put(itemKey, times);
+    }
+
+    @Deprecated
     public void setClaims(ExperienceObject object, ExperienceTable table, ExperienceItem item, int times) {
         setClaims(object.getKey() + "." + table.getId() + "." + item.getId(), times);
     }
 
-    public void setClaims(String key, int times) {
-        tableItemClaims.put(key, times);
+    @Deprecated
+    public int getClaims(ExperienceObject object, ExperienceTable table, ExperienceItem item) {
+        return getClaims(object.getKey() + "." + table.getId() + "." + item.getId());
     }
 
     public Map<String, Integer> getItemClaims() {
@@ -877,8 +901,7 @@ public class PlayerData extends SynchronizedDataHolder implements OfflinePlayerD
             level = getLevel() + 1;
 
             // Apply class experience table
-            if (getProfess().hasExperienceTable())
-                getProfess().getExperienceTable().claim(this, level, getProfess());
+            getProfess().updateAdvancement(this, level);
         }
 
         if (level > oldLevel) {
@@ -1104,7 +1127,7 @@ public class PlayerData extends SynchronizedDataHolder implements OfflinePlayerD
 
     @Deprecated
     public void setAttribute(String id, int value) {
-        attributes.setBaseAttribute(id, value);
+        attributes.getInstance(id).setBase(value);
     }
 
     @Override
