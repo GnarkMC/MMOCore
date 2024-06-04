@@ -2,8 +2,6 @@ package net.Indyuce.mmocore.api.player;
 
 import io.lumine.mythic.lib.MythicLib;
 import io.lumine.mythic.lib.api.player.MMOPlayerData;
-import io.lumine.mythic.lib.api.stat.StatInstance;
-import io.lumine.mythic.lib.api.stat.modifier.StatModifier;
 import io.lumine.mythic.lib.data.SynchronizedDataHolder;
 import io.lumine.mythic.lib.player.cooldown.CooldownMap;
 import io.lumine.mythic.lib.util.Closeable;
@@ -22,7 +20,6 @@ import net.Indyuce.mmocore.api.player.profess.resource.PlayerResource;
 import net.Indyuce.mmocore.api.player.social.FriendRequest;
 import net.Indyuce.mmocore.api.player.stats.PlayerStats;
 import net.Indyuce.mmocore.api.quest.PlayerQuests;
-import net.Indyuce.mmocore.api.quest.trigger.StatTrigger;
 import net.Indyuce.mmocore.api.quest.trigger.Trigger;
 import net.Indyuce.mmocore.api.quest.trigger.api.Removable;
 import net.Indyuce.mmocore.api.util.MMOCoreUtils;
@@ -90,7 +87,11 @@ public class PlayerData extends SynchronizedDataHolder implements OfflinePlayerD
     private final List<UUID> friends = new ArrayList<>();
 
     /**
-     * @deprecated Use {@link #hasUnlocked(Unlockable)} instead
+     * TODO Use {@link #hasUnlocked(Unlockable)} instead
+     * <p>
+     * Merge waypoints with unlocked items, and create a method
+     * plugin-scope to check if some item is class-specific and
+     * should be reset when switching class
      */
     @Deprecated
     private final Set<String> waypoints = new HashSet<>();
@@ -281,11 +282,10 @@ public class PlayerData extends SynchronizedDataHolder implements OfflinePlayerD
         skillTreePoints.clear();
 
         // Clear node claim count
-        final Iterator<String> ite = tableItemClaims.keySet().iterator();
-        while (ite.hasNext()) if (ite.next().startsWith(SkillTreeNode.KEY_PREFIX)) ite.remove();
+        tableItemClaims.keySet().removeIf(s -> s.startsWith(SkillTreeNode.KEY_PREFIX));
     }
 
-    public boolean canIncrementNodeLevel(SkillTreeNode node) {
+    public boolean canIncrementNodeLevel(@NotNull SkillTreeNode node) {
         SkillTreeStatus skillTreeStatus = nodeStates.get(node);
         //Check the State of the node
         if (skillTreeStatus != SkillTreeStatus.UNLOCKED && skillTreeStatus != SkillTreeStatus.UNLOCKABLE) return false;
@@ -297,32 +297,37 @@ public class PlayerData extends SynchronizedDataHolder implements OfflinePlayerD
      * Consumes skill tree points from the tree first and then consumes the
      * global skill-tree points ('all')
      */
-    public void incrementNodeLevel(SkillTreeNode node) {
-        setNodeLevel(node, getNodeLevel(node) + 1);
+    public void incrementNodeLevel(@NotNull SkillTreeNode node) {
+        nodeLevels.merge(node, 1, (level, ignored) -> level + 1);
         // Claims the nodes experience table.
         node.getExperienceTable().claim(this, getNodeLevel(node), node);
 
         if (nodeStates.get(node) == SkillTreeStatus.UNLOCKABLE) setNodeState(node, SkillTreeStatus.UNLOCKED);
-        int pointToWithdraw = node.getSkillTreePointsConsumed();
-        if (skillTreePoints.get(node.getTree().getId()) > 0) {
-            int pointWithdrawn = Math.min(pointToWithdraw, skillTreePoints.get(node.getTree().getId()));
+        int cost = node.getSkillTreePointsConsumed();
+        final int skillTreeSpecificPoints = skillTreePoints.getOrDefault(node.getTree().getId(), 0);
+        if (skillTreeSpecificPoints > 0) {
+            int pointWithdrawn = Math.min(cost, skillTreeSpecificPoints);
             withdrawSkillTreePoints(node.getTree().getId(), pointWithdrawn);
-            pointToWithdraw -= pointWithdrawn;
+            cost -= pointWithdrawn;
         }
-        if (pointToWithdraw > 0) withdrawSkillTreePoints("global", pointToWithdraw);
-        // We unload the nodeStates map (for the skill tree) and reload it completely
-        for (SkillTreeNode node1 : node.getTree().getNodes())
-            nodeStates.remove(node1);
+        if (cost > 0) withdrawSkillTreePoints("global", cost);
+        // Unload the nodeStates map (for the skill tree) and reload it completely
+        for (SkillTreeNode node1 : node.getTree().getNodes()) nodeStates.remove(node1);
         node.getTree().setupNodeStates(this);
     }
 
-
+    @Deprecated
     public int getSkillTreePoint(String treeId) {
+        return getSkillTreePoints(treeId);
+    }
+
+    public int getSkillTreePoints(@NotNull String treeId) {
         return skillTreePoints.getOrDefault(treeId, 0);
     }
 
-    public void withdrawSkillTreePoints(String treeId, int withdraw) {
-        skillTreePoints.put(treeId, skillTreePoints.get(treeId) - withdraw);
+    public void withdrawSkillTreePoints(@NotNull String treeId, int withdrawn) {
+        final int cost = Math.max(0, withdrawn);
+        skillTreePoints.computeIfPresent(treeId, (ignored, points) -> cost >= points ? null : points - cost);
     }
 
     public void setNodeState(SkillTreeNode node, SkillTreeStatus skillTreeStatus) {
