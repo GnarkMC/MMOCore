@@ -95,12 +95,9 @@ public class PlayerStats extends EditableInventory {
 
                     // holders.register("profession", type.getName());
                     holders.register("progress", bar);
-                    holders.register("level", "" + inv.target.getCollectionSkills().getLevel(profession));
+                    holders.register("level", String.valueOf(inv.target.getCollectionSkills().getLevel(profession)));
                     holders.register("xp", inv.target.getCollectionSkills().getExperience(profession));
                     holders.register("percent", decimal.format(ratio * 100));
-                    for (StatInfo stat : MMOCore.plugin.statManager.getLoaded())
-                        if (Objects.equals(stat.profession, profession))
-                            holders.register(stat.name.toLowerCase(), StatManager.format(stat.name, stats.getStat(stat.name)));
 
                     return holders;
                 }
