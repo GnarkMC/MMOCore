@@ -303,8 +303,6 @@ public class MMOCore extends MMOPlugin {
 
         configManager = new ConfigManager();
 
-        if (clearBefore)
-            MythicLib.plugin.getSkills().initialize(true);
         skillManager.initialize(clearBefore);
         mineManager.initialize(clearBefore);
         partyManager.initialize(clearBefore);
