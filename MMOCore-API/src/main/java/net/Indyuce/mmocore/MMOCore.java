@@ -219,7 +219,7 @@ public class MMOCore extends MMOPlugin {
             Validate.isTrue(moduleType.isValid(), "Plugin '" + moduleType.name() + "' is not installed");
             partyModule = moduleType.provideModule();
             getLogger().log(Level.INFO, "Hooked parties onto " + moduleType.getPluginName());
-        } catch (RuntimeException exception) {
+        } catch (Throwable exception) {
             getLogger().log(Level.WARNING, "Could not initialize party module: " + exception.getMessage());
             partyModule = new MMOCorePartyModule();
         }
