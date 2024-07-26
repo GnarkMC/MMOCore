@@ -87,7 +87,7 @@ public class BlockListener implements Listener {
 
         // Find the block drops
         boolean conditionsMet = !info.hasDropTable() || info.getDropTable().areConditionsMet(new ConditionInstance(player));
-        List<ItemStack> drops = conditionsMet && info.hasDropTable() ? info.getDropTable().collect(new LootBuilder(PlayerData.get(player), 0)) : new ArrayList<>();
+        List<ItemStack> drops = conditionsMet && info.hasDropTable() ? info.getDropTable().collect(new LootBuilder(PlayerData.get(player), info.getDropTable().getCapacity())) : new ArrayList<>();
 
         /*
          * Calls the event and listen for cancel & for drops changes... also

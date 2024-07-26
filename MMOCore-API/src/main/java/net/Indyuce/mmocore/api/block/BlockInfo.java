@@ -84,6 +84,7 @@ public class BlockInfo {
 		return table != null;
 	}
 
+	@Deprecated
 	public List<ItemStack> collectDrops(LootBuilder builder) {
 		return table != null ? table.collect(builder) : new ArrayList<>();
 	}
