@@ -157,6 +157,11 @@ public class BlockListener implements Listener {
 
     @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
     public void registerPlayerPlacedBlocksTag(BlockPlaceEvent event) {
+
+        // Ignore log stripping
+        if (event.getBlock().getType().name().startsWith("STRIPPED_") && event.getItemInHand().getType().name().endsWith("_AXE"))
+            return;
+
         event.getBlock().setMetadata("player_placed", new FixedMetadataValue(MMOCore.plugin, true));
     }
 
