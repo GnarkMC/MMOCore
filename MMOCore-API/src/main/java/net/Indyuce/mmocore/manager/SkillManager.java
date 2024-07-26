@@ -57,19 +57,17 @@ public class SkillManager implements MMOCoreManager {
 
         // Save default files if necessary
         final File skillFolder = FileUtils.getFile(MMOCore.plugin, "skills");
-        if (!skillFolder.exists())
-            try {
-                skillFolder.mkdir();
+        if (!skillFolder.exists()) try {
+            skillFolder.mkdir();
 
-                for (SkillHandler handler : MythicLib.plugin.getSkills().getHandlers()) {
-                    final InputStream res = MMOCore.plugin.getResource("default/skills/default_mmo_skills/" + handler.getLowerCaseId() + ".yml");
-                    MMOCore.plugin.getLogger().log(Level.INFO, ("default/skills/default_mmo_skills/" + handler.getLowerCaseId() + ".yml") + " => " + (res != null));
-                    if (res != null)
-                        Files.copy(res, new File(MMOCore.plugin.getDataFolder() + "/skills/default_mmo_skills/" + handler.getLowerCaseId() + ".yml").getAbsoluteFile().toPath());
-                }
-            } catch (IOException exception) {
-                MMOCore.plugin.getLogger().log(Level.WARNING, "Could not save default skill configs: " + exception.getMessage());
+            for (SkillHandler<?> handler : MythicLib.plugin.getSkills().getHandlers()) {
+                final InputStream res = MMOCore.plugin.getResource("default/skills/" + handler.getLowerCaseId() + ".yml");
+                if (res != null)
+                    Files.copy(res, new File(MMOCore.plugin.getDataFolder() + "/skills/" + handler.getLowerCaseId() + ".yml").getAbsoluteFile().toPath());
             }
+        } catch (IOException exception) {
+            MMOCore.plugin.getLogger().log(Level.WARNING, "Could not save default skill configs: " + exception.getMessage());
+        }
 
         // Load skills
         FileUtils.loadObjectsFromFolder(MMOCore.plugin, "skills", true, (name, config) -> {
