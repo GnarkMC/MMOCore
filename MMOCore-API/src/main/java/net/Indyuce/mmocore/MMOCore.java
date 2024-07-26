@@ -216,7 +216,7 @@ public class MMOCore extends MMOPlugin {
         try {
             String partyPluginName = UtilityMethods.enumName(getConfig().getString("party-plugin"));
             PartyModuleType moduleType = PartyModuleType.valueOf(partyPluginName);
-            Validate.isTrue(moduleType.isValid(), "Plugin '" + moduleType.name() + "' is not installed");
+            Validate.isTrue(moduleType.isValid(), "Plugin " + moduleType.getPluginName() + " is not installed");
             partyModule = moduleType.provideModule();
             getLogger().log(Level.INFO, "Hooked parties onto " + moduleType.getPluginName());
         } catch (Throwable exception) {
