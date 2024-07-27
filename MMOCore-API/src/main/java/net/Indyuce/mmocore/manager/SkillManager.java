@@ -4,6 +4,7 @@ import io.lumine.mythic.lib.MythicLib;
 import io.lumine.mythic.lib.UtilityMethods;
 import io.lumine.mythic.lib.skill.handler.SkillHandler;
 import net.Indyuce.mmocore.MMOCore;
+import net.Indyuce.mmocore.api.ConfigFile;
 import net.Indyuce.mmocore.skill.RegisteredSkill;
 import net.Indyuce.mmocore.skill.list.Ambers;
 import net.Indyuce.mmocore.skill.list.Neptune_Gift;
@@ -17,10 +18,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
-import java.util.Collection;
-import java.util.LinkedHashMap;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 import java.util.logging.Level;
 
 public class SkillManager implements MMOCoreManager {
@@ -67,6 +65,36 @@ public class SkillManager implements MMOCoreManager {
             }
         } catch (IOException exception) {
             MMOCore.plugin.getLogger().log(Level.WARNING, "Could not save default skill configs: " + exception.getMessage());
+        }
+
+        // Generate at least once a config file for registered skills
+        // TODO remove temporary solution after stable release
+        {
+            final ConfigFile generated = new ConfigFile(MMOCore.plugin, "", "_generated_skill_configs");
+            final List<String> generatedSkillHandlerIds = generated.getConfig().getStringList("list");
+            for (SkillHandler<?> handler : MythicLib.plugin.getSkills().getHandlers()) {
+                if (generatedSkillHandlerIds.contains(handler.getId())) continue;
+
+                generatedSkillHandlerIds.add(handler.getId());
+
+                // generate default config
+                final ConfigFile config = new ConfigFile("/skills", handler.getLowerCaseId());
+                if (!config.exists()) {
+                    config.getConfig().set("name", UtilityMethods.caseOnWords(handler.getId().replace("_", " ").replace("-", " ").toLowerCase()));
+                    config.getConfig().set("lore", Arrays.asList("This is the default skill description", "", "&e{cooldown}s Cooldown", "&9Costs {mana} {mana_name}"));
+                    config.getConfig().set("material", "BOOK");
+                    for (Object param : handler.getParameters()) {
+                        config.getConfig().set(param + ".base", 0);
+                        config.getConfig().set(param + ".per-level", 0);
+                        config.getConfig().set(param + ".min", 0);
+                        config.getConfig().set(param + ".max", 0);
+                    }
+                    config.save();
+                }
+            }
+
+            generated.getConfig().set("list", generatedSkillHandlerIds);
+            generated.save();
         }
 
         // Load skills
