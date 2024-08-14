@@ -232,11 +232,12 @@ public class PlayerData extends SynchronizedDataHolder implements OfflinePlayerD
     }
 
     public void setSkillTreePoints(@NotNull String treeId, int points) {
-        skillTreePoints.put(treeId, points);
+        if (points <= 0) skillTreePoints.remove(treeId);
+        else skillTreePoints.put(treeId, points);
     }
 
     public void giveSkillTreePoints(@NotNull String id, int val) {
-        skillTreePoints.merge(id, val, (points, ignored) -> points + val);
+        skillTreePoints.merge(id, Math.max(0, val), (points, ignored) -> Math.max(0, points + val));
     }
 
     public int countSkillTreePoints(@NotNull SkillTree skillTree) {
@@ -340,7 +341,7 @@ public class PlayerData extends SynchronizedDataHolder implements OfflinePlayerD
         skillTreePoints.computeIfPresent(node.getTree().getId(), (key, points) -> {
             final int withdrawn = Math.min(points, cost.get());
             cost.set(cost.get() - withdrawn);
-            return points == withdrawn ? null : points - withdrawn;
+            return points <= withdrawn ? null : points - withdrawn;
         });
         if (cost.get() > 0) withdrawSkillTreePoints("global", cost.get());
 
