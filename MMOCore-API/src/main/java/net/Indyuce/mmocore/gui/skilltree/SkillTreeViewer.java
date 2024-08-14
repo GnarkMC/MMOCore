@@ -167,8 +167,7 @@ public class SkillTreeViewer extends EditableInventory {
                     lore.add(holders.apply(inv.getPlayer(), string));
             });
             meta.setLore(lore);
-            if (MythicLib.plugin.getVersion().isStrictlyHigher(1, 13))
-                meta.setCustomModelData(skillTree.getCustomModelData());
+            meta.setCustomModelData(skillTree.getCustomModelData());
             PersistentDataContainer container = meta.getPersistentDataContainer();
             container.set(new NamespacedKey(MMOCore.plugin, "skill-tree-id"), PersistentDataType.STRING, skillTree.getId());
             item.setItemMeta(meta);
