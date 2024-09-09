@@ -1,9 +1,7 @@
 package net.Indyuce.mmocore.api.eco;
 
-import java.util.HashSet;
-import java.util.Set;
-import java.util.UUID;
-
+import io.lumine.mythic.lib.api.event.PlayerLogoutEvent;
+import io.lumine.mythic.lib.api.util.SmartGive;
 import net.Indyuce.mmocore.MMOCore;
 import net.Indyuce.mmocore.api.ConfigMessage;
 import net.Indyuce.mmocore.util.item.CurrencyItemBuilder;
@@ -16,10 +14,11 @@ import org.bukkit.event.HandlerList;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.AsyncPlayerChatEvent;
 import org.bukkit.event.player.PlayerMoveEvent;
-import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.inventory.ItemStack;
 
-import io.lumine.mythic.lib.api.util.SmartGive;
+import java.util.HashSet;
+import java.util.Set;
+import java.util.UUID;
 
 public class Withdraw implements Listener {
 	private static final Set<UUID> withdrawing = new HashSet<>();
@@ -90,13 +89,18 @@ public class Withdraw implements Listener {
 
 		Bukkit.getScheduler().runTask(MMOCore.plugin, () -> {
 			MMOCore.plugin.economy.getEconomy().withdrawPlayer(player, worth);
-			withdrawAlgorythm(worth);
+			withdrawAlgorithm(worth);
 			player.playSound(player.getLocation(), Sound.ENTITY_PLAYER_LEVELUP, 1, 1);
 			ConfigMessage.fromKey("withdrew").addPlaceholders("worth", worth).send(player);
 		});
 	}
 
+	@Deprecated
 	public void withdrawAlgorythm(int worth) {
+		withdrawAlgorithm(worth);
+	}
+
+	public void withdrawAlgorithm(int worth) {
 		int note = worth / 10 * 10;
 		int coins = worth - note;
 
@@ -109,12 +113,8 @@ public class Withdraw implements Listener {
 		smart.give(coinsItem);
 	}
 
-	/*
-	 * extra safety
-	 */
-	@EventHandler
-	public void c(PlayerQuitEvent event) {
-		if (event.getPlayer().equals(player))
-			close();
-	}
+    @EventHandler
+    public void c(PlayerLogoutEvent event) {
+        if (event.getPlayer().equals(player)) close();
+    }
 }

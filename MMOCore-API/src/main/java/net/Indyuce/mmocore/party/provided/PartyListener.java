@@ -1,5 +1,6 @@
 package net.Indyuce.mmocore.party.provided;
 
+import io.lumine.mythic.lib.api.event.PlayerLogoutEvent;
 import net.Indyuce.mmocore.MMOCore;
 import net.Indyuce.mmocore.api.ConfigMessage;
 import net.Indyuce.mmocore.api.event.social.PartyChatEvent;
@@ -10,7 +11,6 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.AsyncPlayerChatEvent;
-import org.bukkit.event.player.PlayerQuitEvent;
 
 public class PartyListener implements Listener {
     private final MMOCorePartyModule module;
@@ -42,10 +42,9 @@ public class PartyListener implements Listener {
     }
 
     @EventHandler(priority = EventPriority.LOW)
-    public void leavePartyOnQuit(PlayerQuitEvent event) {
+    public void leavePartyOnQuit(PlayerLogoutEvent event) {
         final PlayerData playerData = PlayerData.get(event.getPlayer());
         final AbstractParty party = playerData.getParty();
-        if (party != null)
-            ((Party) party).removeMember(playerData);
+        if (party != null) ((Party) party).removeMember(playerData);
     }
 }
