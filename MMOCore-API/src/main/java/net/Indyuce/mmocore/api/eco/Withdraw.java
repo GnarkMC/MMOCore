@@ -1,6 +1,5 @@
 package net.Indyuce.mmocore.api.eco;
 
-import io.lumine.mythic.lib.api.event.PlayerLogoutEvent;
 import io.lumine.mythic.lib.api.util.SmartGive;
 import net.Indyuce.mmocore.MMOCore;
 import net.Indyuce.mmocore.api.ConfigMessage;
@@ -14,6 +13,7 @@ import org.bukkit.event.HandlerList;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.AsyncPlayerChatEvent;
 import org.bukkit.event.player.PlayerMoveEvent;
+import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.inventory.ItemStack;
 
 import java.util.HashSet;
@@ -114,7 +114,7 @@ public class Withdraw implements Listener {
 	}
 
     @EventHandler
-    public void c(PlayerLogoutEvent event) {
+    public void c(PlayerQuitEvent event) {
         if (event.getPlayer().equals(player)) close();
     }
 }
