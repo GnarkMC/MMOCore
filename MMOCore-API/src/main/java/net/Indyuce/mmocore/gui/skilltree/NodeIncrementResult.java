@@ -1,4 +1,4 @@
-package net.Indyuce.mmocore.skilltree;
+package net.Indyuce.mmocore.gui.skilltree;
 
 public enum NodeIncrementResult {
 

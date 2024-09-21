@@ -33,6 +33,7 @@ import net.Indyuce.mmocore.skill.ClassSkill;
 import net.Indyuce.mmocore.skill.RegisteredSkill;
 import net.Indyuce.mmocore.skill.binding.SkillSlot;
 import net.Indyuce.mmocore.skill.cast.ComboMap;
+import net.Indyuce.mmocore.util.Icon;
 import net.Indyuce.mmocore.skilltree.tree.SkillTree;
 import net.md_5.bungee.api.ChatColor;
 import org.bukkit.Location;
@@ -100,7 +101,7 @@ public class PlayerClass implements ExperienceObject, PreloadedObject {
         this.id = id.toUpperCase().replace("-", "_").replace(" ", "_");
 
         name = MythicLib.plugin.parseColors(config.getString("display.name", "INVALID DISPLAY NAME"));
-        icon = MMOCoreUtils.readIcon(config.getString("display.item", "BARRIER"));
+        icon = Icon.from(config.get("display.item", "BARRIER")).toItem();
 
         if (config.contains("display.texture") && icon.getType() == Material.PLAYER_HEAD) {
             ItemMeta meta = icon.getItemMeta();

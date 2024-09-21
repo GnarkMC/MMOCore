@@ -1,7 +1,5 @@
-package net.Indyuce.mmocore.skilltree.tree;
+package net.Indyuce.mmocore.skilltree;
 
-import net.Indyuce.mmocore.skilltree.ParentType;
-import net.Indyuce.mmocore.skilltree.SkillTreeNode;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Objects;
@@ -9,10 +7,12 @@ import java.util.Objects;
 public class ParentInformation {
     private final SkillTreeNode node;
     private final ParentType type;
+    private final int level;
 
-    public ParentInformation(SkillTreeNode node, ParentType type) {
+    public ParentInformation(SkillTreeNode node, ParentType type, int level) {
         this.node = node;
         this.type = type;
+        this.level = level;
     }
 
     @NotNull
@@ -25,14 +25,8 @@ public class ParentInformation {
         return type;
     }
 
-    @Deprecated
-    public ParentType type() {
-        return type;
-    }
-
-    @Deprecated
-    public SkillTreeNode node() {
-        return node;
+    public int getLevel() {
+        return level;
     }
 
     @Override
