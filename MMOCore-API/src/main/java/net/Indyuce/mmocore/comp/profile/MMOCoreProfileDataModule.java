@@ -44,6 +44,15 @@ public class MMOCoreProfileDataModule implements ProfileDataModule, PlaceholderP
             for (Profession profession : MMOCore.plugin.professionManager.getAll())
                 placeholderRequest.addPlaceholder("profession_" + profession.getId().replace("-", "_"), fictiveData.getCollectionSkills().getLevel(profession));
 
+            // Collect all skill trees and add to placeholder.
+            // Iterate through each skill tree to add their nodes
+            // Returns node level
+            for (SkillTree skilltree : MMOCore.plugin.SkillTreeManager.getAll()) {
+                for (SkillTreeNode node : skilltree.getNodes()) {
+                    placeholderRequest.addPlaceholder("skilltree_" + skilltree.getId().replace("-", "_") + "_" + node.getId().replace("-", "_"), fictiveData.getNodeLevel(node));
+                }
+            }
+
             placeholderRequest.addPlaceholder("exp", MythicLib.plugin.getMMOConfig().decimal.format(fictiveData.getExperience()));
             placeholderRequest.addPlaceholder("exp_next_level", MythicLib.plugin.getMMOConfig().decimal.format(fictiveData.getLevelUpExperience()));
 
