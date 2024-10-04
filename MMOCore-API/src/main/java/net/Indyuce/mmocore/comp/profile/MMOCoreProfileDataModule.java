@@ -11,6 +11,9 @@ import net.Indyuce.mmocore.MMOCore;
 import net.Indyuce.mmocore.api.player.PlayerData;
 import net.Indyuce.mmocore.api.player.attribute.PlayerAttribute;
 import net.Indyuce.mmocore.experience.Profession;
+import net.Indyuce.mmocore.skilltree.SkillTreeNode;
+import net.Indyuce.mmocore.skilltree.tree.SkillTree;
+
 import org.bukkit.event.EventHandler;
 import org.bukkit.plugin.java.JavaPlugin;
 
@@ -47,7 +50,7 @@ public class MMOCoreProfileDataModule implements ProfileDataModule, PlaceholderP
             // Collect all skill trees and add to placeholder.
             // Iterate through each skill tree to add their nodes
             // Returns node level
-            for (SkillTree skilltree : MMOCore.plugin.SkillTreeManager.getAll()) {
+            for (SkillTree skilltree : MMOCore.plugin.skillTreeManager.getAll()) {
                 for (SkillTreeNode node : skilltree.getNodes()) {
                     placeholderRequest.addPlaceholder("skilltree_" + skilltree.getId().replace("-", "_") + "_" + node.getId().replace("-", "_"), fictiveData.getNodeLevel(node));
                 }
