@@ -51,6 +51,7 @@ public class MMOCoreProfileDataModule implements ProfileDataModule, PlaceholderP
             // Iterate through each skill tree to add their nodes
             // Returns node level
             for (SkillTree skilltree : MMOCore.plugin.skillTreeManager.getAll()) {
+                placeholderRequest.addPlaceholder("skilltree_" + skilltree.getId().replace("-", "_"), skilltree.getName());
                 for (SkillTreeNode node : skilltree.getNodes()) {
                     placeholderRequest.addPlaceholder("skilltree_" + skilltree.getId().replace("-", "_") + "_" + node.getId().replace("-", "_"), fictiveData.getNodeLevel(node));
                 }
