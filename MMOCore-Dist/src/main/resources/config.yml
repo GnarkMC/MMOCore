@@ -274,6 +274,8 @@ waypoints:
   # takes to use the waypoint and teleport to target location.
   default-warp-time: 100
 
+  link_reciprocity: false
+
   # By default, MMOCore runs path calculation to enable players
   # to take shortcuts and directly teleport across distant waypoints.
   #

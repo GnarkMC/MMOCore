@@ -47,6 +47,10 @@ public class Waypoint implements Unlockable, PreloadedObject {
             for (String key : section.getKeys(false))
                 destinations.put(MMOCore.plugin.waypointManager.get(key), section.getDouble(key));
         }
+
+        // Link reciprocity
+        if (MMOCore.plugin.configManager.waypointLinkReciprocity)
+            destinations.forEach((neighbor, cost) -> neighbor.destinations.put(this, cost));
     });
 
     public Waypoint(ConfigurationSection config) {
