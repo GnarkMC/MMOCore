@@ -1,39 +1,23 @@
-Official repository for MMOCore
+# MMOCore
 
-### Useful Links
+<div align="center">
 
-- Purchase the plugin here: https://www.spigotmc.org/resources/mmocore.70575/
-- Development builds: https://phoenixdevt.fr/devbuilds
-- Official documentation: https://gitlab.com/phoenix-dvpmt/mmocore/-/wikis/home
-- Discord Support: https://phoenixdevt.fr/discord
-- Other plugins: https://www.spigotmc.org/resources/authors/indyuce.253965/
+<a href="https://www.spigotmc.org/resources/mmocore.70575"><img alt="spigot" src="https://cdn.jsdelivr.net/npm/@intergrav/devins-badges@3/assets/cozy/supported/spigot_vector.svg"></a>
 
-### Using MMOCore as dependency
+<a href="https://polymart.org/resource/mmocore.3412"><img alt="polymart" src="https://cdn.jsdelivr.net/npm/@intergrav/devins-badges@3/assets/cozy/available/polymart_vector.svg"></a>
 
-Register the PhoenixDevelopment public repository:
+<a href="https://gitlab.com/phoenix-dvpmt/mmocore"><img alt="gitlab" src="https://cdn.jsdelivr.net/npm/@intergrav/devins-badges@3/assets/cozy/social/gitlab-singular_vector.svg"></a>
 
-```
-<repository>
-    <id>phoenix</id>
-    <url>https://nexus.phoenixdevt.fr/repository/maven-public/</url>
-</repository>
-```
+</div>
 
-And then add both `MythicLib-dist` and `MMOCore-API` as dependencies:
+A fork of MMOCore for personal use, tracking changes and making small adjustments.
 
-```
-<dependency>
-    <groupId>io.lumine</groupId>
-    <artifactId>MythicLib-dist</artifactId>
-    <version>1.6.2-SNAPSHOT</version>
-    <scope>provided</scope>
-    <optional>true</optional>
-</dependency>
+## Current changes:
+- Includes changes from merge request #35: https://gitlab.com/phoenix-dvpmt/mmocore/-/merge_requests/35
 
-<dependency>
-    <groupId>net.Indyuce</groupId>
-    <artifactId>MMOCore-API</artifactId>
-    <version>1.12.1-SNAPSHOT</version>
-    <scope>provided</scope>
-</dependency>
-```
+## Installation:
+
+- Purchase a license
+- MythicLib/MMOLib is required to run, see:
+  - https://gitlab.com/phoenix-dvpmt/mythiclib
+  - https://phoenixdevt.fr/devbuilds
